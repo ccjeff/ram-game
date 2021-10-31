@@ -22,11 +22,11 @@ if $(OS) = NT { #Windows
 		/LIBPATH:"$(NEST_LIBS)/SDL2/lib"
 		/LIBPATH:"$(NEST_LIBS)/libpng/lib"
 		/LIBPATH:"$(NEST_LIBS)/zlib/lib"
-		#/LIBPATH:"$(NEST_LIBS)/opusfile/lib"
-		#/LIBPATH:"$(NEST_LIBS)/libopus/lib"
-		#/LIBPATH:"$(NEST_LIBS)/libogg/lib"
-		#/LIBPATH:"$(NEST_LIBS)/harfbuzz/lib"
-		#/LIBPATH:"$(NEST_LIBS)/freetype/lib"
+		/LIBPATH:"$(NEST_LIBS)/opusfile/lib"
+		/LIBPATH:"$(NEST_LIBS)/libopus/lib"
+		/LIBPATH:"$(NEST_LIBS)/libogg/lib"
+		/LIBPATH:"$(NEST_LIBS)/harfbuzz/lib"
+		/LIBPATH:"$(NEST_LIBS)/freetype/lib"
 	;
 	LINKLIBS =
 		SDL2main.lib SDL2.lib OpenGL32.lib Shell32.lib
@@ -85,6 +85,11 @@ if $(OS) = NT { #Windows
 		`'$(NEST_LIBS)/SDL2/bin/sdl2-config' --prefix='$(NEST_LIBS)/SDL2' --cflags` #SDL2
 		-I$(NEST_LIBS)/glm/include                                                  #glm
 		-I$(NEST_LIBS)/libpng/include                                               #libpng
+		-I$(NEST_LIBS)/opusfile/include                                             #opusfile
+		-I$(NEST_LIBS)/libopus/include                                              #libopus
+		-I$(NEST_LIBS)/libogg/include                                               #libogg
+		-I$(NEST_LIBS)/freetype/include                                             #freetype
+		-I$(NEST_LIBS)/harfbuzz/include                                             #harfbuzz
 		;
 	LINK = g++ -no-pie ;
 	LINKFLAGS = -std=c++14 -g -Wall -Werror ;
@@ -92,6 +97,11 @@ if $(OS) = NT { #Windows
 		`'$(NEST_LIBS)/SDL2/bin/sdl2-config' --prefix='$(NEST_LIBS)/SDL2' --static-libs` -lGL #SDL2
 		-L$(NEST_LIBS)/libpng/lib -lpng                                                       #libpng
 		-L$(NEST_LIBS)/zlib/lib -lz                                                           #zlib
+		-L$(NEST_LIBS)/opusfile/lib -lopusfile                                      #opusfile
+		-L$(NEST_LIBS)/libopus/lib -lopus                                           #libopus (for opusfile)
+		-L$(NEST_LIBS)/libogg/lib -logg                                             #libogg (for opusfile)
+		-L$(NEST_LIBS)/harfbuzz/lib -lharfbuzz                                      #harfbuzz
+		-L$(NEST_LIBS)/freetype/lib -lfreetype                                      #freetype
 		;
 	#`PATH=$(KIT_LIBS)/SDL2/bin:$PATH sdl2-config --static-libs` -lGL #SDL2 (old way that allows system libs to also work)
 	File README-SDL.txt : $(NEST_LIBS)/SDL2/dist/README-SDL.txt ;
