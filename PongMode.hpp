@@ -1,6 +1,9 @@
 #include "ColorTextureProgram.hpp"
 
 #include "Mode.hpp"
+#include "Bullet.hpp"
+#include "Guns/Pistol.hpp"
+#include "Guns/Gun.hpp"
 #include "GL.hpp"
 
 #include <glm/glm.hpp>
@@ -21,28 +24,12 @@ struct PongMode : Mode {
 	virtual void update(float elapsed) override;
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
-	//----- game state -----
-
 	glm::vec2 court_radius = glm::vec2(7.0f, 5.0f);
 	glm::vec2 paddle_radius = glm::vec2(0.2f, 1.0f);
 	glm::vec2 ball_radius = glm::vec2(0.2f, 0.2f);
+	glm::vec2 score_radius = glm::vec2(0.1f, 0.1f);
 
-	glm::vec2 left_paddle = glm::vec2(-court_radius.x + 0.5f, 0.0f);
-	glm::vec2 right_paddle = glm::vec2( court_radius.x - 0.5f, 0.0f);
-
-	glm::vec2 ball = glm::vec2(0.0f, 0.0f);
-	glm::vec2 ball_velocity = glm::vec2(-1.0f, 0.0f);
-
-	uint32_t left_score = 0;
-	uint32_t right_score = 0;
-
-	float ai_offset = 0.0f;
-	float ai_offset_update = 0.0f;
-
-	//----- pretty gradient trails -----
-
-	float trail_length = 1.3f;
-	std::deque< glm::vec3 > ball_trail; //stores (x,y,age), oldest elements first
+	std::vector<Bullet*> bullets;
 
 	//----- opengl assets / helpers ------
 
