@@ -115,12 +115,12 @@ PongMode::~PongMode() {
 bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
 	if(evt.type == SDL_MOUSEBUTTONDOWN) {
 		Pistol p;
-		Bullet b = p.do_shoot(glm::vec2(0, 0), glm::vec2(
+		Bullet* b = p.do_shoot(glm::vec2(0, 0), glm::vec2(
 			(evt.motion.x + 0.5f) / window_size.x * 2.0f - 1.0f,
 			(evt.motion.y + 0.5f) / window_size.y *-2.0f + 1.0f
 		));
 
-		bullets.emplace_back(&b);
+		bullets.emplace_back(b);
 	}
 
 	return false;

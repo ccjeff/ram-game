@@ -135,6 +135,9 @@ GAME_NAMES =
 	ColorTextureProgram
 	Mode
 	GL
+	Gun
+	Pistol
+	Bullet
 	;
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory

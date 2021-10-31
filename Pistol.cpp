@@ -5,6 +5,6 @@ Pistol::Pistol() {
 	this->spread = 0.0f;
 }
 
-Bullet Pistol::do_shoot(glm::vec2 pos, glm::vec2 vel) {
+Bullet* Pistol::do_shoot(glm::vec2 pos, glm::vec2 vel) {
 	return new Bullet(pos, vel);
 }

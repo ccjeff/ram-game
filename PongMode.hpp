@@ -2,8 +2,8 @@
 
 #include "Mode.hpp"
 #include "Bullet.hpp"
-#include "Guns/Pistol.hpp"
-#include "Guns/Gun.hpp"
+#include "Pistol.hpp"
+#include "Gun.cpp"
 #include "GL.hpp"
 
 #include <glm/glm.hpp>
