@@ -9,11 +9,11 @@ if $(OS) = NT { #Windows
 		/I"$(NEST_LIBS)/SDL2/include"
 		/I"$(NEST_LIBS)/glm/include"
 		/I"$(NEST_LIBS)/libpng/include"
-		#/I"$(NEST_LIBS)/opusfile/include"
-		#/I"$(NEST_LIBS)/libopus/include"
-		#/I"$(NEST_LIBS)/libogg/include"
-		#/I"$(NEST_LIBS)/harfbuzz/include"
-		#/I"$(NEST_LIBS)/freetype/include"
+		/I"$(NEST_LIBS)/opusfile/include"
+		/I"$(NEST_LIBS)/libopus/include"
+		/I"$(NEST_LIBS)/libogg/include"
+		/I"$(NEST_LIBS)/harfbuzz/include"
+		/I"$(NEST_LIBS)/freetype/include"
 		#disable a few warnings:
 		/wd4146 #-1U is still unsigned
 		/wd4297 #unforunately SDLmain is nothrow
@@ -30,7 +30,7 @@ if $(OS) = NT { #Windows
 	;
 	LINKLIBS =
 		SDL2main.lib SDL2.lib OpenGL32.lib Shell32.lib
-		libpng.lib zlib.lib #opusfile.lib opus.lib libogg.lib harfbuzz.lib freetype.lib
+		libpng.lib zlib.lib opusfile.lib opus.lib libogg.lib harfbuzz.lib freetype.lib
 	;
 
 	File SDL2.dll : $(NEST_LIBS)\\SDL2\\dist\\SDL2.dll ;
@@ -57,11 +57,11 @@ if $(OS) = NT { #Windows
 		`'$(NEST_LIBS)/SDL2/bin/sdl2-config' --prefix='$(NEST_LIBS)/SDL2' --cflags` #SDL2
 		-I$(NEST_LIBS)/glm/include                                                  #glm
 		-I$(NEST_LIBS)/libpng/include                                               #libpng
-		#-I$(NEST_LIBS)/opusfile/include                                             #opusfile
-		#-I$(NEST_LIBS)/libopus/include                                              #libopus
-		#-I$(NEST_LIBS)/libogg/include                                               #libogg
-		#-I$(NEST_LIBS)/freetype/include                                             #freetype
-		#-I$(NEST_LIBS)/harfbuzz/include                                             #harfbuzz
+		-I$(NEST_LIBS)/opusfile/include                                             #opusfile
+		-I$(NEST_LIBS)/libopus/include                                              #libopus
+		-I$(NEST_LIBS)/libogg/include                                               #libogg
+		-I$(NEST_LIBS)/freetype/include                                             #freetype
+		-I$(NEST_LIBS)/harfbuzz/include                                             #harfbuzz
 		;
 	LINK = clang++ ;
 	LINKFLAGS = -std=c++14 -g -Wall -Werror ;
@@ -69,11 +69,11 @@ if $(OS) = NT { #Windows
 		`'$(NEST_LIBS)/SDL2/bin/sdl2-config' --prefix='$(NEST_LIBS)/SDL2' --static-libs` -framework OpenGL #SDL2
 		-L$(NEST_LIBS)/libpng/lib -lpng                                             #libpng
 		-L$(NEST_LIBS)/zlib/lib -lz                                                 #zlib (for libpng)
-		#-L$(NEST_LIBS)/opusfile/lib -lopusfile                                      #opusfile
-		#-L$(NEST_LIBS)/libopus/lib -lopus                                           #libopus (for opusfile)
-		#-L$(NEST_LIBS)/libogg/lib -logg                                             #libogg (for opusfile)
-		#-L$(NEST_LIBS)/harfbuzz/lib -lharfbuzz                                      #harfbuzz
-		#-L$(NEST_LIBS)/freetype/lib -lfreetype                                      #freetype
+		-L$(NEST_LIBS)/opusfile/lib -lopusfile                                      #opusfile
+		-L$(NEST_LIBS)/libopus/lib -lopus                                           #libopus (for opusfile)
+		-L$(NEST_LIBS)/libogg/lib -logg                                             #libogg (for opusfile)
+		-L$(NEST_LIBS)/harfbuzz/lib -lharfbuzz                                      #harfbuzz
+		-L$(NEST_LIBS)/freetype/lib -lfreetype                                      #freetype
 		;
 	File README-SDL.txt : $(NEST_LIBS)/SDL2/dist/README-SDL.txt ;
 	MakeLocate README-SDL.txt : dist ;
@@ -117,6 +117,10 @@ GAME_NAMES =
 	PongMode
 	main
 	load_save_png
+	Sound
+	load_wav
+	load_opus
+	Load
 	gl_compile_program
 	ColorTextureProgram
 	Mode
