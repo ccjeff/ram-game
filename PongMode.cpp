@@ -113,12 +113,20 @@ PongMode::~PongMode() {
 }
 
 bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
+	this->window_size = window_size;
+
 	if(evt.type == SDL_MOUSEBUTTONDOWN) {
 		Pistol p;
-		Bullet* b = p.do_shoot(glm::vec2(0, 0), glm::vec2(
-			(evt.motion.x + 0.5f) / window_size.x * 2.0f - 1.0f,
-			(evt.motion.y + 0.5f) / window_size.y *-2.0f + 1.0f
-		));
+		Bullet* b = p.do_shoot(glm::vec2(0, 0), glm::normalize(
+				glm::vec2(
+					float(evt.motion.x) / window_size.x * 2.0f - 1.0f,
+					float(evt.motion.y)  / window_size.y *-2.0f + 1.0f
+				)
+			)
+		);
+
+		cout << float(evt.motion.x) / window_size.x * 2.0f - 1.0f << " " <<  float(evt.motion.y) / window_size.y *-2.0f + 1.0f << endl;
+		cout << evt.motion.x << " " <<  evt.motion.y << endl;
 
 		bullets.emplace_back(b);
 	}
@@ -126,9 +134,22 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 	return false;
 }
 
-void PongMode::update(float elapsed) {
-	for(auto b : bullets) {
-		b->update_pos(elapsed);
+void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
+	int deleted = 0;
+	for(size_t i = 0; i < bullets.size(); i++) {
+		bullets[i]->update_pos(elapsed * 10.0f);
+
+		glm::vec2 pos = bullets[i]->get_pos();
+		
+		//cout << pos.x << " " << pos.y << endl;
+		
+		if(pos.x > drawable_size.x/2 || pos.x < - drawable_size.x/2
+			|| pos.y > drawable_size.y/2 || pos.y < - drawable_size.y/2) {
+				cout << "del " << i << " " << bullets.size() - deleted << endl;
+				deleted++;
+				delete bullets[i];
+				bullets.erase(bullets.begin() + (i--));
+		}
 	}
 }
 

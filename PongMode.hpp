@@ -21,13 +21,15 @@ struct PongMode : Mode {
 
 	//functions called by main loop:
 	virtual bool handle_event(SDL_Event const &, glm::uvec2 const &window_size) override;
-	virtual void update(float elapsed) override;
+	virtual void update(float elapsed, glm::vec2 const &drawable_size) override;
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
 	glm::vec2 court_radius = glm::vec2(7.0f, 5.0f);
 	glm::vec2 paddle_radius = glm::vec2(0.2f, 1.0f);
 	glm::vec2 ball_radius = glm::vec2(0.2f, 0.2f);
 	glm::vec2 score_radius = glm::vec2(0.1f, 0.1f);
+
+	glm::vec2 window_size;
 
 	std::vector<Bullet*> bullets;
 
