@@ -56,10 +56,4 @@ struct PongMode : Mode {
 
 	//Solid white texture:
 	GLuint white_tex = 0;
-
-	//matrix that maps from clip coordinates to court-space coordinates:
-	glm::mat3x2 clip_to_court = glm::mat3x2(1.0f);
-	// computed in draw() as the inverse of OBJECT_TO_CLIP
-	// (stored here so that the mouse handling code can use it to position the paddle)
-
 };
