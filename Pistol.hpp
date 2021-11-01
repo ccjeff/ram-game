@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Bullet.hpp"
-#include "Gun.cpp"
+#include "Gun.hpp"
 
 #include "GL.hpp"
 

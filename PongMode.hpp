@@ -3,7 +3,7 @@
 #include "Mode.hpp"
 #include "Bullet.hpp"
 #include "Pistol.hpp"
-#include "Gun.cpp"
+#include "Gun.hpp"
 #include "GL.hpp"
 
 #include <glm/glm.hpp>
