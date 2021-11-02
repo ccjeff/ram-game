@@ -7,6 +7,10 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <random>
+#include <cmath>
+
+#define PLAYER_SPEED 5.0f
+#define PLAYER_MAX_SPEED 50.0f
 
 using namespace std;
 
@@ -97,6 +101,10 @@ PongMode::PongMode() {
 
 		GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
 	}
+	{
+		// initializing player
+		player = std::make_shared<Player>(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f));
+	}
 }
 
 PongMode::~PongMode() {
@@ -121,15 +129,89 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		));
 
 		bullets.emplace_back(b);
+	} else {
+		if (evt.type == SDL_KEYDOWN) {
+			if (evt.key.keysym.sym == SDLK_a) {
+				left.downs += 1;
+				left.pressed = true;
+				return true;
+			} else if (evt.key.keysym.sym == SDLK_d) {
+				right.downs += 1;
+				right.pressed = true;
+				return true;
+			} else if (evt.key.keysym.sym == SDLK_w) {
+				up.downs += 1;
+				up.pressed = true;
+				return true;
+			} else if (evt.key.keysym.sym == SDLK_s) {
+				down.downs += 1;
+				down.pressed = true;
+				return true;
+			}
+		} else if (evt.type == SDL_KEYUP) {
+			if (evt.key.keysym.sym == SDLK_a) {
+				left.pressed = false;
+				return true;
+			} else if (evt.key.keysym.sym == SDLK_d) {
+				right.pressed = false;
+				return true;
+			} else if (evt.key.keysym.sym == SDLK_w) {
+				up.pressed = false;
+				return true;
+			} else if (evt.key.keysym.sym == SDLK_s) {
+				down.pressed = false;
+				return true;
+			}
+		}
 	}
 
 	return false;
 }
 
+<<<<<<< Updated upstream
 void PongMode::update(float elapsed) {
 	for(auto b : bullets) {
 		b->update_pos(elapsed);
+=======
+void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
+	int deleted = 0;
+	glm::vec2 player_vel = player->get_vel();
+	if (left.pressed && !right.pressed) {
+		player_vel.x -= PLAYER_SPEED;
+		player_vel.x = std::max(player_vel.x, -PLAYER_MAX_SPEED);
 	}
+	if (!left.pressed && right.pressed) {
+		player_vel.x += PLAYER_SPEED;
+		player_vel.x = std::min(player_vel.x, PLAYER_MAX_SPEED);
+	}
+	if (down.pressed && !up.pressed) {
+		player_vel.y -= PLAYER_SPEED;
+		player_vel.y = std::max(player_vel.y, -PLAYER_MAX_SPEED);
+	}
+	if (!down.pressed && up.pressed) {
+		player_vel.y += PLAYER_SPEED;
+		player_vel.y = std::min(player_vel.y, PLAYER_MAX_SPEED);
+	}
+	player->set_vel(player_vel);
+	for(size_t i = 0; i < bullets.size(); i++) {
+		bullets[i]->update_pos(elapsed * 10.0f);
+
+		glm::vec2 pos = bullets[i]->get_pos();
+		
+		//cout << pos.x << " " << pos.y << endl;
+		
+		if(pos.x > drawable_size.x/2 || pos.x < - drawable_size.x/2
+			|| pos.y > drawable_size.y/2 || pos.y < - drawable_size.y/2) {
+				cout << "del " << i << " " << bullets.size() - deleted << endl;
+				deleted++;
+				delete bullets[i];
+				bullets.erase(bullets.begin() + (i--));
+		}
+>>>>>>> Stashed changes
+	}
+	player->update(elapsed);
+
+	player->set_vel(player->get_vel() * 0.8f);
 }
 
 void PongMode::draw(glm::uvec2 const &drawable_size) {
@@ -154,7 +236,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 
 	//vertices will be accumulated into this list and then uploaded+drawn at the end of this function:
 	std::vector< Vertex > vertices;
-
+	
 	//inline helper function for rectangle drawing:
 	auto draw_rectangle = [&vertices](glm::vec2 const &center, glm::vec2 const &radius, glm::u8vec4 const &color) {
 		//draw rectangle as two CCW-oriented triangles:
@@ -171,6 +253,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 		draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
 
+	draw_rectangle(player->get_pos(), glm::vec2(20.0f, 20.0f), fg_color);
 	//------ compute court-to-window transform ------
 
 	//compute area that should be visible:

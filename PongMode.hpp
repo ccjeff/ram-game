@@ -5,6 +5,9 @@
 #include "Pistol.hpp"
 #include "Gun.hpp"
 #include "GL.hpp"
+#include "Player.hpp"
+
+#include <memory>
 
 #include <glm/glm.hpp>
 
@@ -24,12 +27,19 @@ struct PongMode : Mode {
 	virtual void update(float elapsed) override;
 	virtual void draw(glm::uvec2 const &drawable_size) override;
 
+	//input tracking:
+	struct Button {
+		uint8_t downs = 0;
+		uint8_t pressed = 0;
+	} left, right, down, up;
+
 	glm::vec2 court_radius = glm::vec2(7.0f, 5.0f);
 	glm::vec2 paddle_radius = glm::vec2(0.2f, 1.0f);
 	glm::vec2 ball_radius = glm::vec2(0.2f, 0.2f);
 	glm::vec2 score_radius = glm::vec2(0.1f, 0.1f);
 
 	std::vector<Bullet*> bullets;
+	std::shared_ptr<Player> player;
 
 	//----- opengl assets / helpers ------
 
