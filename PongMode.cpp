@@ -177,9 +177,9 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	// so each line above is specifying a *column* of the matrix(!)
 
 	//other useful drawing constants:
-	const float wall_radius = 0.05f;
+	// const float wall_radius = 0.05f;
 	// const float shadow_offset = 0.07f;
-	const float padding = 0.14f; //padding between outside of walls and edge of window
+	// const float padding = 0.14f; //padding between outside of walls and edge of window
 
 	//---- compute vertices to draw ----
 
