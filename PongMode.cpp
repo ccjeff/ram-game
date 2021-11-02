@@ -171,7 +171,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 		glm::vec4(1.0f / drawable_size.x, 0.0f, 0.0f, 0.0f),
 		glm::vec4(0.0f, 1.0f / drawable_size.y, 0.0f, 0.0f),
 		glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
-		glm::vec4(-1, -1, 0.0f, 1.0f)
+		glm::vec4(0, 0, 0.0f, 1.0f)
 	);
 	//NOTE: glm matrices are specified in *Column-Major* order,
 	// so each line above is specifying a *column* of the matrix(!)
@@ -199,7 +199,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	};
 
 	for(auto b : bullets) {
-		draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
+		draw_rectangle(b->get_pos(), glm::vec2(20.0f, 20.0f), fg_color);
 		cout << (court_to_clip * glm::vec4(vertices[0].Position, 1.0f)).x << " " << (court_to_clip * glm::vec4(vertices[0].Position, 1.0f)).y << endl;
 	}
 
