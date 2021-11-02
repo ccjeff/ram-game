@@ -138,6 +138,8 @@ GAME_NAMES =
 	Gun
 	Pistol
 	Bullet
+	Sprites
+	Player
 	;
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory
