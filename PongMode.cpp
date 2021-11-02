@@ -168,11 +168,6 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 	return false;
 }
 
-<<<<<<< Updated upstream
-void PongMode::update(float elapsed) {
-	for(auto b : bullets) {
-		b->update_pos(elapsed);
-=======
 void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	int deleted = 0;
 	glm::vec2 player_vel = player->get_vel();
@@ -207,7 +202,6 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				delete bullets[i];
 				bullets.erase(bullets.begin() + (i--));
 		}
->>>>>>> Stashed changes
 	}
 	player->update(elapsed);
 
@@ -227,16 +221,26 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	};
 	#undef HEX_TO_U8VEC4
 
+	//build matrix that scales and translates appropriately:
+	glm::mat4 court_to_clip = glm::mat4(
+		glm::vec4(1.0f / drawable_size.x, 0.0f, 0.0f, 0.0f),
+		glm::vec4(0.0f, 1.0f / drawable_size.y, 0.0f, 0.0f),
+		glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
+		glm::vec4(0, 0, 0.0f, 1.0f)
+	);
+	//NOTE: glm matrices are specified in *Column-Major* order,
+	// so each line above is specifying a *column* of the matrix(!)
+
 	//other useful drawing constants:
-	const float wall_radius = 0.05f;
+	// const float wall_radius = 0.05f;
 	// const float shadow_offset = 0.07f;
-	const float padding = 0.14f; //padding between outside of walls and edge of window
+	// const float padding = 0.14f; //padding between outside of walls and edge of window
 
 	//---- compute vertices to draw ----
 
 	//vertices will be accumulated into this list and then uploaded+drawn at the end of this function:
 	std::vector< Vertex > vertices;
-	
+
 	//inline helper function for rectangle drawing:
 	auto draw_rectangle = [&vertices](glm::vec2 const &center, glm::vec2 const &radius, glm::u8vec4 const &color) {
 		//draw rectangle as two CCW-oriented triangles:
@@ -250,50 +254,36 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	};
 
 	for(auto b : bullets) {
-		draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
+		draw_rectangle(b->get_pos(), glm::vec2(20.0f, 20.0f), fg_color);
+		cout << (court_to_clip * glm::vec4(vertices[0].Position, 1.0f)).x << " " << (court_to_clip * glm::vec4(vertices[0].Position, 1.0f)).y << endl;
 	}
-
 	draw_rectangle(player->get_pos(), glm::vec2(20.0f, 20.0f), fg_color);
+
 	//------ compute court-to-window transform ------
 
-	//compute area that should be visible:
-	glm::vec2 scene_min = glm::vec2(
-		-court_radius.x - 2.0f * wall_radius - padding,
-		-court_radius.y - 2.0f * wall_radius - padding
-	);
-	glm::vec2 scene_max = glm::vec2(
-		court_radius.x + 2.0f * wall_radius + padding,
-		court_radius.y + 2.0f * wall_radius + 3.0f * score_radius.y + padding
-	);
+	// //compute area that should be visible:
+	// glm::vec2 scene_min = glm::vec2(
+	// 	-court_radius.x - 2.0f * wall_radius - padding,
+	// 	-court_radius.y - 2.0f * wall_radius - padding
+	// );
+	// glm::vec2 scene_max = glm::vec2(
+	// 	court_radius.x + 2.0f * wall_radius + padding,
+	// 	court_radius.y + 2.0f * wall_radius + 3.0f * score_radius.y + padding
+	// );
 
-	//compute window aspect ratio:
-	float aspect = drawable_size.x / float(drawable_size.y);
-	//we'll scale the x coordinate by 1.0 / aspect to make sure things stay square.
+	// //compute window aspect ratio:
+	// float aspect = drawable_size.x / float(drawable_size.y);
+	// //we'll scale the x coordinate by 1.0 / aspect to make sure things stay square.
 
-	//compute scale factor for court given that...
-	float scale = std::min(
-		(2.0f * aspect) / (scene_max.x - scene_min.x), //... x must fit in [-aspect,aspect] ...
-		(2.0f) / (scene_max.y - scene_min.y) //... y must fit in [-1,1].
-	);
+	// //compute scale factor for court given that...
+	// float scale = std::min(
+	// 	(2.0f * aspect) / (scene_max.x - scene_min.x), //... x must fit in [-aspect,aspect] ...
+	// 	(2.0f) / (scene_max.y - scene_min.y) //... y must fit in [-1,1].
+	// );
 
-	glm::vec2 center = 0.5f * (scene_max + scene_min);
+	// glm::vec2 center = 0.5f * (scene_max + scene_min);
 
-	//build matrix that scales and translates appropriately:
-	glm::mat4 court_to_clip = glm::mat4(
-		glm::vec4(scale / aspect, 0.0f, 0.0f, 0.0f),
-		glm::vec4(0.0f, scale, 0.0f, 0.0f),
-		glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
-		glm::vec4(-center.x * (scale / aspect), -center.y * scale, 0.0f, 1.0f)
-	);
-	//NOTE: glm matrices are specified in *Column-Major* order,
-	// so each line above is specifying a *column* of the matrix(!)
 
-	//also build the matrix that takes clip coordinates to court coordinates (used for mouse handling):
-	clip_to_court = glm::mat3x2(
-		glm::vec2(aspect / scale, 0.0f),
-		glm::vec2(0.0f, 1.0f / scale),
-		glm::vec2(center.x, center.y)
-	);
 
 	//---- actual drawing ----
 
@@ -339,5 +329,4 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	
 
 	GL_ERRORS(); //PARANOIA: print errors just in case we did something wrong.
-
 }

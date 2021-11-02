@@ -13,6 +13,7 @@ struct Transform{
 struct Picture{
     std::vector< glm::u8vec4 > &data;
     glm::uvec2 size;
+    // Picture();
 };
 
 struct Sprite {
@@ -21,7 +22,7 @@ struct Sprite {
     GLuint tex = 0;
     //indicates a transform w.r.t. the containing class
     Transform transform;
-    Picture picture;
+    // Picture picture;
     glm::u8vec4 tint;
     Sprite();
     void draw();

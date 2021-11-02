@@ -153,7 +153,7 @@ int main(int argc, char **argv) {
 			//lag to avoid spiral of death:
 			elapsed = std::min(0.1f, elapsed);
 
-			Mode::current->update(elapsed);
+			Mode::current->update(elapsed, drawable_size);
 			if (!Mode::current) break;
 		}
 
