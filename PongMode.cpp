@@ -137,14 +137,14 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	int deleted = 0;
 	for(size_t i = 0; i < bullets.size(); i++) {
-		bullets[i]->update_pos(elapsed * 10.0f);
+		bullets[i]->update_pos(0.1f);
 
 		glm::vec2 pos = bullets[i]->get_pos();
 		
 		//cout << pos.x << " " << pos.y << endl;
 		
-		if(pos.x > drawable_size.x/2 || pos.x < - drawable_size.x/2
-			|| pos.y > drawable_size.y/2 || pos.y < - drawable_size.y/2) {
+		if(pos.x > drawable_size.x || pos.x < - drawable_size.x
+			|| pos.y > drawable_size.y || pos.y < - drawable_size.y) {
 				cout << "del " << i << " " << bullets.size() - deleted << endl;
 				deleted++;
 				delete bullets[i];
@@ -200,7 +200,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 
 	for(auto b : bullets) {
 		draw_rectangle(b->get_pos(), glm::vec2(20.0f, 20.0f), fg_color);
-		cout << (court_to_clip * glm::vec4(vertices[0].Position, 1.0f)).x << " " << (court_to_clip * glm::vec4(vertices[0].Position, 1.0f)).y << endl;
+		//cout << (court_to_clip * glm::vec4(vertices[0].Position, 1.0f)).x << " " << (court_to_clip * glm::vec4(vertices[0].Position, 1.0f)).y << endl;
 	}
 
 	//------ compute court-to-window transform ------
