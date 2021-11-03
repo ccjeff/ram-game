@@ -152,9 +152,10 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 }
 
 void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
+	cout <<elapsed <<endl;
 	int deleted = 0;
 	for(size_t i = 0; i < bullets.size(); i++) {
-		bullets[i]->update_pos(0.1f);
+		bullets[i]->update_pos(elapsed * 500.0f);
 
 		glm::vec2 pos = bullets[i]->get_pos();
 		
@@ -162,7 +163,8 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 		
 		if(pos.x > drawable_size.x || pos.x < - drawable_size.x
 			|| pos.y > drawable_size.y || pos.y < - drawable_size.y) {
-				cout << "del " << i << " " << bullets.size() - deleted << endl;
+				//cout << "del " << i << " " << bullets.size() - deleted << endl;
+				
 				deleted++;
 				delete bullets[i];
 				bullets.erase(bullets.begin() + (i--));
