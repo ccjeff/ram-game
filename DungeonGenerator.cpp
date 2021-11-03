@@ -66,12 +66,12 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 		}
 		if (!success)
 		{
-			printf("Generator failed to place room after %zu tries. Aborting dungeon gen.\n", attemptsPerRoom);
+			//printf("Generator failed to place room after %zu tries. Aborting dungeon gen.\n", attemptsPerRoom);
 			return false;
 		}
 	}
 
-	printf("Generator succeeded in finding positiosn for all rooms.\n");
+	//printf("Generator succeeded in finding positiosn for all rooms.\n");
 	for (Room r : rooms)
 	{
 		r.Write(this);
@@ -86,7 +86,7 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 
 	playerStart = rooms[0].GetCenter();
 
-	printf("Generator succeeded in writing all rooms.\n");
+	//printf("Generator succeeded in writing all rooms.\n");
 	PrintMap();
 
 	return true;
@@ -107,9 +107,9 @@ void DungeonGenerator::ConnectRooms()
 	rooms[0].connected = true;
 	connected.push_back(rooms[0]);
 
-	for (int i = 1; i < rooms.size(); i++)
+	for (size_t i = 1; i < rooms.size(); i++)
 	{
-		printf("Connecting room %d\n", i);
+		//printf("Connecting room %d\n", i);
 		float best = 1000000.f;
 		Room bestRoom = connected[0];
 		for (Room r : connected)
@@ -182,9 +182,9 @@ void DungeonGenerator::PrintMap()
 		for (size_t x = 0; x < dimX; x++)
 		{
 		
-			printf("%d", map[index(x, y)]);
+			//printf("%d", map[index(x, y)]);
 		}
-		printf(" - %zu\n", y);
+		//printf(" - %zu\n", y);
 	}
 }
 
