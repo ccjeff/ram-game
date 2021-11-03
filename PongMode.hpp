@@ -8,6 +8,7 @@
 #include "GL.hpp"
 #include "Player.hpp"
 #include "Sprites.hpp"
+#include "DrawLines.hpp"
 
 #include <memory>
 

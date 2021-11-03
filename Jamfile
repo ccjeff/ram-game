@@ -140,6 +140,10 @@ GAME_NAMES =
 	Bullet
 	Sprites
 	Player
+	DrawLines
+	PathFont
+	ColorProgram
+	PathFont-font
 	;
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory
