@@ -33,8 +33,7 @@ struct PongMode : Mode {
 	glm::vec2 window_size;
 
 	std::vector<Bullet*> bullets;
-
-	Player* player;
+	std::shared_ptr<Player> player;
 
 	//----- opengl assets / helpers ------
 
