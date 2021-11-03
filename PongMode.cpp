@@ -7,10 +7,19 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <random>
+#include "DungeonGenerator.hpp"
 
 using namespace std;
 
 PongMode::PongMode() {
+	DungeonGenerator dg = DungeonGenerator(100, 100);
+	dg.Generate(50);
+
+	Room r1 = Room(0, 0, 12, 10);
+	Room r2 = Room(15, 9, 1, 1);
+	printf("Collision: %d\n", r1.Collides(r2));
+	printf("AGH CHECK: %d\n", r2.Collides(r1));
+
 	//----- allocate OpenGL resources -----
 	{ //vertex buffer:
 		glGenBuffers(1, &vertex_buffer);

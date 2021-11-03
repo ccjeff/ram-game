@@ -133,6 +133,7 @@ GAME_NAMES =
 	Load
 	gl_compile_program
 	ColorTextureProgram
+	DungeonGenerator
 	Mode
 	GL
 	Gun
