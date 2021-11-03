@@ -121,7 +121,7 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 	if(evt.type == SDL_MOUSEBUTTONDOWN) {
 		Pistol p;
-		Bullet* b = p.do_shoot(glm::vec2(0, 0), glm::normalize(
+		Bullet* b = p.do_shoot(player->get_pos(), glm::normalize(
 				glm::vec2(
 					float(evt.motion.x) / window_size.x * 2.0f - 1.0f,
 					float(evt.motion.y)  / window_size.y *-2.0f + 1.0f

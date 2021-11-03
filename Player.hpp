@@ -11,6 +11,8 @@ public:
     void move(glm::vec2 direction, float elapsed);
     void update(float elapsed);
 
+	const glm::vec2& get_pos();
+
 protected:
 	glm::vec2 position; // should init to a location
     glm::vec2 velocity;
