@@ -97,6 +97,8 @@ PongMode::PongMode() {
 
 		GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
 	}
+
+	player = new Player(glm::vec2(0.0f), glm::vec2(0.0f));
 }
 
 PongMode::~PongMode() {
@@ -110,6 +112,8 @@ PongMode::~PongMode() {
 
 	glDeleteTextures(1, &white_tex);
 	white_tex = 0;
+
+	delete(player);
 }
 
 bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
@@ -125,8 +129,8 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			)
 		);
 
-		cout << float(evt.motion.x) / window_size.x * 2.0f - 1.0f << " " <<  float(evt.motion.y) / window_size.y *-2.0f + 1.0f << endl;
-		cout << evt.motion.x << " " <<  evt.motion.y << endl;
+		// cout << float(evt.motion.x) / window_size.x * 2.0f - 1.0f << " " <<  float(evt.motion.y) / window_size.y *-2.0f + 1.0f << endl;
+		// cout << evt.motion.x << " " <<  evt.motion.y << endl;
 
 		bullets.emplace_back(b);
 	}
