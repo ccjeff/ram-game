@@ -1,3 +1,4 @@
+#pragma once
 #include "ColorTextureProgram.hpp"
 
 #include "Mode.hpp"
@@ -5,6 +6,7 @@
 #include "Pistol.hpp"
 #include "Gun.hpp"
 #include "GL.hpp"
+#include "Sprites.hpp"
 #include "Player.hpp"
 
 #include <glm/glm.hpp>
@@ -33,7 +35,13 @@ struct PongMode : Mode {
 	glm::vec2 window_size;
 
 	std::vector<Bullet*> bullets;
+<<<<<<< HEAD
 	std::shared_ptr<Player> player;
+=======
+
+	Sprite player_sprite, dummy_sprite;
+	Player* player;
+>>>>>>> main
 
 	//----- opengl assets / helpers ------
 
@@ -49,6 +57,8 @@ struct PongMode : Mode {
 
 	//Shader program that draws transformed, vertices tinted with vertex colors:
 	ColorTextureProgram color_texture_program;
+
+	glm::vec2 player_pos = glm::vec2(0.f, 0.f);
 
 	//Buffer used to hold vertex data during drawing:
 	GLuint vertex_buffer = 0;
