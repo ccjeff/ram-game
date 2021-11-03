@@ -3,7 +3,24 @@
 #include <glm/glm.hpp>
 #include <algorithm>
 
-struct Room;
+struct DungeonGenerator;
+
+struct Room {
+	size_t x;
+	size_t y;
+	size_t width;
+	size_t height;
+
+	Room(size_t x, size_t y, size_t width, size_t height);
+
+	bool Collides(Room other);
+
+	void Write(DungeonGenerator* gen);
+
+	glm::ivec2 GetCenter();
+
+	bool connected;
+};
 
 struct DungeonGenerator {
 	int* map;
@@ -32,22 +49,12 @@ struct DungeonGenerator {
 
 	void DrawCorridor(Room one, Room two);
 
+	void ConnectRooms();
+
+	bool CompareDistToStart(Room a, Room b);
+
 	bool Generate(size_t numberOfRooms);
 
 	void PrintMap();
 };
 
-struct Room {
-	size_t x;
-	size_t y;
-	size_t width;
-	size_t height;
-
-	Room(size_t x, size_t y, size_t width, size_t height);
-
-	bool Collides(Room other);
-
-	void Write(DungeonGenerator *gen);
-
-	glm::ivec2 GetCenter();
-};

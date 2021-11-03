@@ -1,4 +1,5 @@
 #include "DungeonGenerator.hpp"
+#include <algorithm>
 
 DungeonGenerator::DungeonGenerator(size_t x, size_t y)
 {
@@ -76,10 +77,12 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 		r.Write(this);
 	}
 
-	for (int i = 0; i < rooms.size() - 1; i++)
+	/*for (int i = 0; i < rooms.size() - 1; i++)
 	{
 		DrawCorridor(rooms[i], rooms[i + 1]);
-	}
+	}*/
+
+	ConnectRooms();
 
 	playerStart = rooms[0].GetCenter();
 
@@ -89,11 +92,48 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 	return true;
 }
 
+bool CompareDist(Room a, Room b)
+{
+	return glm::length((glm::vec2) a.GetCenter()) < glm::length((glm::vec2) b.GetCenter());
+}
+
+void DungeonGenerator::ConnectRooms()
+{
+	std::vector<Room> connected;
+
+	std::sort(rooms.begin(), rooms.end(),
+		CompareDist);
+
+	rooms[0].connected = true;
+	connected.push_back(rooms[0]);
+
+	for (int i = 1; i < rooms.size(); i++)
+	{
+		printf("Connecting room %d\n", i);
+		float best = 1000000.f;
+		Room bestRoom = connected[0];
+		for (Room r : connected)
+		{
+			float dist = glm::length((glm::vec2)(r.GetCenter() - rooms[i].GetCenter()));
+			if (dist < best)
+			{
+				bestRoom = r;
+				best = dist;
+			}
+		}
+
+		DrawCorridor(rooms[i], bestRoom);
+		rooms[i].connected = true;
+		connected.push_back(rooms[i]);
+	}
+}
+
+
 void DungeonGenerator::DrawCorridor(Room one, Room two)
 {
 	glm::ivec2 first = one.GetCenter();
 	glm::ivec2 second = two.GetCenter();
-	if (rand() % 1 == 0)
+	if (rand() % 2 == 0)
 	{
 		//Horizontal corridor
 		int halfway = (first.x + second.x) / 2;
@@ -116,6 +156,22 @@ void DungeonGenerator::DrawCorridor(Room one, Room two)
 	else
 	{
 		//Vertical corridor
+		int halfway = (first.y + second.y) / 2;
+
+		for (int j = std::min(first.y, halfway); j <= std::max(first.y, halfway); j++)
+		{
+			map[index(first.x, j)] = 1;
+		}
+
+		for (int i = std::min(first.x, second.x); i <= std::max(first.x, second.x); i++)
+		{
+			map[index(i, halfway)] = 1;
+		}
+
+		for (int j = std::min(second.y, halfway); j <= std::max(second.y, halfway); j++)
+		{
+			map[index(second.x, j)] = 1;
+		}
 	}
 }
 
@@ -139,15 +195,16 @@ Room::Room(size_t x, size_t y, size_t width, size_t height)
 	this->y = y;
 	this->width = width;
 	this->height = height;
+	connected = false;
 }
 
 //Best collision check I know: ! of all the cases where it can't possibly collide
 bool Room::Collides(Room other)
 {
 	return !(
-		(x + width)				 < other.x  ||
+		(x + width)				 < other.x ||
 		(y + height)			 < other.y ||
-		(other.x + other.width)  < x ||
+		(other.x + other.width)  < x	   ||
 		(other.y + other.height) < y 
 		);
 }
@@ -166,5 +223,5 @@ void Room::Write(DungeonGenerator *gen)
 
 glm::ivec2 Room::GetCenter()
 {
-	return glm::ivec2(x + (width / 2), y + (width / 2));
+	return glm::ivec2(x + (width / 2), y + (height / 2));
 }
