@@ -109,6 +109,8 @@ PongMode::PongMode() {
 
 		GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
 	}
+
+	player = new Player(glm::vec2(0.0f), glm::vec2(0.0f));
 }
 
 PongMode::~PongMode() {
@@ -122,15 +124,25 @@ PongMode::~PongMode() {
 
 	glDeleteTextures(1, &white_tex);
 	white_tex = 0;
+
+	delete(player);
 }
 
 bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
+	this->window_size = window_size;
+
 	if(evt.type == SDL_MOUSEBUTTONDOWN) {
 		Pistol p;
-		Bullet* b = p.do_shoot(player_pos, glm::vec2(
-			(evt.motion.x + 0.5f) / window_size.x * 2.0f - 1.0f,
-			(evt.motion.y + 0.5f) / window_size.y *-2.0f + 1.0f
-		));
+		Bullet* b = p.do_shoot(player->get_pos(), glm::normalize(
+				glm::vec2(
+					float(evt.motion.x) / window_size.x * 2.0f - 1.0f,
+					float(evt.motion.y)  / window_size.y *-2.0f + 1.0f
+				)
+			)
+		);
+
+		// cout << float(evt.motion.x) / window_size.x * 2.0f - 1.0f << " " <<  float(evt.motion.y) / window_size.y *-2.0f + 1.0f << endl;
+		// cout << evt.motion.x << " " <<  evt.motion.y << endl;
 
 		bullets.emplace_back(b);
 		return true;
@@ -139,11 +151,24 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 	return false;
 }
 
-void PongMode::update(float elapsed) {
-	for(auto b : bullets) {
-		b->update_pos(elapsed);
+void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
+	int deleted = 0;
+	for(size_t i = 0; i < bullets.size(); i++) {
+		bullets[i]->update_pos(0.1f);
+
+		glm::vec2 pos = bullets[i]->get_pos();
+		
+		//cout << pos.x << " " << pos.y << endl;
+		
+		if(pos.x > drawable_size.x || pos.x < - drawable_size.x
+			|| pos.y > drawable_size.y || pos.y < - drawable_size.y) {
+				cout << "del " << i << " " << bullets.size() - deleted << endl;
+				deleted++;
+				delete bullets[i];
+				bullets.erase(bullets.begin() + (i--));
+		}
 	}
-	dummy_sprite.transform.rotation += elapsed;
+
 	player_pos.x += elapsed;
 	player_pos.y += elapsed * 0.1f;
 	player_sprite.transform.displacement = player_pos;
@@ -162,10 +187,20 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	};
 	#undef HEX_TO_U8VEC4
 
+	//build matrix that scales and translates appropriately:
+	glm::mat4 court_to_clip = glm::mat4(
+		glm::vec4(1.0f / drawable_size.x, 0.0f, 0.0f, 0.0f),
+		glm::vec4(0.0f, 1.0f / drawable_size.y, 0.0f, 0.0f),
+		glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
+		glm::vec4(0, 0, 0.0f, 1.0f)
+	);
+	//NOTE: glm matrices are specified in *Column-Major* order,
+	// so each line above is specifying a *column* of the matrix(!)
+
 	//other useful drawing constants:
-	const float wall_radius = 0.05f;
+	// const float wall_radius = 0.05f;
 	// const float shadow_offset = 0.07f;
-	const float padding = 0.14f; //padding between outside of walls and edge of window
+	// const float padding = 0.14f; //padding between outside of walls and edge of window
 
 	//---- compute vertices to draw ----
 
@@ -186,59 +221,16 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	//clear the color buffer:
 	glClearColor(bg_color.r / 255.0f, bg_color.g / 255.0f, bg_color.b / 255.0f, bg_color.a / 255.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-	player_sprite.transform.scale = glm::vec2(0.1f, 0.1f);
+	player_sprite.transform.scale = glm::vec2(10.0f, 10.0f);
 	player_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	for(auto b : bullets) {
 		dummy_sprite.transform.displacement = b->get_pos();
-		dummy_sprite.transform.scale = glm::vec2(0.1f, 0.1f);
+		dummy_sprite.transform.scale = glm::vec2(2.0f, 2.0f);
 		dummy_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
 
-	//------ compute court-to-window transform ------
-
-	//compute area that should be visible:
-	glm::vec2 scene_min = glm::vec2(
-		-court_radius.x - 2.0f * wall_radius - padding,
-		-court_radius.y - 2.0f * wall_radius - padding
-	);
-	glm::vec2 scene_max = glm::vec2(
-		court_radius.x + 2.0f * wall_radius + padding,
-		court_radius.y + 2.0f * wall_radius + 3.0f * score_radius.y + padding
-	);
-
-	//compute window aspect ratio:
-	float aspect = drawable_size.x / float(drawable_size.y);
-	//we'll scale the x coordinate by 1.0 / aspect to make sure things stay square.
-
-	//compute scale factor for court given that...
-	float scale = std::min(
-		(2.0f * aspect) / (scene_max.x - scene_min.x), //... x must fit in [-aspect,aspect] ...
-		(2.0f) / (scene_max.y - scene_min.y) //... y must fit in [-1,1].
-	);
-
-	glm::vec2 center = 0.5f * (scene_max + scene_min);
-
-	//build matrix that scales and translates appropriately:
-	glm::mat4 court_to_clip = glm::mat4(
-		glm::vec4(scale / aspect, 0.0f, 0.0f, 0.0f),
-		glm::vec4(0.0f, scale, 0.0f, 0.0f),
-		glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
-		glm::vec4(-center.x * (scale / aspect), -center.y * scale, 0.0f, 1.0f)
-	);
-	//NOTE: glm matrices are specified in *Column-Major* order,
-	// so each line above is specifying a *column* of the matrix(!)
-
-	//also build the matrix that takes clip coordinates to court coordinates (used for mouse handling):
-	clip_to_court = glm::mat3x2(
-		glm::vec2(aspect / scale, 0.0f),
-		glm::vec2(0.0f, 1.0f / scale),
-		glm::vec2(center.x, center.y)
-	);
-
 	//---- actual drawing ----
-
-
 
 	//use alpha blending:
 	glEnable(GL_BLEND);

@@ -139,10 +139,11 @@ GAME_NAMES =
 	Pistol
 	Bullet
 	Sprites
+	Player
 	;
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory
 Objects $(GAME_NAMES:S=.cpp) ;
 
 LOCATE_TARGET = dist ; #put main in 'dist' directory
-MainFromObjects pong : $(GAME_NAMES:S=$(SUFOBJ)) ;
+MainFromObjects game : $(GAME_NAMES:S=$(SUFOBJ)) ;

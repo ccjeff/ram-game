@@ -17,6 +17,7 @@ struct Transform{
 };
 
 struct Picture{
+
     std::vector< glm::u8vec4 > data;
     glm::uvec2 size;
 };
