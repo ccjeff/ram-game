@@ -69,6 +69,18 @@ PongMode::PongMode() {
 
 		GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
 	}
+	{
+		std::vector< glm::u8vec4 > data(64, glm::u8vec4(255,0,0,255));
+		glm::uvec2 size(8,8);
+		player_sprite = Sprite(data, size);
+		player_sprite.tint = glm::u8vec4(255, 0, 0, 255);
+	}
+	{
+		std::vector< glm::u8vec4 > data(64, glm::u8vec4(255,255,255,255));
+		glm::uvec2 size(8,8);
+		dummy_sprite = Sprite(data, size);
+		dummy_sprite.tint = glm::u8vec4(255, 255, 255, 255);
+	}
 
 	{ //solid white texture:
 		//ask OpenGL to fill white_tex with the name of an unused texture object:
@@ -133,6 +145,7 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		// cout << evt.motion.x << " " <<  evt.motion.y << endl;
 
 		bullets.emplace_back(b);
+		return true;
 	}
 
 	return false;
@@ -141,7 +154,7 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	int deleted = 0;
 	for(size_t i = 0; i < bullets.size(); i++) {
-		bullets[i]->update_pos(0.1f);
+		bullets[i]->update_pos(elapsed * 500.0f);
 
 		glm::vec2 pos = bullets[i]->get_pos();
 		
@@ -149,12 +162,15 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 		
 		if(pos.x > drawable_size.x || pos.x < - drawable_size.x
 			|| pos.y > drawable_size.y || pos.y < - drawable_size.y) {
-				cout << "del " << i << " " << bullets.size() - deleted << endl;
+				//cout << "del " << i << " " << bullets.size() - deleted << endl;
+				
 				deleted++;
 				delete bullets[i];
 				bullets.erase(bullets.begin() + (i--));
 		}
 	}
+
+	player_sprite.transform.displacement = player->get_pos();
 }
 
 void PongMode::draw(glm::uvec2 const &drawable_size) {
@@ -191,53 +207,30 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	std::vector< Vertex > vertices;
 
 	//inline helper function for rectangle drawing:
-	auto draw_rectangle = [&vertices](glm::vec2 const &center, glm::vec2 const &radius, glm::u8vec4 const &color) {
-		//draw rectangle as two CCW-oriented triangles:
-		vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-		vertices.emplace_back(glm::vec3(center.x+radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-		vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+	// auto draw_rectangle = [&vertices](glm::vec2 const &center, glm::vec2 const &radius, glm::u8vec4 const &color) {
+	// 	//draw rectangle as two CCW-oriented triangles:
+	// 	vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+	// 	vertices.emplace_back(glm::vec3(center.x+radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+	// 	vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
 
-		vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-		vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-		vertices.emplace_back(glm::vec3(center.x-radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-	};
-
-	for(auto b : bullets) {
-		draw_rectangle(b->get_pos(), glm::vec2(20.0f, 20.0f), fg_color);
-		//cout << (court_to_clip * glm::vec4(vertices[0].Position, 1.0f)).x << " " << (court_to_clip * glm::vec4(vertices[0].Position, 1.0f)).y << endl;
-	}
-
-	//------ compute court-to-window transform ------
-
-	// //compute area that should be visible:
-	// glm::vec2 scene_min = glm::vec2(
-	// 	-court_radius.x - 2.0f * wall_radius - padding,
-	// 	-court_radius.y - 2.0f * wall_radius - padding
-	// );
-	// glm::vec2 scene_max = glm::vec2(
-	// 	court_radius.x + 2.0f * wall_radius + padding,
-	// 	court_radius.y + 2.0f * wall_radius + 3.0f * score_radius.y + padding
-	// );
-
-	// //compute window aspect ratio:
-	// float aspect = drawable_size.x / float(drawable_size.y);
-	// //we'll scale the x coordinate by 1.0 / aspect to make sure things stay square.
-
-	// //compute scale factor for court given that...
-	// float scale = std::min(
-	// 	(2.0f * aspect) / (scene_max.x - scene_min.x), //... x must fit in [-aspect,aspect] ...
-	// 	(2.0f) / (scene_max.y - scene_min.y) //... y must fit in [-1,1].
-	// );
-
-	// glm::vec2 center = 0.5f * (scene_max + scene_min);
-
-
-
-	//---- actual drawing ----
-
+	// 	vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+	// 	vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+	// 	vertices.emplace_back(glm::vec3(center.x-radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+	// };
 	//clear the color buffer:
+	dummy_sprite.tint = fg_color;
 	glClearColor(bg_color.r / 255.0f, bg_color.g / 255.0f, bg_color.b / 255.0f, bg_color.a / 255.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
+	player_sprite.transform.scale = glm::vec2(10.0f, 10.0f);
+	player_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+	for(auto b : bullets) {
+		dummy_sprite.transform.displacement = b->get_pos();
+		dummy_sprite.transform.scale = glm::vec2(2.0f, 2.0f);
+		dummy_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
+	}
+
+	//---- actual drawing ----
 
 	//use alpha blending:
 	glEnable(GL_BLEND);
