@@ -169,9 +169,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 		}
 	}
 
-	player_pos.x += elapsed;
-	player_pos.y += elapsed * 0.1f;
-	player_sprite.transform.displacement = player_pos;
+	player_sprite.transform.displacement = player->get_pos();
 }
 
 void PongMode::draw(glm::uvec2 const &drawable_size) {
