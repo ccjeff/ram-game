@@ -69,6 +69,18 @@ PongMode::PongMode() {
 
 		GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
 	}
+	{
+		std::vector< glm::u8vec4 > data(64, glm::u8vec4(255,0,0,255));
+		glm::uvec2 size(8,8);
+		player_sprite = Sprite(data, size);
+		player_sprite.tint = glm::u8vec4(255, 0, 0, 255);
+	}
+	{
+		std::vector< glm::u8vec4 > data(64, glm::u8vec4(255,255,255,255));
+		glm::uvec2 size(8,8);
+		dummy_sprite = Sprite(data, size);
+		dummy_sprite.tint = glm::u8vec4(255, 255, 255, 255);
+	}
 
 	{ //solid white texture:
 		//ask OpenGL to fill white_tex with the name of an unused texture object:
@@ -115,12 +127,13 @@ PongMode::~PongMode() {
 bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
 	if(evt.type == SDL_MOUSEBUTTONDOWN) {
 		Pistol p;
-		Bullet* b = p.do_shoot(glm::vec2(0, 0), glm::vec2(
+		Bullet* b = p.do_shoot(player_pos, glm::vec2(
 			(evt.motion.x + 0.5f) / window_size.x * 2.0f - 1.0f,
 			(evt.motion.y + 0.5f) / window_size.y *-2.0f + 1.0f
 		));
 
 		bullets.emplace_back(b);
+		return true;
 	}
 
 	return false;
@@ -130,6 +143,10 @@ void PongMode::update(float elapsed) {
 	for(auto b : bullets) {
 		b->update_pos(elapsed);
 	}
+	dummy_sprite.transform.rotation += elapsed;
+	player_pos.x += elapsed;
+	player_pos.y += elapsed * 0.1f;
+	player_sprite.transform.displacement = player_pos;
 }
 
 void PongMode::draw(glm::uvec2 const &drawable_size) {
@@ -166,9 +183,16 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 		vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
 		vertices.emplace_back(glm::vec3(center.x-radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
 	};
-
+	//clear the color buffer:
+	glClearColor(bg_color.r / 255.0f, bg_color.g / 255.0f, bg_color.b / 255.0f, bg_color.a / 255.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+	player_sprite.transform.scale = glm::vec2(0.1f, 0.1f);
+	player_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	for(auto b : bullets) {
-		draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
+		dummy_sprite.transform.displacement = b->get_pos();
+		dummy_sprite.transform.scale = glm::vec2(0.1f, 0.1f);
+		dummy_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
 
 	//------ compute court-to-window transform ------
@@ -214,9 +238,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 
 	//---- actual drawing ----
 
-	//clear the color buffer:
-	glClearColor(bg_color.r / 255.0f, bg_color.g / 255.0f, bg_color.b / 255.0f, bg_color.a / 255.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+
 
 	//use alpha blending:
 	glEnable(GL_BLEND);
