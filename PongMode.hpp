@@ -5,6 +5,7 @@
 #include "Pistol.hpp"
 #include "Gun.hpp"
 #include "GL.hpp"
+#include "Player.hpp"
 
 #include <glm/glm.hpp>
 
@@ -32,6 +33,8 @@ struct PongMode : Mode {
 	glm::vec2 window_size;
 
 	std::vector<Bullet*> bullets;
+
+	Player* player;
 
 	//----- opengl assets / helpers ------
 
