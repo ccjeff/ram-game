@@ -216,8 +216,8 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 		
 		//cout << pos.x << " " << pos.y << endl;
 		
-		if(pos.x > drawable_size.x || pos.x < - drawable_size.x
-			|| pos.y > drawable_size.y || pos.y < - drawable_size.y) {
+		if(abs(pos.x - player->get_pos().x) > drawable_size.x
+			|| abs(pos.y - player->get_pos().y) > drawable_size.y) {
 				//cout << "del " << i << " " << bullets.size() - deleted << endl;
 				
 				deleted++;
@@ -276,18 +276,18 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 		vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
 		vertices.emplace_back(glm::vec3(center.x-radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
 	};
-	
+
 	//clear the color buffer:
 	dummy_sprite.tint = fg_color;
 	glClearColor(bg_color.r / 255.0f, bg_color.g / 255.0f, bg_color.b / 255.0f, bg_color.a / 255.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 	player_sprite.transform.scale = glm::vec2(10.0f, 10.0f);
-	player_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+	player_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	
 	for(auto b : bullets) {
 		dummy_sprite.transform.displacement = b->get_pos();
 		dummy_sprite.transform.scale = glm::vec2(2.0f, 2.0f);
-		dummy_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		dummy_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
 
