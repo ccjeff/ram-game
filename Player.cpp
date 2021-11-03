@@ -15,18 +15,18 @@ void Player::update(float elapsed) {
     move(elapsed);
 }
 
-glm::vec2 Player::get_pos() {
+const glm::vec2& Player::get_pos() {
     return this->position;
 }
 
-glm::vec2 Player::get_vel() {
+const glm::vec2& Player::get_vel() {
     return this->velocity;
 }
 
-void Player::set_pos(glm::vec2 pos) {
+void Player::set_pos(glm::vec2 &pos) {
     this->position = std::move(pos);
 }
-void Player::set_vel(glm::vec2 vel) {
+void Player::set_vel(glm::vec2 &vel) {
     this->velocity = std::move(vel);
 }
 

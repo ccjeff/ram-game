@@ -20,6 +20,8 @@
 #include <memory>
 #include <algorithm>
 
+using namespace std;
+
 int main(int argc, char **argv) {
 #ifdef _WIN32
 	//when compiled on windows, unhandled exceptions don't have their message printed, which can make debugging simple issues difficult.
@@ -103,6 +105,9 @@ int main(int argc, char **argv) {
 		SDL_GL_GetDrawableSize(window, &w, &h);
 		drawable_size = glm::uvec2(w, h);
 		glViewport(0, 0, drawable_size.x, drawable_size.y);
+
+		cout << window_size.x << " " << window_size.y << endl;
+		cout << drawable_size.x << " " << drawable_size.y << endl;
 	};
 	on_resize();
 
