@@ -232,6 +232,13 @@ void Map::SetScalingFactor(float factor)
 	scalingFactor = factor;
 }
 
+//Returns the largest possible point that could be considered in the map:
+//Check if things are > this to see if they're out of bounds!
+glm::vec2 Map::GetBoundary()
+{
+	return scalingFactor * glm::vec2(dimX, dimY);
+}
+
 Room::Room(size_t x, size_t y, size_t width, size_t height)
 {
 	this->x = x;
