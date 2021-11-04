@@ -213,7 +213,7 @@ int Map::ValueAtWorld(float x, float y)
 
 glm::ivec2 Map::GetTile(float x, float y)
 {
-	if (x < 0 || y < 0)
+	if (x < 0 || y < 0 || x >= dimX || y >= dimY)
 	{
 		return glm::ivec2(-1, -1);
 	}

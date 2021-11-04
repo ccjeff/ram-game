@@ -126,13 +126,7 @@ PongMode::PongMode() {
 	
 	{
 		// initializing player and dungeon
-<<<<<<< HEAD
 		dg = new DungeonGenerator(100, 100);
-=======
-		player = std::make_shared<Player>(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f), 32.0f);
-		enemies.emplace_back(new BasicEnemy(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
-		dg = std::make_shared<DungeonGenerator>(100, 100);
->>>>>>> 446cd65 (reworking everything to world coordinates)
 		dg->Generate(20);
 		dg->map.SetScalingFactor(32.0f);
 
@@ -427,15 +421,21 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 		#define FLOOR_TILE_SIZE 32.f
 		floor_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE * 15.f/16.f, FLOOR_TILE_SIZE * 15.f/16.f);
 		const glm::vec2 &player_pos = player->get_pos();
+		glm::ivec2 tile_id = dg->map.GetTile(player_pos.x, player_pos.y);
 		glm::vec2 rounded(std::floor(player_pos.x/(FLOOR_TILE_SIZE)) * (FLOOR_TILE_SIZE),
 				std::floor(player_pos.y/(FLOOR_TILE_SIZE)) * (FLOOR_TILE_SIZE));
-		// TODO: get `rounded` from helper function
-		for(float i = -12.f; i <= 12.f; i+=1.f){
-			for(float j = -12.f; j <= 12.f; j+=1.f){
-				floor_sprite.transform.displacement = glm::vec2(i, j);
-				floor_sprite.transform.displacement.x *= floor_sprite.transform.size.x + FLOOR_TILE_SIZE / 16.f;
-				floor_sprite.transform.displacement.y *= floor_sprite.transform.size.y + FLOOR_TILE_SIZE / 16.f;
+		for(int i = tile_id.x - 12; i <= tile_id.x + 12; i++){
+			for(int j = tile_id.y - 12; j <= tile_id.y + 12; j++){
+				floor_sprite.transform.displacement = glm::vec2(i + 0.5f, j + 0.5f) * FLOOR_TILE_SIZE;
 				floor_sprite.transform.displacement += rounded;
+				glm::ivec2 cur_tile_id = dg->map.GetTile(floor_sprite.transform.displacement.x, floor_sprite.transform.displacement.y);
+				if(cur_tile_id.x < 0 || cur_tile_id.y < 0)
+					floor_sprite.tint = glm::u8vec4(0, 0, 0, 255);
+				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y))
+					floor_sprite.tint = glm::u8vec4(64, 64, 64, 255);
+				else
+					floor_sprite.tint = glm::u8vec4(255, 255, 255, 255);
+
 				floor_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 			}
 		}
@@ -454,14 +454,14 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 
 	for(auto b : enemy_bullets) {
 		bullet_sprite.transform.displacement = b->get_pos();
-		bullet_sprite.transform.scale = glm::vec2(20.0f, 20.0f);
+		bullet_sprite.transform.size = glm::vec2(20.0f, 20.0f);
 		bullet_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
 
 	for(auto e : enemies) {
 		bullet_sprite.transform.displacement = e->get_pos();
-		bullet_sprite.transform.scale = glm::vec2(10.0f, 10.0f);
+		bullet_sprite.transform.size = glm::vec2(10.0f, 10.0f);
 		bullet_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
