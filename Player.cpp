@@ -14,3 +14,7 @@ void Player::move(glm::vec2 direction, float elapsed) {
 const glm::vec2& Player::get_pos() {
 	return this->position;
 }
+
+float Player::get_width() {
+	return this->width;
+}

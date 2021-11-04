@@ -39,7 +39,7 @@ struct PongMode : Mode {
 	std::vector<Bullet*> bullets;
 
 	std::vector<Bullet*> enemy_bullets;
-	std::vector<Enemy> enemies;
+	std::vector<Enemy*> enemies;
 
 	std::shared_ptr<Player> player;
 

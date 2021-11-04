@@ -119,8 +119,8 @@ PongMode::PongMode() {
 		GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
 	}
 
-	player = std::make_shared<Player>(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f));
-	enemies.emplace_back(BasicEnemy(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
+	player = std::make_shared<Player>(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f), 10.0f);
+	enemies.emplace_back(new BasicEnemy(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
 }
 
 PongMode::~PongMode() {
@@ -135,6 +135,17 @@ PongMode::~PongMode() {
 	glDeleteTextures(1, &white_tex);
 	white_tex = 0;
 
+	for(auto e : enemies) {
+		delete e;
+	}
+
+	for(auto b : bullets) {
+		delete b;
+	}
+
+	for(auto b : enemy_bullets) {
+		delete b;
+	}
 }
 
 bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
@@ -161,21 +172,54 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 }
 
 void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
-	int deleted = 0;
-	for(size_t i = 0; i < bullets.size(); i++) {
-		bullets[i]->update_pos(elapsed * 500.0f);
+	{
+		int deleted = 0;
+		for(size_t i = 0; i < bullets.size(); i++) {
+			bullets[i]->update_pos(elapsed * 500.0f);
 
-		glm::vec2 pos = bullets[i]->get_pos();
-		
-		//cout << pos.x << " " << pos.y << endl;
-		
-		if(pos.x > drawable_size.x || pos.x < - drawable_size.x
-			|| pos.y > drawable_size.y || pos.y < - drawable_size.y) {
-				//cout << "del " << i << " " << bullets.size() - deleted << endl;
-				
-				deleted++;
-				delete bullets[i];
-				bullets.erase(bullets.begin() + (i--));
+			glm::vec2 pos = bullets[i]->get_pos();
+			
+			//cout << pos.x << " " << pos.y << endl;
+			
+			if(pos.x > drawable_size.x || pos.x < - drawable_size.x
+				|| pos.y > drawable_size.y || pos.y < - drawable_size.y) {
+					//cout << "del " << i << " " << bullets.size() - deleted << endl;
+					
+					deleted++;
+					delete bullets[i];
+					bullets.erase(bullets.begin() + (i--));
+			}
+		}
+	}
+	
+	{
+		int deleted = 0;
+		for(size_t i = 0; i < enemy_bullets.size(); i++) {
+			enemy_bullets[i]->update_pos(elapsed * 500.0f);
+
+			glm::vec2 pos = enemy_bullets[i]->get_pos();
+			
+			//cout << pos.x << " " << pos.y << endl;
+			
+			if(pos.x > drawable_size.x || pos.x < - drawable_size.x
+				|| pos.y > drawable_size.y || pos.y < - drawable_size.y) {
+					//cout << "del " << i << " " << bullets.size() - deleted << endl;
+					
+					deleted++;
+					delete enemy_bullets[i];
+					enemy_bullets.erase(enemy_bullets.begin() + (i--));
+			}
+		}
+	}
+
+	//Ask enemies to attack after to give players more advantage
+	for(auto e : enemies) {
+		e->update(elapsed);
+
+		Bullet* b = e->do_attack(player->get_pos());
+		if(b != nullptr) {
+			enemy_bullets.emplace_back(b);
+			cout << "enemy shooting" << endl;
 		}
 	}
 
@@ -230,11 +274,18 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	dummy_sprite.tint = fg_color;
 	glClearColor(bg_color.r / 255.0f, bg_color.g / 255.0f, bg_color.b / 255.0f, bg_color.a / 255.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-	player_sprite.transform.scale = glm::vec2(10.0f, 10.0f);
+	player_sprite.transform.scale = glm::vec2(player->get_width(), player->get_width());
 	player_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	for(auto b : bullets) {
 		dummy_sprite.transform.displacement = b->get_pos();
 		dummy_sprite.transform.scale = glm::vec2(2.0f, 2.0f);
+		dummy_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
+	}
+
+	for(auto b : enemy_bullets) {
+		dummy_sprite.transform.displacement = b->get_pos();
+		dummy_sprite.transform.scale = glm::vec2(20.0f, 20.0f);
 		dummy_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}

@@ -6,6 +6,10 @@ void Bullet::update_pos(float elapsed) {
 	this->pos += this->vel * elapsed;
 }
 
-glm::vec2 Bullet::get_pos() {
+const glm::vec2& Bullet::get_pos() {
 	return this->pos;
+}
+
+const glm::vec2& Bullet::get_vel() {
+	return this->vel;
 }
