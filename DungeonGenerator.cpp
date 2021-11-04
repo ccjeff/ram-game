@@ -203,7 +203,7 @@ int Map::ValueAt(size_t x, size_t y)
 int Map::ValueAtWorld(float x, float y)
 {
 	glm::ivec2 coord = GetTile(x, y);
-	if (coord.x < 0 || coord.y < 0 || coord.x >= dimX || coord.y >= dimY)
+	if (coord.x < 0 || coord.y < 0 || coord.x >= int(dimX) || coord.y >= int(dimY))
 	{
 		//Outside of bounds is a wall
 		return 0;
