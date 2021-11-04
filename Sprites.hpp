@@ -8,10 +8,12 @@
 
 //transform order: position + rotation * scale * pt
 struct Transform{
+    // the location of the sprite when drawn, in world units
     glm::vec2 displacement;
     // Counterclockwise rotation in radians
     float rotation = 0.f;
-    glm::vec2 scale = {1.f, 1.f};
+    // the length/width of the sprite when drawn, in world units
+    glm::vec2 size = {1.f, 1.f};
 };
 
 struct Picture{
@@ -22,7 +24,7 @@ struct Picture{
 };
 
 struct Sprite {
-    Sprite(std::vector< glm::u8vec4 > data, glm::uvec2 size, Transform transform = {{0.f, 0.f}, 0.f, {1.f, 1.f}});
+    Sprite(std::vector< glm::u8vec4 > data, glm::uvec2 size, Transform transform = {{0.f, 0.f}, 0.f, {16.f, 16.f}});
     ~Sprite();
     Sprite();
     struct Vertex {

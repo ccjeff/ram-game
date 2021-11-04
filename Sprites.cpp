@@ -65,19 +65,21 @@ void Sprite::draw(glm::vec2 camera_center,
 
     std::vector < Vertex > rect;
 
+    #define WORLD_TO_SCREEN 2.f
+
 	//inline helper function for rectangle drawing:
 	auto draw_rectangle = [&rect](glm::vec2 const &center, glm::vec2 const &radius, float rotation, glm::u8vec4 const &color) {
 		//draw rectangle as two CCW-oriented triangles:
-		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(-radius.x, -radius.y), rotation), 0.0f), color, glm::vec2(0.f, 0.f));
-		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(radius.x, -radius.y), rotation), 0.0f), color, glm::vec2(1.f, 0.f));
-		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(radius.x, radius.y), rotation), 0.0f), color, glm::vec2(1.f, 1.f));
+		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(-radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(0.f, 0.f));
+		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(1.f, 0.f));
+		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(radius.x, radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(1.f, 1.f));
 
-		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(-radius.x, -radius.y), rotation), 0.0f), color, glm::vec2(0.f, 0.f));
-        rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(radius.x, radius.y), rotation), 0.0f), color, glm::vec2(1.f, 1.f));
-		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(-radius.x, radius.y), rotation), 0.0f), color, glm::vec2(0.f, 1.f));
+		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(-radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(0.f, 0.f));
+        rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(radius.x, radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(1.f, 1.f));
+		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(-radius.x, radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(0.f, 1.f));
 	};
 
-    draw_rectangle(sprite_center, glm::vec2(picture.size.x * transform.scale.x / 2, picture.size.y * transform.scale.y / 2), transform.rotation, tint);
+    draw_rectangle(sprite_center, glm::vec2(transform.size.x / 2, transform.size.y / 2), transform.rotation, tint);
 
 	//use alpha blending:
 	glEnable(GL_BLEND);
