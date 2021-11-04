@@ -52,7 +52,7 @@ struct PongMode : Mode {
 	std::vector<Enemy*> enemies;
 
 	std::shared_ptr<Player> player;
-	std::shared_ptr<DungeonGenerator> dg;
+	DungeonGenerator *dg;
 
 	Sprite player_sprite, dummy_sprite;
 

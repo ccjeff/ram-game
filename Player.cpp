@@ -14,11 +14,10 @@ void Player::move(glm::vec2 direction, float elapsed) {
     move(elapsed);
 }
 
-void Player::update(float elapsed, Map* map, size_t x, size_t y) {
+void Player::update(float elapsed, Map &map) {
     glm::vec2 old_pos = this->position;
     move(elapsed);
-    if (this->position.x < 0 || this->position.x > x - 1 || this->position.y < 0 || this->position.y > y - 1 ||
-        (map[(int)this->position.x * y + (int)this->position.y] != 0)) {
+    if ((map.ValueAt(this->position.x, this->position.y) == 0)) {
         this->position = old_pos;
     }
 

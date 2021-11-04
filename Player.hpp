@@ -1,5 +1,8 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <memory>
+
+#include "DungeonGenerator.hpp"
 #include "Sprites.hpp"
 	
 #define PLAYER_SPEED 100.0f
@@ -13,7 +16,7 @@ public:
 
     void move(float elapsed);
     void move(glm::vec2 direction, float elapsed);
-    void update(float elapsed, Map* map, size_t x, size_t y);
+    void update(float elapsed,  Map &map);
 
 	float get_width();
 
