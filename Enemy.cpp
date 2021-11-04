@@ -7,3 +7,7 @@ const glm::vec2& Enemy::get_pos() {
 const glm::vec2& Enemy::get_vel() {
 	return this->velocity;
 }
+
+float Enemy::get_hp() {
+	return this->hp;
+}

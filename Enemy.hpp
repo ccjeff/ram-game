@@ -6,11 +6,16 @@
 
 class Enemy {
 public:
+    virtual ~Enemy() = default;
+
     Enemy(glm::vec2 position, glm::vec2 velocity)
 		: position(position), velocity(velocity){};
 
     virtual void update(float elapsed) {};
     virtual Bullet* do_attack(const glm::vec2 &player_pos) { return nullptr; };
+	virtual void on_hit(float damage) {
+		this->hp -= damage;
+	}
 
     const glm::vec2& get_pos();
     const glm::vec2& get_vel();
@@ -20,6 +25,8 @@ public:
     void set_vel(float x, float y);
     void add_vel(float x, float y);
 
+	float get_hp();
+
 protected:
 	glm::vec2 position; // should init to a location
     glm::vec2 velocity;
@@ -27,4 +34,6 @@ protected:
 
 	//For determining enemy actions
 	float time_step;
+
+	float hp;
 };
