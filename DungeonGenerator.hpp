@@ -37,7 +37,7 @@ struct Map {
 	void SetAt(size_t x, size_t y, int value);
 	int ValueAt(size_t x, size_t y);
 
-	glm::vec2 GetBoundary();
+	glm::vec2 Boundary();
 
 	glm::ivec2 GetTile(glm::vec2 worldCoord);
 

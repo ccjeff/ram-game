@@ -234,7 +234,7 @@ void Map::SetScalingFactor(float factor)
 
 //Returns the largest possible point that could be considered in the map:
 //Check if things are > this to see if they're out of bounds!
-glm::vec2 Map::GetBoundary()
+glm::vec2 Map::Boundary()
 {
 	return scalingFactor * glm::vec2(dimX, dimY);
 }
