@@ -12,11 +12,6 @@ DungeonGenerator::DungeonGenerator(size_t x, size_t y)
 	map = Map(x, y);
 }
 
-DungeonGenerator::~DungeonGenerator()
-{
-	
-}
-
 void DungeonGenerator::SetAt(size_t x, size_t y, int value)
 {
 	map.SetAt(x, y, value);
@@ -216,13 +211,13 @@ int Map::ValueAtWorld(float x, float y)
 	return ValueAt(coord.x, coord.y);
 }
 
-glm::ivec2 Map::GetTile(glm::vec2 worldCoord)
+glm::ivec2 Map::GetTile(float x, float y)
 {
-	if (worldCoord.x < 0 || worldCoord.y < 0)
+	if (x < 0 || y < 0)
 	{
 		return glm::ivec2(-1, -1);
 	}
-	return glm::ivec2((int)(worldCoord.x / scalingFactor), (int)(worldCoord.y / scalingFactor));
+	return glm::ivec2((int)(x / scalingFactor), (int)(y / scalingFactor));
 }
 
 void Map::SetScalingFactor(float factor)

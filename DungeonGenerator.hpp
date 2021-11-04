@@ -41,7 +41,7 @@ struct Map {
 
 	glm::vec2 Boundary();
 
-	glm::ivec2 GetTile(glm::vec2 worldCoord);
+	glm::ivec2 GetTile(float x, float y);
 
 	void SetScalingFactor(float factor);
 };

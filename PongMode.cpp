@@ -119,12 +119,15 @@ PongMode::PongMode() {
 	
 	{
 		// initializing player and dungeon
-		player = std::make_shared<Player>(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f), 10.0f);
-		enemies.emplace_back(new BasicEnemy(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
 		dg = new DungeonGenerator(100, 100);
-
 		dg->Generate(20);
 		dg->map.SetScalingFactor(32.0f);
+
+		player = std::make_shared<Player>(dg->playerStart, glm::vec2(0.0f, 0.0f), 10.0f);
+		
+		enemies.emplace_back(new BasicEnemy(dg->playerStart, glm::vec2(0.0f, 0.0f)));
+		
+		
 	}
 }
 
@@ -140,9 +143,9 @@ PongMode::~PongMode() {
 	glDeleteTextures(1, &white_tex);
 	white_tex = 0;
 
-	// for(auto e : enemies) {
-	// 	delete e;
-	// }
+	for(auto e : enemies) {
+		delete e;
+	}
 
 	for(auto b : bullets) {
 		delete b;
@@ -326,11 +329,12 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 		Bullet* b = e->do_attack(player->get_pos());
 		if(b != nullptr) {
+			cout << "enemy attack D: " << endl;
 			enemy_bullets.emplace_back(b);
 		}
 	}
 	
-	cout <<player->get_pos().x << " " << player->get_pos().y << endl;
+	//cout <<player->get_pos().x << " " << player->get_pos().y << endl;
 
 	player->update(elapsed, dg->map);
 	player_sprite.transform.displacement = player->get_pos();
