@@ -1,5 +1,8 @@
 #include "DungeonGenerator.hpp"
 #include <algorithm>
+#include <iostream>
+
+using namespace std;
 
 DungeonGenerator::DungeonGenerator(size_t x, size_t y)
 {
@@ -7,18 +10,6 @@ DungeonGenerator::DungeonGenerator(size_t x, size_t y)
 	dimY = y;
 
 	map = Map(x, y);
-	for (size_t xIndex = 0; xIndex < dimX; xIndex++)
-	{
-		for (size_t yIndex = 0; yIndex < dimY; yIndex++)
-		{
-			map.SetAt(xIndex, yIndex, 0);
-		}
-	}
-}
-
-DungeonGenerator::~DungeonGenerator()
-{
-	
 }
 
 void DungeonGenerator::SetAt(size_t x, size_t y, int value)
@@ -196,16 +187,7 @@ Map::Map(size_t x, size_t y)
 	map.clear();
 	rooms.clear();
 
-	for (size_t xIndex = 0; xIndex < dimX; xIndex++)
-	{
-		std::vector<int> row;
-
-		for (size_t yIndex = 0; y < dimY; yIndex++)
-		{
-			row.push_back(0);
-		}
-		map.push_back(row);
-	}
+	map = std::vector<std::vector<int>> (dimX, std::vector<int>(dimY, 0));
 }
 
 void Map::SetAt(size_t x, size_t y, int value)
@@ -221,7 +203,7 @@ int Map::ValueAt(size_t x, size_t y)
 int Map::ValueAtWorld(float x, float y)
 {
 	glm::ivec2 coord = GetTile(x, y);
-	if (coord.x < 0 || coord.y < 0 || coord.x >= dimX || coord.y >= dimY)
+	if (coord.x < 0 || coord.y < 0 || coord.x >= int(dimX) || coord.y >= int(dimY))
 	{
 		//Outside of bounds is a wall
 		return 0;
@@ -229,13 +211,13 @@ int Map::ValueAtWorld(float x, float y)
 	return ValueAt(coord.x, coord.y);
 }
 
-glm::ivec2 Map::GetTile(glm::vec2 worldCoord)
+glm::ivec2 Map::GetTile(float x, float y)
 {
-	if (worldCoord.x < 0 || worldCoord.y < 0)
+	if (x < 0 || y < 0)
 	{
 		return glm::ivec2(-1, -1);
 	}
-	return glm::ivec2((int)(worldCoord.x / scalingFactor), (int)(worldCoord.y / scalingFactor));
+	return glm::ivec2((int)(x / scalingFactor), (int)(y / scalingFactor));
 }
 
 void Map::SetScalingFactor(float factor)
@@ -248,6 +230,16 @@ void Map::SetScalingFactor(float factor)
 glm::vec2 Map::Boundary()
 {
 	return scalingFactor * glm::vec2(dimX, dimY);
+}
+
+glm::vec2 Map::GetWorldCoord(glm::ivec2 mapCoord)
+{
+	return GetWorldCoord(mapCoord.x, mapCoord.y);
+}
+
+glm::vec2 Map::GetWorldCoord(int x, int y)
+{
+	return glm::vec2(x, y) * scalingFactor + glm::vec2(.5f, .5f);
 }
 
 Room::Room(size_t x, size_t y, size_t width, size_t height)

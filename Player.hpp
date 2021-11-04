@@ -1,5 +1,8 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <memory>
+
+#include "DungeonGenerator.hpp"
 #include "Sprites.hpp"
 	
 #define PLAYER_SPEED 100.0f
@@ -13,10 +16,10 @@ public:
 
     void move(float elapsed);
     void move(glm::vec2 direction, float elapsed);
-    void update(float elapsed, int *map, size_t x, size_t y);
+    void update(float elapsed,  Map &map);
 
 	float get_width();
-	
+
     const glm::vec2& get_pos();
     const glm::vec2& get_vel();
 
@@ -25,10 +28,15 @@ public:
     void set_vel(float x, float y);
     void add_vel(float x, float y);
 
+	void on_hit(float damage);
+	float get_hp();
+
 protected:
 	glm::vec2 position; // should init to a location
     glm::vec2 velocity;
     Sprite s;
 
 	float width;
+
+	float hp = 5.0f;
 };

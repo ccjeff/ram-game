@@ -1,4 +1,7 @@
 #include "Player.hpp"
+#include <iostream>
+
+using namespace std;
 
 void Player::move(float elapsed) {
     this->position.x += this->velocity.x * elapsed;
@@ -11,11 +14,10 @@ void Player::move(glm::vec2 direction, float elapsed) {
     move(elapsed);
 }
 
-void Player::update(float elapsed, int *map, size_t x, size_t y) {
+void Player::update(float elapsed, Map &map) {
     glm::vec2 old_pos = this->position;
     move(elapsed);
-    if (this->position.x < 0 || this->position.x > x - 1 || this->position.y < 0 || this->position.y > y - 1 ||
-        (map[(int)this->position.x * y + (int)this->position.y] != 0)) {
+    if (map.ValueAtWorld(this->position.x, this->position.y) == 0) {
         this->position = old_pos;
     }
 
@@ -49,4 +51,17 @@ void Player::set_vel(float x, float y) {
 void Player::add_vel(float x, float y) {
     this->velocity.x += x;
     this->velocity.y += y;
+}
+
+void Player::on_hit(float damage) {
+	this->hp -= damage;
+	if(hp <= 0) {
+		//TODO: pull this into a reset function
+
+		cout << "Player died" << endl;
+		this->position = glm::vec2(0, 0);
+		this->velocity = glm::vec2(0, 0);
+
+		hp = 5.0f;
+	}
 }

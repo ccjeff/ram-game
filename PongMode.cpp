@@ -119,10 +119,13 @@ PongMode::PongMode() {
 	
 	{
 		// initializing player and dungeon
-		player = std::make_shared<Player>(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f), 10.0f);
-		enemies.emplace_back(new BasicEnemy(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
-		dg = std::make_shared<DungeonGenerator>(100, 100);
+		dg = new DungeonGenerator(100, 100);
 		dg->Generate(20);
+		dg->map.SetScalingFactor(32.0f);
+
+		player = std::make_shared<Player>(dg->map.GetWorldCoord(dg->playerStart), glm::vec2(0.0f, 0.0f), 10.0f);
+		
+		enemies.emplace_back(new BasicEnemy(dg->map.GetWorldCoord(dg->playerStart), glm::vec2(0.0f, 0.0f)));
 	}
 }
 
@@ -138,9 +141,9 @@ PongMode::~PongMode() {
 	glDeleteTextures(1, &white_tex);
 	white_tex = 0;
 
-	// for(auto e : enemies) {
-	// 	delete e;
-	// }
+	for(auto e : enemies) {
+		delete e;
+	}
 
 	for(auto b : bullets) {
 		delete b;
@@ -235,15 +238,47 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 			glm::vec2 pos = bullets[i]->get_pos();
 			
-			//cout << pos.x << " " << pos.y << endl;
+			float dist_x = abs(player->get_pos().x - pos.x);
+			float dist_y = abs(player->get_pos().y - pos.y);
+
+			//Enemy got hit
+			bool enemy_hit = false;
+			for(auto e : enemies) {
+				if(dist_x < 0.1f || dist_y < 0.1f) {
+					e->on_hit(bullets[i]->get_damage());
+
+					enemy_hit = true;
+					break;
+				}
+			}
+
+			//An enemy was hit, destroy the bullet, check enemy hp, and continue
+			if(enemy_hit) {
+				deleted++;
+				delete bullets[i];
+				bullets.erase(bullets.begin() + (i--));
+
+				int enemies_deleted = 0;
+				for(size_t i = 0; i < enemies.size(); i++) {
+					if(enemies[i]->get_hp() <= 0.0f) {
+						enemies_deleted++;
+						delete enemies[i];
+						enemies.erase(enemies.begin() + (i--));
+					}
+				}
+
+				continue;
+			}
 			
-			if(abs(player->get_pos().x - pos.x) > drawable_size.x
-				|| abs(player->get_pos().y - pos.y) > drawable_size.y) {
-					//cout << "del " << i << " " << bullets.size() - deleted << endl;
-					
-					deleted++;
-					delete bullets[i];
-					bullets.erase(bullets.begin() + (i--));
+			if(dist_x > drawable_size.x
+				|| dist_y > drawable_size.y) {
+				//cout << "del " << i << " " << bullets.size() - deleted << endl;
+				
+				deleted++;
+				delete bullets[i];
+				bullets.erase(bullets.begin() + (i--));
+
+				continue;
 			}
 		}
 	}
@@ -258,14 +293,30 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 			glm::vec2 pos = enemy_bullets[i]->get_pos();
 			
 			//cout << pos.x << " " << pos.y << endl;
+
+			float dist_x = abs(player->get_pos().x - pos.x);
+			float dist_y = abs(player->get_pos().y - pos.y);
+
+			//Player got hit
+			if(dist_x < player->get_width() || dist_y < player->get_width()) {
+				player->on_hit(enemy_bullets[i]->get_damage());
+
+				deleted++;
+				delete enemy_bullets[i];
+				enemy_bullets.erase(enemy_bullets.begin() + (i--));
+
+				continue;
+			}
 			
-			if(pos.x > drawable_size.x || pos.x < - drawable_size.x
-				|| pos.y > drawable_size.y || pos.y < - drawable_size.y) {
-					//cout << "del " << i << " " << bullets.size() - deleted << endl;
-					
-					deleted++;
-					delete enemy_bullets[i];
-					enemy_bullets.erase(enemy_bullets.begin() + (i--));
+			if(dist_x > drawable_size.x
+				|| dist_y > drawable_size.y) {
+				//cout << "del " << i << " " << bullets.size() - deleted << endl;
+				
+				deleted++;
+				delete enemy_bullets[i];
+				enemy_bullets.erase(enemy_bullets.begin() + (i--));
+
+				continue;
 			}
 		}
 	}
@@ -276,15 +327,14 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 		Bullet* b = e->do_attack(player->get_pos());
 		if(b != nullptr) {
+			cout << "enemy attack D: " << endl;
 			enemy_bullets.emplace_back(b);
-			cout << "enemy shooting" << endl;
-			cout << b->get_pos().x << b->get_pos().y << endl;
 		}
 	}
 	
 	//cout <<player->get_pos().x << " " << player->get_pos().y << endl;
 
-	player->update(elapsed, dg->map, dg->dimX, dg->dimY);
+	player->update(elapsed, dg->map);
 	player_sprite.transform.displacement = player->get_pos();
 }
 
@@ -373,7 +423,14 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	for(auto b : enemy_bullets) {
 		dummy_sprite.transform.displacement = b->get_pos();
 		dummy_sprite.transform.scale = glm::vec2(20.0f, 20.0f);
-		dummy_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		dummy_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
+	}
+
+	for(auto e : enemies) {
+		dummy_sprite.transform.displacement = e->get_pos();
+		dummy_sprite.transform.scale = glm::vec2(10.0f, 10.0f);
+		dummy_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
 
