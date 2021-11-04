@@ -130,7 +130,8 @@ PongMode::PongMode() {
 		dg->Generate(20);
 		dg->map.SetScalingFactor(32.0f);
 
-		player = std::make_shared<Player>(dg->map.GetWorldCoord(dg->playerStart), glm::vec2(0.0f, 0.0f), 10.0f);
+		player = std::make_shared<Player>(dg->map.GetWorldCoord(dg->playerStart), glm::vec2(0.0f, 0.0f), 32.0f);
+		std::cout << player->get_pos().x << " " << player->get_pos().y << std::endl;
 		
 		enemies.emplace_back(new BasicEnemy(dg->map.GetWorldCoord(dg->playerStart), glm::vec2(0.0f, 0.0f)));
 	}
@@ -420,10 +421,11 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	{
 		#define FLOOR_TILE_SIZE 32.f
 		floor_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE * 15.f/16.f, FLOOR_TILE_SIZE * 15.f/16.f);
-		const glm::vec2 &player_pos = player->get_pos();
-		glm::ivec2 tile_id = dg->map.GetTile(player_pos.x, player_pos.y);
-		glm::vec2 rounded(std::floor(player_pos.x/(FLOOR_TILE_SIZE)) * (FLOOR_TILE_SIZE),
-				std::floor(player_pos.y/(FLOOR_TILE_SIZE)) * (FLOOR_TILE_SIZE));
+		glm::ivec2 tile_id = dg->map.GetTile(player->get_pos().x, player->get_pos().y);
+		std::cout << player->get_pos().x << " " << player->get_pos().y << std::endl;
+		std::cout << tile_id.x << " " << tile_id.y << std::endl;
+		glm::vec2 rounded = player->get_pos() - glm::vec2(std::floor(player->get_pos().x/(FLOOR_TILE_SIZE)) * (FLOOR_TILE_SIZE),
+				std::floor(player->get_pos().y/(FLOOR_TILE_SIZE)) * (FLOOR_TILE_SIZE));
 		for(int i = tile_id.x - 12; i <= tile_id.x + 12; i++){
 			for(int j = tile_id.y - 12; j <= tile_id.y + 12; j++){
 				floor_sprite.transform.displacement = glm::vec2(i + 0.5f, j + 0.5f) * FLOOR_TILE_SIZE;
@@ -436,12 +438,12 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 				else
 					floor_sprite.tint = glm::u8vec4(255, 255, 255, 255);
 
-				floor_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				floor_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 			}
 		}
 		#undef FLOOR_TILE_SIZE
 	}
-
+	std::cout << player->get_pos().x << " " << player->get_pos().y << std::endl;
 	player_sprite.transform.size = glm::vec2(player->get_width(), player->get_width());
 	player_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 

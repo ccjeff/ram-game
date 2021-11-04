@@ -71,8 +71,6 @@ struct PongMode : Mode {
 	//Shader program that draws transformed, vertices tinted with vertex colors:
 	ColorTextureProgram color_texture_program;
 
-	glm::vec2 player_pos = glm::vec2(0.f, 0.f);
-
 	//Buffer used to hold vertex data during drawing:
 	GLuint vertex_buffer = 0;
 
