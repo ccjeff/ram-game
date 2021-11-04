@@ -132,8 +132,13 @@ PongMode::PongMode() {
 
 		player = std::make_shared<Player>(dg->map.GetWorldCoord(dg->playerStart), glm::vec2(0.0f, 0.0f), 32.0f);
 		std::cout << player->get_pos().x << " " << player->get_pos().y << std::endl;
+
+		for (glm::ivec2 pos : dg->monsterPositions)
+		{
+			enemies.emplace_back(new BasicEnemy(dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f)));
+		}
 		
-		enemies.emplace_back(new BasicEnemy(dg->map.GetWorldCoord(dg->playerStart), glm::vec2(0.0f, 0.0f)));
+		
 	}
 }
 

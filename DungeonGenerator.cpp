@@ -66,16 +66,20 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 	for (Room r : rooms)
 	{
 		r.Write(&map);
+		map.rooms.push_back(r);
 	}
-
-	/*for (int i = 0; i < rooms.size() - 1; i++)
-	{
-		DrawCorridor(rooms[i], rooms[i + 1]);
-	}*/
 
 	ConnectRooms();
 
-	playerStart = rooms[0].GetCenter();
+	int playerRoom = rand() % rooms.size();
+
+	playerStart = rooms[playerRoom].GetCenter();
+	rooms.erase(std::next(rooms.begin(), playerRoom));
+
+	for (Room r : rooms)
+	{
+		monsterPositions.push_back(r.GetCenter());
+	}
 
 	//printf("Generator succeeded in writing all rooms.\n");
 	//PrintMap();
@@ -239,7 +243,7 @@ glm::vec2 Map::GetWorldCoord(glm::ivec2 mapCoord)
 
 glm::vec2 Map::GetWorldCoord(int x, int y)
 {
-	return glm::vec2(x, y) * scalingFactor + glm::vec2(.5f, .5f);
+	return (glm::vec2(x, y) + glm::vec2(.5f, .5f)) * scalingFactor;
 }
 
 Room::Room(size_t x, size_t y, size_t width, size_t height)
