@@ -93,6 +93,7 @@ PongMode::PongMode() {
 		glm::uvec2 size(8,8);
 		floor_sprite = Sprite(data, size);
 		floor_sprite.tint = glm::u8vec4(255, 255, 255, 255);
+		floor_sprite.transform.size = glm::vec2(32.f,32.f);
 	}
 
 	{ //solid white texture:
@@ -125,7 +126,13 @@ PongMode::PongMode() {
 	
 	{
 		// initializing player and dungeon
+<<<<<<< HEAD
 		dg = new DungeonGenerator(100, 100);
+=======
+		player = std::make_shared<Player>(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f), 32.0f);
+		enemies.emplace_back(new BasicEnemy(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
+		dg = std::make_shared<DungeonGenerator>(100, 100);
+>>>>>>> 446cd65 (reworking everything to world coordinates)
 		dg->Generate(20);
 		dg->map.SetScalingFactor(32.0f);
 
@@ -167,8 +174,8 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		Pistol p;
 		Bullet* b = p.do_shoot(player->get_pos(), glm::normalize(
 				glm::vec2(
-					float(evt.motion.x) / window_size.x * 2.0f - 1.0f,
-					float(evt.motion.y)  / window_size.y *-2.0f + 1.0f
+					(float(evt.motion.x) / window_size.x * 2.0f - 1.0f) * window_size.x,
+					(float(evt.motion.y)  / window_size.y *-2.0f + 1.0f) * window_size.y
 				)
 			)
 		);
@@ -370,7 +377,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	//some nice colors from the course web page:
 	#define HEX_TO_U8VEC4( HX ) (glm::u8vec4( (HX >> 24) & 0xff, (HX >> 16) & 0xff, (HX >> 8) & 0xff, (HX) & 0xff ))
 	const glm::u8vec4 bg_color = HEX_TO_U8VEC4(0x193b59ff);
-	const glm::u8vec4 fg_color = HEX_TO_U8VEC4(0xf2d2b6ff);
+	const glm::u8vec4 fg_color = HEX_TO_U8VEC4(0x829256ff);
 	// const glm::u8vec4 shadow_color = HEX_TO_U8VEC4(0xf2ad94ff);
 	const std::vector< glm::u8vec4 > trail_colors = {
 		HEX_TO_U8VEC4(0xf2ad9488),
@@ -416,22 +423,31 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	glClearColor(bg_color.r / 255.0f, bg_color.g / 255.0f, bg_color.b / 255.0f, bg_color.a / 255.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	floor_sprite.transform.scale = glm::vec2(9.9f, 9.9f);
-	const glm::vec2 &player_pos = player->get_pos();
-	glm::vec2 rounded(std::floor(player_pos.x), std::floor(player_pos.y));
-	for(int i = -10; i <= 10; i++){
-		for(int j = -10; j < 10; j++){
-			floor_sprite.transform.displacement = rounded + glm::vec2(i, j);
-			floor_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+	{
+		#define FLOOR_TILE_SIZE 32.f
+		floor_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE * 15.f/16.f, FLOOR_TILE_SIZE * 15.f/16.f);
+		const glm::vec2 &player_pos = player->get_pos();
+		glm::vec2 rounded(std::floor(player_pos.x/(FLOOR_TILE_SIZE)) * (FLOOR_TILE_SIZE),
+				std::floor(player_pos.y/(FLOOR_TILE_SIZE)) * (FLOOR_TILE_SIZE));
+		// TODO: get `rounded` from helper function
+		for(float i = -12.f; i <= 12.f; i+=1.f){
+			for(float j = -12.f; j <= 12.f; j+=1.f){
+				floor_sprite.transform.displacement = glm::vec2(i, j);
+				floor_sprite.transform.displacement.x *= floor_sprite.transform.size.x + FLOOR_TILE_SIZE / 16.f;
+				floor_sprite.transform.displacement.y *= floor_sprite.transform.size.y + FLOOR_TILE_SIZE / 16.f;
+				floor_sprite.transform.displacement += rounded;
+				floor_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+			}
 		}
+		#undef FLOOR_TILE_SIZE
 	}
 
-	player_sprite.transform.scale = glm::vec2(player->get_width(), player->get_width());
+	player_sprite.transform.size = glm::vec2(player->get_width(), player->get_width());
 	player_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 
 	for(auto b : bullets) {
 		bullet_sprite.transform.displacement = b->get_pos();
-		bullet_sprite.transform.scale = glm::vec2(2.0f, 2.0f);
+		bullet_sprite.transform.size = glm::vec2(10.0f, 10.0f);
 		bullet_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
