@@ -7,6 +7,9 @@
 #include "Gun.hpp"
 #include "GL.hpp"
 #include "Player.hpp"
+#include "Enemy.hpp"
+#include "BasicEnemy.hpp"
+
 #include "Sprites.hpp"
 #include "DrawLines.hpp"
 
@@ -15,7 +18,6 @@
 #include <glm/glm.hpp>
 
 #include <vector>
-#include <deque>
 
 /*
  * PongMode is a game mode that implements a single-player game of Pong.
@@ -44,6 +46,10 @@ struct PongMode : Mode {
 	glm::vec2 window_size;
 
 	std::vector<Bullet*> bullets;
+
+	std::vector<Bullet*> enemy_bullets;
+	std::vector<Enemy*> enemies;
+
 	std::shared_ptr<Player> player;
 
 	Sprite player_sprite, dummy_sprite;

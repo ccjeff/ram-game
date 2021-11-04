@@ -13,10 +13,15 @@ void Player::move(glm::vec2 direction, float elapsed) {
 
 void Player::update(float elapsed) {
     move(elapsed);
+	velocity = velocity * 0.8f;
+}
+
+float Player::get_width() {
+	return this->width;
 }
 
 const glm::vec2& Player::get_pos() {
-    return this->position;
+	return this->position;
 }
 
 const glm::vec2& Player::get_vel() {

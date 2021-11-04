@@ -141,6 +141,8 @@ GAME_NAMES =
 	Bullet
 	Sprites
 	Player
+	Enemy
+	BasicEnemy
 	DrawLines
 	PathFont
 	PathFont-font
