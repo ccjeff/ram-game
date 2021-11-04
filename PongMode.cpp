@@ -125,7 +125,6 @@ PongMode::PongMode() {
 
 		dg->Generate(20);
 		dg->map.SetScalingFactor(32.0f);
-		
 	}
 }
 
