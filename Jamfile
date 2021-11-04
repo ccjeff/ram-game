@@ -141,6 +141,8 @@ GAME_NAMES =
 	Bullet
 	Sprites
 	Player
+	Enemy
+	BasicEnemy
 	;
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory

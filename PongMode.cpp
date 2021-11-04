@@ -119,7 +119,8 @@ PongMode::PongMode() {
 		GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
 	}
 
-	player = new Player(glm::vec2(0.0f), glm::vec2(0.0f));
+	player = std::make_shared<Player>(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f));
+	enemies.emplace_back(BasicEnemy(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
 }
 
 PongMode::~PongMode() {
@@ -134,7 +135,6 @@ PongMode::~PongMode() {
 	glDeleteTextures(1, &white_tex);
 	white_tex = 0;
 
-	delete(player);
 }
 
 bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
