@@ -205,6 +205,17 @@ int Map::ValueAt(size_t x, size_t y)
 	return map[x][y];
 }
 
+int Map::ValueAtWorld(float x, float y)
+{
+	glm::ivec2 coord = GetTile(x, y);
+	if (coord.x < 0 || coord.y < 0 || coord.x >= dimX || coord.y >= dimY)
+	{
+		//Outside of bounds is a wall
+		return 0;
+	}
+	return ValueAt(coord.x, coord.y);
+}
+
 glm::ivec2 Map::GetTile(glm::vec2 worldCoord)
 {
 	if (worldCoord.x < 0 || worldCoord.y < 0)
@@ -217,6 +228,13 @@ glm::ivec2 Map::GetTile(glm::vec2 worldCoord)
 void Map::SetScalingFactor(float factor)
 {
 	scalingFactor = factor;
+}
+
+//Returns the largest possible point that could be considered in the map:
+//Check if things are > this to see if they're out of bounds!
+glm::vec2 Map::Boundary()
+{
+	return scalingFactor * glm::vec2(dimX, dimY);
 }
 
 Room::Room(size_t x, size_t y, size_t width, size_t height)

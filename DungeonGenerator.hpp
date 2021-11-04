@@ -37,6 +37,10 @@ struct Map {
 	void SetAt(size_t x, size_t y, int value);
 	int ValueAt(size_t x, size_t y);
 
+	int ValueAtWorld(float x, float y);
+
+	glm::vec2 Boundary();
+
 	glm::ivec2 GetTile(glm::vec2 worldCoord);
 
 	void SetScalingFactor(float factor);
@@ -47,7 +51,8 @@ struct DungeonGenerator {
 	size_t dimX;
 	size_t dimY;
 
-	glm::ivec2 playerStart;
+	glm::vec2 playerStart;
+	std::vector<glm::vec2> monsterPositions;
 
 	//-----------Variables to use while rooms are generated-------------
 
