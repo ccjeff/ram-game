@@ -250,15 +250,18 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 			glm::vec2 pos = bullets[i]->get_pos();
 			
-			float dist_x = abs(player->get_pos().x - pos.x);
-			float dist_y = abs(player->get_pos().y - pos.y);
+			float dist_player_x = abs(player->get_pos().x - pos.x);
+			float dist_player_y = abs(player->get_pos().y - pos.y);
 
 			//Enemy got hit
 			bool enemy_hit = false;
 			for(auto e : enemies) {
-				if(dist_x < 0.1f || dist_y < 0.1f) {
-					e->on_hit(bullets[i]->get_damage());
+				float dist_x = abs(e->get_pos().x - pos.x);
+				float dist_y = abs(e->get_pos().y - pos.y);
 
+				if(dist_x < 10.0f && dist_y < 10.0f) {
+					e->on_hit(bullets[i]->get_damage());
+					std::cout << "Enemy was hit by a bullet" << std::endl;
 					enemy_hit = true;
 					break;
 				}
@@ -282,8 +285,8 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				continue;
 			}
 			
-			if(dist_x > drawable_size.x
-				|| dist_y > drawable_size.y) {
+			if(dist_player_x > drawable_size.x
+				|| dist_player_y > drawable_size.y) {
 				//cout << "del " << i << " " << bullets.size() - deleted << endl;
 				
 				deleted++;
@@ -310,7 +313,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 			float dist_y = abs(player->get_pos().y - pos.y);
 
 			//Player got hit
-			if(dist_x < player->get_width() || dist_y < player->get_width()) {
+			if(dist_x < player->get_width()/2.0f && dist_y < player->get_width()/2.0f) {
 				player->on_hit(enemy_bullets[i]->get_damage());
 
 				deleted++;
@@ -432,7 +435,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 				glm::ivec2 cur_tile_id = dg->map.GetTile(floor_sprite.transform.displacement.x, floor_sprite.transform.displacement.y);
 				if(cur_tile_id.x < 0 || cur_tile_id.y < 0)
 					floor_sprite.tint = glm::u8vec4(0, 0, 0, 255);
-				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y))
+				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y)) //TODO: Change this when do sprites, this check is backwards but looks nice for the demo.
 					floor_sprite.tint = glm::u8vec4(64, 64, 64, 255);
 				else
 					floor_sprite.tint = glm::u8vec4(255, 255, 255, 255);

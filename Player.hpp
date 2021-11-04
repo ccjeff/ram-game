@@ -36,7 +36,7 @@ protected:
     glm::vec2 velocity;
     Sprite s;
 
-	float width;
+	float width = 32.0f;
 
 	float hp = 5.0f;
 };
