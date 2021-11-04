@@ -123,9 +123,9 @@ PongMode::PongMode() {
 		dg->Generate(20);
 		dg->map.SetScalingFactor(32.0f);
 
-		player = std::make_shared<Player>(dg->playerStart, glm::vec2(0.0f, 0.0f), 10.0f);
+		player = std::make_shared<Player>(dg->map.GetWorldCoord(dg->playerStart), glm::vec2(0.0f, 0.0f), 10.0f);
 		
-		enemies.emplace_back(new BasicEnemy(dg->playerStart, glm::vec2(0.0f, 0.0f)));
+		enemies.emplace_back(new BasicEnemy(dg->map.GetWorldCoord(dg->playerStart), glm::vec2(0.0f, 0.0f)));
 		
 		
 	}

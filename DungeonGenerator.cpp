@@ -232,6 +232,16 @@ glm::vec2 Map::Boundary()
 	return scalingFactor * glm::vec2(dimX, dimY);
 }
 
+glm::vec2 Map::GetWorldCoord(glm::ivec2 mapCoord)
+{
+	return GetWorldCoord(mapCoord.x, mapCoord.y);
+}
+
+glm::vec2 Map::GetWorldCoord(int x, int y)
+{
+	return glm::vec2(x, y) * scalingFactor + glm::vec2(.5f, .5f);
+}
+
 Room::Room(size_t x, size_t y, size_t width, size_t height)
 {
 	this->x = x;
