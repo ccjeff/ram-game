@@ -56,6 +56,9 @@
 		"xstring": "cpp",
 		"xtr1common": "cpp",
 		"xutility": "cpp",
+		"map": "cpp",
+		"optional": "cpp",
+		"xtree": "cpp"
 		"__availability": "cpp",
 		"__hash_table": "cpp",
 		"__bit_reference": "cpp",

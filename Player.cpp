@@ -19,10 +19,15 @@ void Player::update(float elapsed, int *map, size_t x, size_t y) {
         this->position = old_pos;
     }
 
+	velocity = velocity * 0.8f;
+}
+
+float Player::get_width() {
+	return this->width;
 }
 
 const glm::vec2& Player::get_pos() {
-    return this->position;
+	return this->position;
 }
 
 const glm::vec2& Player::get_vel() {
