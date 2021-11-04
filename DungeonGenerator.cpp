@@ -1,5 +1,8 @@
 #include "DungeonGenerator.hpp"
 #include <algorithm>
+#include <iostream>
+
+using namespace std;
 
 DungeonGenerator::DungeonGenerator(size_t x, size_t y)
 {
@@ -7,13 +10,6 @@ DungeonGenerator::DungeonGenerator(size_t x, size_t y)
 	dimY = y;
 
 	map = Map(x, y);
-	for (size_t xIndex = 0; xIndex < dimX; xIndex++)
-	{
-		for (size_t yIndex = 0; yIndex < dimY; yIndex++)
-		{
-			map.SetAt(xIndex, yIndex, 0);
-		}
-	}
 }
 
 DungeonGenerator::~DungeonGenerator()
@@ -196,16 +192,7 @@ Map::Map(size_t x, size_t y)
 	map.clear();
 	rooms.clear();
 
-	for (size_t xIndex = 0; xIndex < dimX; xIndex++)
-	{
-		std::vector<int> row;
-
-		for (size_t yIndex = 0; y < dimY; yIndex++)
-		{
-			row.push_back(0);
-		}
-		map.push_back(row);
-	}
+	map = std::vector<std::vector<int>> (dimX, std::vector<int>(dimY, 0));
 }
 
 void Map::SetAt(size_t x, size_t y, int value)

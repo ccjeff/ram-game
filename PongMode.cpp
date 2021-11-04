@@ -122,6 +122,7 @@ PongMode::PongMode() {
 		player = std::make_shared<Player>(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f), 10.0f);
 		enemies.emplace_back(new BasicEnemy(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
 		dg = new DungeonGenerator(100, 100);
+
 		dg->Generate(20);
 		dg->map.SetScalingFactor(32.0f);
 		
