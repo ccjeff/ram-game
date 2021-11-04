@@ -7,11 +7,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <random>
-<<<<<<< HEAD
 #include "DungeonGenerator.hpp"
-=======
 #include <cmath>
->>>>>>> ccjeff/player
 
 using namespace std;
 
