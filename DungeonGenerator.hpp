@@ -4,6 +4,7 @@
 #include <algorithm>
 
 struct DungeonGenerator;
+struct Map;
 
 struct Room {
 	size_t x;
@@ -15,15 +16,34 @@ struct Room {
 
 	bool Collides(Room other);
 
-	void Write(DungeonGenerator* gen);
+	void Write(Map* map);
 
 	glm::ivec2 GetCenter();
 
 	bool connected;
 };
 
+struct Map {
+	Map(size_t x, size_t y);
+
+	size_t dimX;
+	size_t dimY;
+
+	float scalingFactor = 1;
+
+	std::vector<Room> rooms;
+	std::vector<std::vector<int>> map;
+
+	void SetAt(size_t x, size_t y, int value);
+	int ValueAt(size_t x, size_t y);
+
+	glm::ivec2 GetTile(glm::vec2 worldCoord);
+
+	void SetScalingFactor(float factor);
+};
+
 struct DungeonGenerator {
-	int* map;
+	Map map = Map(0, 0);
 	size_t dimX;
 	size_t dimY;
 

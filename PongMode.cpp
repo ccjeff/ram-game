@@ -13,13 +13,10 @@
 using namespace std;
 
 PongMode::PongMode() {
-	DungeonGenerator dg = DungeonGenerator(100, 100);
-	dg.Generate(50);
-
-	Room r1 = Room(0, 0, 12, 10);
-	Room r2 = Room(15, 9, 1, 1);
-	printf("Collision: %d\n", r1.Collides(r2));
-	printf("AGH CHECK: %d\n", r2.Collides(r1));
+	// Room r1 = Room(0, 0, 12, 10);
+	// Room r2 = Room(15, 9, 1, 1);
+	// printf("Collision: %d\n", r1.Collides(r2));
+	// printf("AGH CHECK: %d\n", r2.Collides(r1));
 
 	//----- allocate OpenGL resources -----
 	{ //vertex buffer:
@@ -121,8 +118,14 @@ PongMode::PongMode() {
 	}
 	
 	{
+		// initializing player and dungeon
 		player = std::make_shared<Player>(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f), 10.0f);
 		enemies.emplace_back(new BasicEnemy(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
+		DungeonGenerator dg(100, 100);
+		dg.Generate(20);
+		dg.map.SetScalingFactor(32.0f);
+
+		map = std::make_shared<Map>(dg.map);
 	}
 }
 
@@ -138,9 +141,9 @@ PongMode::~PongMode() {
 	glDeleteTextures(1, &white_tex);
 	white_tex = 0;
 
-	for(auto e : enemies) {
-		delete e;
-	}
+	// for(auto e : enemies) {
+	// 	delete e;
+	// }
 
 	for(auto b : bullets) {
 		delete b;
@@ -330,7 +333,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	
 	//cout <<player->get_pos().x << " " << player->get_pos().y << endl;
 
-	player->update(elapsed);
+	player->update(elapsed, map, dg->dimX, dg->dimY);
 	player_sprite.transform.displacement = player->get_pos();
 }
 

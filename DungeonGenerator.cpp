@@ -6,24 +6,24 @@ DungeonGenerator::DungeonGenerator(size_t x, size_t y)
 	dimX = x;
 	dimY = y;
 
-	map = (int*) malloc(sizeof(int) * dimX * dimY);
+	map = Map(x, y);
 	for (size_t xIndex = 0; xIndex < dimX; xIndex++)
 	{
 		for (size_t yIndex = 0; yIndex < dimY; yIndex++)
 		{
-			map[index(xIndex, yIndex)] = 0;
+			map.SetAt(xIndex, yIndex, 0);
 		}
 	}
 }
 
 DungeonGenerator::~DungeonGenerator()
 {
-	free(map);
+	
 }
 
 void DungeonGenerator::SetAt(size_t x, size_t y, int value)
 {
-	map[index(x, y)] = value;
+	map.SetAt(x, y, value);
 }
 
 //So we can safely iterate over (x, y) this is flipped
@@ -74,7 +74,7 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 	//printf("Generator succeeded in finding positiosn for all rooms.\n");
 	for (Room r : rooms)
 	{
-		r.Write(this);
+		r.Write(&map);
 	}
 
 	/*for (int i = 0; i < rooms.size() - 1; i++)
@@ -87,7 +87,7 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 	playerStart = rooms[0].GetCenter();
 
 	//printf("Generator succeeded in writing all rooms.\n");
-	PrintMap();
+	//PrintMap();
 
 	return true;
 }
@@ -140,17 +140,17 @@ void DungeonGenerator::DrawCorridor(Room one, Room two)
 
 		for (int i = std::min(first.x, halfway); i <= std::max(first.x, halfway); i++)
 		{
-			map[index(i, first.y)] = 1;
+			map.SetAt(i, first.y, 1);
 		}
 
 		for (int j = std::min(first.y, second.y); j <= std::max(first.y, second.y); j++)
 		{
-			map[index(halfway, j)] = 1;
+			map.SetAt(halfway, j, 1);
 		}
 
 		for (int i = std::min(second.x, halfway); i <= std::max(second.x, halfway); i++)
 		{
-			map[index(i, second.y)] = 1;
+			map.SetAt(i, second.y, 1);
 		}
 	}
 	else
@@ -160,17 +160,17 @@ void DungeonGenerator::DrawCorridor(Room one, Room two)
 
 		for (int j = std::min(first.y, halfway); j <= std::max(first.y, halfway); j++)
 		{
-			map[index(first.x, j)] = 1;
+			map.SetAt(first.x, j, 1);
 		}
 
 		for (int i = std::min(first.x, second.x); i <= std::max(first.x, second.x); i++)
 		{
-			map[index(i, halfway)] = 1;
+			map.SetAt(i, halfway, 1);
 		}
 
 		for (int j = std::min(second.y, halfway); j <= std::max(second.y, halfway); j++)
 		{
-			map[index(second.x, j)] = 1;
+			map.SetAt(second.x, j, 1);
 		}
 	}
 }
@@ -182,12 +182,55 @@ void DungeonGenerator::PrintMap()
 		for (size_t x = 0; x < dimX; x++)
 		{
 		
-			//printf("%d", map[index(x, y)]);
+			//printf("%d", map.ValueAt(x, y));
 		}
 		//printf(" - %zu\n", y);
 	}
 }
 
+Map::Map(size_t x, size_t y)
+{
+	dimX = x;
+	dimY = y;
+
+	map.clear();
+	rooms.clear();
+
+	for (size_t xIndex = 0; xIndex < dimX; xIndex++)
+	{
+		std::vector<int> row;
+
+		for (size_t yIndex = 0; y < dimY; yIndex++)
+		{
+			row.push_back(0);
+		}
+		map.push_back(row);
+	}
+}
+
+void Map::SetAt(size_t x, size_t y, int value)
+{
+	map[x][y] = value;
+}
+
+int Map::ValueAt(size_t x, size_t y)
+{
+	return map[x][y];
+}
+
+glm::ivec2 Map::GetTile(glm::vec2 worldCoord)
+{
+	if (worldCoord.x < 0 || worldCoord.y < 0)
+	{
+		return glm::ivec2(-1, -1);
+	}
+	return glm::ivec2((int)(worldCoord.x / scalingFactor), (int)(worldCoord.y / scalingFactor));
+}
+
+void Map::SetScalingFactor(float factor)
+{
+	scalingFactor = factor;
+}
 
 Room::Room(size_t x, size_t y, size_t width, size_t height)
 {
@@ -209,13 +252,13 @@ bool Room::Collides(Room other)
 		);
 }
 
-void Room::Write(DungeonGenerator *gen)
+void Room::Write(Map *map)
 {
 	for (size_t xIndex = x; xIndex < (x + width); xIndex++)
 	{
 		for (size_t yIndex = y; yIndex < (y + height); yIndex++)
 		{
-			gen->SetAt(xIndex, yIndex, 1);
+			map->SetAt(xIndex, yIndex, 1);
 		}
 	}
 

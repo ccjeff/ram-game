@@ -13,7 +13,7 @@ public:
 
     void move(float elapsed);
     void move(glm::vec2 direction, float elapsed);
-    void update(float elapsed);
+    void update(float elapsed, Map* map, size_t x, size_t y);
 
 	float get_width();
 

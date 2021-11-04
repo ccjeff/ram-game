@@ -12,6 +12,7 @@
 
 #include "Sprites.hpp"
 #include "DrawLines.hpp"
+#include "DungeonGenerator.hpp"
 
 #include <memory>
 
@@ -51,6 +52,7 @@ struct PongMode : Mode {
 	std::vector<Enemy*> enemies;
 
 	std::shared_ptr<Player> player;
+	std::shared_ptr<DungeonGenerator> dg;
 
 	Sprite player_sprite, dummy_sprite;
 
