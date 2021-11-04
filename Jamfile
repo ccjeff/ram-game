@@ -143,6 +143,10 @@ GAME_NAMES =
 	Player
 	Enemy
 	BasicEnemy
+	DrawLines
+	PathFont
+	PathFont-font
+	ColorProgram
 	;
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory

@@ -6,8 +6,6 @@
 
 #include <vector>
 
-
-
 //transform order: position + rotation * scale * pt
 struct Transform{
     glm::vec2 displacement;
@@ -20,6 +18,7 @@ struct Picture{
 
     std::vector< glm::u8vec4 > data;
     glm::uvec2 size;
+    // Picture();
 };
 
 struct Sprite {

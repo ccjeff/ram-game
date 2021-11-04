@@ -6,11 +6,14 @@
 #include "Pistol.hpp"
 #include "Gun.hpp"
 #include "GL.hpp"
-#include "Sprites.hpp"
 #include "Player.hpp"
 #include "Enemy.hpp"
 #include "BasicEnemy.hpp"
 
+#include "Sprites.hpp"
+#include "DrawLines.hpp"
+
+#include <memory>
 
 #include <glm/glm.hpp>
 
@@ -28,6 +31,12 @@ struct PongMode : Mode {
 	virtual bool handle_event(SDL_Event const &, glm::uvec2 const &window_size) override;
 	virtual void update(float elapsed, glm::vec2 const &drawable_size) override;
 	virtual void draw(glm::uvec2 const &drawable_size) override;
+
+	//input tracking:
+	struct Button {
+		uint8_t downs = 0;
+		uint8_t pressed = 0;
+	} left, right, down, up;
 
 	glm::vec2 court_radius = glm::vec2(7.0f, 5.0f);
 	glm::vec2 paddle_radius = glm::vec2(0.2f, 1.0f);

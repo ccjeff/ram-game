@@ -10,7 +10,9 @@ void BasicEnemy::update(float elapsed) {
 
 Bullet* BasicEnemy::do_attack(const glm::vec2 &player_pos) {
 	if(time_step > 5.0f) {
-		Bullet* b = new Bullet(this->position, player_pos - this->position);
+		Bullet* b = new Bullet(this->position, 
+			glm::normalize(player_pos - this->position + 1.0f)
+		);
 
 		cout <<player_pos.x << " " << player_pos.y << endl;
 		cout << this->position.x << " " << this->position.y << endl;
