@@ -1,4 +1,7 @@
 #include "Player.hpp"
+#include <iostream>
+
+using namespace std;
 
 void Player::move(float elapsed) {
     this->position.x += this->velocity.x * elapsed;
@@ -43,4 +46,17 @@ void Player::set_vel(float x, float y) {
 void Player::add_vel(float x, float y) {
     this->velocity.x += x;
     this->velocity.y += y;
+}
+
+void Player::on_hit(float damage) {
+	this->hp -= damage;
+	if(hp <= 0) {
+		//TODO: pull this into a reset function
+
+		cout << "Player died" << endl;
+		this->position = glm::vec2(0, 0);
+		this->velocity = glm::vec2(0, 0);
+
+		hp = 5.0f;
+	}
 }

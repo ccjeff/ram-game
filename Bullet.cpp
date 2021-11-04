@@ -13,3 +13,7 @@ const glm::vec2& Bullet::get_pos() {
 const glm::vec2& Bullet::get_vel() {
 	return this->vel;
 }
+
+float Bullet::get_damage() {
+	return this->damage;
+}

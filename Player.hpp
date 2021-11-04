@@ -16,7 +16,7 @@ public:
     void update(float elapsed);
 
 	float get_width();
-	
+
     const glm::vec2& get_pos();
     const glm::vec2& get_vel();
 
@@ -25,10 +25,15 @@ public:
     void set_vel(float x, float y);
     void add_vel(float x, float y);
 
+	void on_hit(float damage);
+	float get_hp();
+
 protected:
 	glm::vec2 position; // should init to a location
     glm::vec2 velocity;
     Sprite s;
 
 	float width;
+
+	float hp = 5.0f;
 };
