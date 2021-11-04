@@ -18,7 +18,7 @@ public:
     const glm::vec2& get_vel();
 
     void set_pos(glm::vec2 &pos);
-    void set_vel(glm::vec2 &vel);
+    void set_vel(const glm::vec2 &vel);
     void set_vel(float x, float y);
     void add_vel(float x, float y);
 

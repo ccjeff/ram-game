@@ -142,8 +142,8 @@ GAME_NAMES =
 	Player
 	DrawLines
 	PathFont
-	ColorProgram
 	PathFont-font
+	ColorProgram
 	;
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory

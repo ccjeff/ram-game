@@ -26,7 +26,7 @@ const glm::vec2& Player::get_vel() {
 void Player::set_pos(glm::vec2 &pos) {
     this->position = std::move(pos);
 }
-void Player::set_vel(glm::vec2 &vel) {
+void Player::set_vel(const glm::vec2 &vel) {
     this->velocity = std::move(vel);
 }
 
