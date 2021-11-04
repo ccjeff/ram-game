@@ -13,13 +13,10 @@
 using namespace std;
 
 PongMode::PongMode() {
-	DungeonGenerator dg = DungeonGenerator(100, 100);
-	dg.Generate(50);
-
-	Room r1 = Room(0, 0, 12, 10);
-	Room r2 = Room(15, 9, 1, 1);
-	printf("Collision: %d\n", r1.Collides(r2));
-	printf("AGH CHECK: %d\n", r2.Collides(r1));
+	// Room r1 = Room(0, 0, 12, 10);
+	// Room r2 = Room(15, 9, 1, 1);
+	// printf("Collision: %d\n", r1.Collides(r2));
+	// printf("AGH CHECK: %d\n", r2.Collides(r1));
 
 	//----- allocate OpenGL resources -----
 	{ //vertex buffer:
@@ -121,8 +118,10 @@ PongMode::PongMode() {
 	}
 
 	{
-		// initializing player
+		// initializing player and dungeon
 		player = std::make_shared<Player>(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f));
+		dg = std::make_shared<DungeonGenerator>(100, 100);
+		dg->Generate(20);
 	}
 }
 
@@ -234,7 +233,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				bullets.erase(bullets.begin() + (i--));
 		}
 	}
-	player->update(elapsed);
+	player->update(elapsed, dg->map, dg->dimX, dg->dimY);
 
 	player->set_vel(player->get_vel() * 0.8f);
 

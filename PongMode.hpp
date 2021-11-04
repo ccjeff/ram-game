@@ -9,6 +9,7 @@
 #include "Player.hpp"
 #include "Sprites.hpp"
 #include "DrawLines.hpp"
+#include "DungeonGenerator.hpp"
 
 #include <memory>
 
@@ -45,6 +46,7 @@ struct PongMode : Mode {
 
 	std::vector<Bullet*> bullets;
 	std::shared_ptr<Player> player;
+	std::shared_ptr<DungeonGenerator> dg;
 
 	Sprite player_sprite, dummy_sprite;
 

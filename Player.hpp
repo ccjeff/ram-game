@@ -12,7 +12,7 @@ public:
     Player(glm::vec2 position, glm::vec2 velocity) : position(position), velocity(velocity) {};
     void move(float elapsed);
     void move(glm::vec2 direction, float elapsed);
-    void update(float elapsed);
+    void update(float elapsed, int *map, size_t x, size_t y);
 
     const glm::vec2& get_pos();
     const glm::vec2& get_vel();
