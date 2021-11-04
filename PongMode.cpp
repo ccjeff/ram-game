@@ -237,8 +237,8 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 			
 			//cout << pos.x << " " << pos.y << endl;
 			
-			if(pos.x > drawable_size.x || pos.x < - drawable_size.x
-				|| pos.y > drawable_size.y || pos.y < - drawable_size.y) {
+			if(abs(player->get_pos().x - pos.x) > drawable_size.x
+				|| abs(player->get_pos().y - pos.y) > drawable_size.y) {
 					//cout << "del " << i << " " << bullets.size() - deleted << endl;
 					
 					deleted++;
@@ -278,6 +278,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 		if(b != nullptr) {
 			enemy_bullets.emplace_back(b);
 			cout << "enemy shooting" << endl;
+			cout << b->get_pos().x << b->get_pos().y << endl;
 		}
 	}
 	
