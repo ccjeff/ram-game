@@ -8,17 +8,15 @@
 
 #include <random>
 #include "DungeonGenerator.hpp"
+#include <cmath>
 
 using namespace std;
 
 PongMode::PongMode() {
-	DungeonGenerator dg = DungeonGenerator(100, 100);
-	dg.Generate(50);
-
-	Room r1 = Room(0, 0, 12, 10);
-	Room r2 = Room(15, 9, 1, 1);
-	printf("Collision: %d\n", r1.Collides(r2));
-	printf("AGH CHECK: %d\n", r2.Collides(r1));
+	// Room r1 = Room(0, 0, 12, 10);
+	// Room r2 = Room(15, 9, 1, 1);
+	// printf("Collision: %d\n", r1.Collides(r2));
+	// printf("AGH CHECK: %d\n", r2.Collides(r1));
 
 	//----- allocate OpenGL resources -----
 	{ //vertex buffer:
@@ -118,8 +116,14 @@ PongMode::PongMode() {
 
 		GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
 	}
-
-	player = new Player(glm::vec2(0.0f), glm::vec2(0.0f));
+	
+	{
+		// initializing player and dungeon
+		player = std::make_shared<Player>(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f), 10.0f);
+		enemies.emplace_back(new BasicEnemy(glm::vec2(0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
+		dg = std::make_shared<DungeonGenerator>(100, 100);
+		dg->Generate(20);
+	}
 }
 
 PongMode::~PongMode() {
@@ -134,7 +138,17 @@ PongMode::~PongMode() {
 	glDeleteTextures(1, &white_tex);
 	white_tex = 0;
 
-	delete(player);
+	// for(auto e : enemies) {
+	// 	delete e;
+	// }
+
+	for(auto b : bullets) {
+		delete b;
+	}
+
+	for(auto b : enemy_bullets) {
+		delete b;
+	}
 }
 
 bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
@@ -154,35 +168,149 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		// cout << evt.motion.x << " " <<  evt.motion.y << endl;
 
 		bullets.emplace_back(b);
-		return true;
+	} else {
+		if (evt.type == SDL_KEYDOWN) {
+			if (evt.key.keysym.sym == SDLK_a) {
+				left.downs += 1;
+				left.pressed = true;
+				return true;
+			} else if (evt.key.keysym.sym == SDLK_d) {
+				right.downs += 1;
+				right.pressed = true;
+				return true;
+			} else if (evt.key.keysym.sym == SDLK_w) {
+				up.downs += 1;
+				up.pressed = true;
+				return true;
+			} else if (evt.key.keysym.sym == SDLK_s) {
+				down.downs += 1;
+				down.pressed = true;
+				return true;
+			}
+		} else if (evt.type == SDL_KEYUP) {
+			if (evt.key.keysym.sym == SDLK_a) {
+				left.pressed = false;
+				return true;
+			} else if (evt.key.keysym.sym == SDLK_d) {
+				right.pressed = false;
+				return true;
+			} else if (evt.key.keysym.sym == SDLK_w) {
+				up.pressed = false;
+				return true;
+			} else if (evt.key.keysym.sym == SDLK_s) {
+				down.pressed = false;
+				return true;
+			}
+		}
 	}
 
 	return false;
 }
 
 void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
-	int deleted = 0;
-	for(size_t i = 0; i < bullets.size(); i++) {
-		bullets[i]->update_pos(elapsed * 500.0f);
+	glm::vec2 player_vel = player->get_vel();
 
-		glm::vec2 pos = bullets[i]->get_pos();
-		
-		//cout << pos.x << " " << pos.y << endl;
-		
-		if(pos.x > drawable_size.x || pos.x < - drawable_size.x
-			|| pos.y > drawable_size.y || pos.y < - drawable_size.y) {
-				//cout << "del " << i << " " << bullets.size() - deleted << endl;
-				
-				deleted++;
-				delete bullets[i];
-				bullets.erase(bullets.begin() + (i--));
+	if (left.pressed && !right.pressed) {
+		player_vel.x -= PLAYER_SPEED;
+		player_vel.x = std::max(player_vel.x, -PLAYER_MAX_SPEED);
+	}
+	if (!left.pressed && right.pressed) {
+		player_vel.x += PLAYER_SPEED;
+		player_vel.x = std::min(player_vel.x, PLAYER_MAX_SPEED);
+	}
+	if (down.pressed && !up.pressed) {
+		player_vel.y -= PLAYER_SPEED;
+		player_vel.y = std::max(player_vel.y, -PLAYER_MAX_SPEED);
+	}
+	if (!down.pressed && up.pressed) {
+		player_vel.y += PLAYER_SPEED;
+		player_vel.y = std::min(player_vel.y, PLAYER_MAX_SPEED);
+	}
+
+	//Player bullet updates
+	{
+		int deleted = 0;
+		for(size_t i = 0; i < bullets.size(); i++) {
+			bullets[i]->update_pos(elapsed * 500.0f);
+
+			glm::vec2 pos = bullets[i]->get_pos();
+			
+			//cout << pos.x << " " << pos.y << endl;
+			
+			if(abs(player->get_pos().x - pos.x) > drawable_size.x
+				|| abs(player->get_pos().y - pos.y) > drawable_size.y) {
+					//cout << "del " << i << " " << bullets.size() - deleted << endl;
+					
+					deleted++;
+					delete bullets[i];
+					bullets.erase(bullets.begin() + (i--));
+			}
+		}
+	}
+	player->set_vel(player_vel);
+	
+	//Enemy bullet updates
+	{
+		int deleted = 0;
+		for(size_t i = 0; i < enemy_bullets.size(); i++) {
+			enemy_bullets[i]->update_pos(elapsed * 500.0f);
+
+			glm::vec2 pos = enemy_bullets[i]->get_pos();
+			
+			//cout << pos.x << " " << pos.y << endl;
+			
+			if(pos.x > drawable_size.x || pos.x < - drawable_size.x
+				|| pos.y > drawable_size.y || pos.y < - drawable_size.y) {
+					//cout << "del " << i << " " << bullets.size() - deleted << endl;
+					
+					deleted++;
+					delete enemy_bullets[i];
+					enemy_bullets.erase(enemy_bullets.begin() + (i--));
+			}
 		}
 	}
 
+	//Ask enemies to attack after to give players more advantage
+	for(auto e : enemies) {
+		e->update(elapsed);
+
+		Bullet* b = e->do_attack(player->get_pos());
+		if(b != nullptr) {
+			enemy_bullets.emplace_back(b);
+			cout << "enemy shooting" << endl;
+			cout << b->get_pos().x << b->get_pos().y << endl;
+		}
+	}
+	
+	//cout <<player->get_pos().x << " " << player->get_pos().y << endl;
+
+	player->update(elapsed, dg->map, dg->dimX, dg->dimY);
 	player_sprite.transform.displacement = player->get_pos();
 }
 
 void PongMode::draw(glm::uvec2 const &drawable_size) {
+	{ //use DrawLines to overlay some text:
+		glDisable(GL_DEPTH_TEST);
+		float aspect = float(drawable_size.x) / float(drawable_size.y);
+		DrawLines lines(glm::mat4(
+			1.0f / aspect, 0.0f, 0.0f, 0.0f,
+			0.0f, 1.0f, 0.0f, 0.0f,
+			0.0f, 0.0f, 1.0f, 0.0f,
+			0.0f, 0.0f, 0.0f, 1.0f
+		));
+
+		// constexpr float H = 0.09f;
+		// lines.draw_text("Player pos: " + to_string(player->get_pos().x) + " " + to_string(player->get_pos().y),
+		// 	glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H, 0.0),
+		// 	glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+		// 	glm::u8vec4(0x00, 0x00, 0x00, 0x00));
+		// float ofs = 2.0f / drawable_size.y;
+		// lines.draw_text("Player pos: " + to_string(player->get_pos().x) + " " + to_string(player->get_pos().y),
+		// 	glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + + 0.1f * H + ofs, 0.0),
+		// 	glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
+		// 	glm::u8vec4(0xff, 0xff, 0xff, 0x00));
+	}
+
 	//some nice colors from the course web page:
 	#define HEX_TO_U8VEC4( HX ) (glm::u8vec4( (HX >> 24) & 0xff, (HX >> 16) & 0xff, (HX >> 8) & 0xff, (HX) & 0xff ))
 	const glm::u8vec4 bg_color = HEX_TO_U8VEC4(0x193b59ff);
@@ -226,15 +354,25 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	// 	vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
 	// 	vertices.emplace_back(glm::vec3(center.x-radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
 	// };
+
 	//clear the color buffer:
 	dummy_sprite.tint = fg_color;
 	glClearColor(bg_color.r / 255.0f, bg_color.g / 255.0f, bg_color.b / 255.0f, bg_color.a / 255.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-	player_sprite.transform.scale = glm::vec2(10.0f, 10.0f);
-	player_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+
+	player_sprite.transform.scale = glm::vec2(player->get_width(), player->get_width());
+	player_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+
 	for(auto b : bullets) {
 		dummy_sprite.transform.displacement = b->get_pos();
 		dummy_sprite.transform.scale = glm::vec2(2.0f, 2.0f);
+		dummy_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
+	}
+
+	for(auto b : enemy_bullets) {
+		dummy_sprite.transform.displacement = b->get_pos();
+		dummy_sprite.transform.scale = glm::vec2(20.0f, 20.0f);
 		dummy_sprite.draw(player_pos, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
@@ -279,5 +417,4 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	
 
 	GL_ERRORS(); //PARANOIA: print errors just in case we did something wrong.
-
 }
