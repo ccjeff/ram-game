@@ -19,8 +19,14 @@ void Player::update(float elapsed, Map &map) {
     glm::vec2 old_pos = this->position;
     move(elapsed);
     if (map.ValueAtWorld(this->position.x, this->position.y) == 0) {
-        this->position = old_pos;
-
+        // this->position = old_pos;
+        if (map.ValueAtWorld(old_pos.x, this->position.y) != 0) {
+            this->position.x = old_pos.x;
+        } else if (map.ValueAtWorld(this->position.x, old_pos.y) != 0) {
+            this->position.y = old_pos.y;
+        } else {
+            this->position = old_pos;
+        }
     }
 
 	velocity = velocity * 0.8f;
