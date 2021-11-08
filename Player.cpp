@@ -1,5 +1,6 @@
 #include "Player.hpp"
 #include <iostream>
+#include <cmath>
 
 using namespace std;
 
@@ -19,6 +20,7 @@ void Player::update(float elapsed, Map &map) {
     move(elapsed);
     if (map.ValueAtWorld(this->position.x, this->position.y) == 0) {
         this->position = old_pos;
+
     }
 
 	velocity = velocity * 0.8f;
@@ -62,6 +64,10 @@ void Player::on_hit(float damage) {
 		this->position = glm::vec2(0, 0);
 		this->velocity = glm::vec2(0, 0);
 
-		hp = 5.0f;
+		//hp = 5.0f;
 	}
+}
+
+float Player::get_hp() {
+    return this->hp;
 }
