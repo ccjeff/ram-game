@@ -246,10 +246,20 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	{
 		int deleted = 0;
 		for(size_t i = 0; i < bullets.size(); i++) {
+			glm::vec2 old_pos = bullets[i]->get_pos();
 			bullets[i]->update_pos(elapsed * 500.0f);
 
 			glm::vec2 pos = bullets[i]->get_pos();
 			
+			if (dg->map.ValueAtWorld(pos.x, pos.y) == 0 
+				|| dg->map.ValueAtWorld(old_pos.x, pos.y) == 0
+				|| dg->map.ValueAtWorld(pos.x, old_pos.y) == 0) {
+				deleted++;
+				delete bullets[i];
+				bullets.erase(bullets.begin() + (i--));
+				continue;
+			}
+
 			float dist_player_x = abs(player->get_pos().x - pos.x);
 			float dist_player_y = abs(player->get_pos().y - pos.y);
 
@@ -303,9 +313,18 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	{
 		int deleted = 0;
 		for(size_t i = 0; i < enemy_bullets.size(); i++) {
+			glm::vec2 old_pos = enemy_bullets[i]->get_pos();
 			enemy_bullets[i]->update_pos(elapsed * 500.0f);
-
 			glm::vec2 pos = enemy_bullets[i]->get_pos();
+
+			if (dg->map.ValueAtWorld(pos.x, pos.y) == 0 
+				|| dg->map.ValueAtWorld(old_pos.x, pos.y) == 0
+				|| dg->map.ValueAtWorld(pos.x, old_pos.y) == 0) {
+				deleted++;
+				delete enemy_bullets[i];
+				enemy_bullets.erase(enemy_bullets.begin() + (i--));
+				continue;
+			}
 			
 			//cout << pos.x << " " << pos.y << endl;
 
