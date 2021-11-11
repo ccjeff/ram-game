@@ -147,6 +147,7 @@ GAME_NAMES =
 	PathFont
 	PathFont-font
 	ColorProgram
+	Items
 	;
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory
