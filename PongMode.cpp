@@ -128,7 +128,7 @@ PongMode::PongMode() {
 		// initializing player and dungeon
 		dg = new DungeonGenerator(100, 100);
 		dg->Generate(20);
-		dg->map.SetScalingFactor(32.0f);
+		dg->map.SetScalingFactor(64.0f);
 
 		player = std::make_shared<Player>(dg->map.GetWorldCoord(dg->playerStart), glm::vec2(0.0f, 0.0f), 32.0f);
 
@@ -246,10 +246,20 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	{
 		int deleted = 0;
 		for(size_t i = 0; i < bullets.size(); i++) {
+			glm::vec2 old_pos = bullets[i]->get_pos();
 			bullets[i]->update_pos(elapsed * 500.0f);
 
 			glm::vec2 pos = bullets[i]->get_pos();
 			
+			if (dg->map.ValueAtWorld(pos.x, pos.y) == 0 
+				|| dg->map.ValueAtWorld(old_pos.x, pos.y) == 0
+				|| dg->map.ValueAtWorld(pos.x, old_pos.y) == 0) {
+				deleted++;
+				delete bullets[i];
+				bullets.erase(bullets.begin() + (i--));
+				continue;
+			}
+
 			float dist_player_x = abs(player->get_pos().x - pos.x);
 			float dist_player_y = abs(player->get_pos().y - pos.y);
 
@@ -303,9 +313,18 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	{
 		int deleted = 0;
 		for(size_t i = 0; i < enemy_bullets.size(); i++) {
+			glm::vec2 old_pos = enemy_bullets[i]->get_pos();
 			enemy_bullets[i]->update_pos(elapsed * 500.0f);
-
 			glm::vec2 pos = enemy_bullets[i]->get_pos();
+
+			if (dg->map.ValueAtWorld(pos.x, pos.y) == 0 
+				|| dg->map.ValueAtWorld(old_pos.x, pos.y) == 0
+				|| dg->map.ValueAtWorld(pos.x, old_pos.y) == 0) {
+				deleted++;
+				delete enemy_bullets[i];
+				enemy_bullets.erase(enemy_bullets.begin() + (i--));
+				continue;
+			}
 			
 			//cout << pos.x << " " << pos.y << endl;
 
@@ -320,6 +339,10 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				delete enemy_bullets[i];
 				enemy_bullets.erase(enemy_bullets.begin() + (i--));
 
+				if(player->get_hp() <= 0) {
+					glm::vec2 pos = dg->map.GetWorldCoord(dg->playerStart);
+					player->set_pos(pos);
+				}
 				continue;
 			}
 			
@@ -426,7 +449,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	{
-		#define FLOOR_TILE_SIZE 32.f
+		#define FLOOR_TILE_SIZE 64.f
 		floor_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE * 15.f/16.f, FLOOR_TILE_SIZE * 15.f/16.f);
 		glm::ivec2 tile_id = dg->map.GetTile(player->get_pos().x, player->get_pos().y);
 		for(int i = tile_id.x - 12; i <= tile_id.x + 12; i++){
@@ -463,9 +486,9 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	}
 
 	for(auto e : enemies) {
-		bullet_sprite.transform.displacement = e->get_pos();
-		bullet_sprite.transform.size = glm::vec2(10.0f, 10.0f);
-		bullet_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		player_sprite.transform.displacement = e->get_pos();
+		player_sprite.transform.size = glm::vec2(10.0f, 10.0f);
+		player_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
 
