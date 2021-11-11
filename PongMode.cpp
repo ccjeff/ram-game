@@ -362,7 +362,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	//Ask enemies to attack after to give players more advantage
 	for(auto e : enemies) {
 		e->update(elapsed);
-
+		e->move(elapsed, player->get_pos(), dg->map);
 		Bullet* b = e->do_attack(player->get_pos());
 		if(b != nullptr) {
 			cout << "enemy attack D: " << endl;
