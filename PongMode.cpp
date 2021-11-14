@@ -76,25 +76,31 @@ PongMode::PongMode() {
 
 		GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
 	}
-	{
-		std::vector< glm::u8vec4 > data(64, glm::u8vec4(255,0,0,255));
-		glm::uvec2 size(8,8);
-		player_sprite = Sprite(data, size);
-		player_sprite.tint = glm::u8vec4(255, 0, 0, 255);
-	}
-	{
-		std::vector< glm::u8vec4 > data(64, glm::u8vec4(255,255,255,255));
-		glm::uvec2 size(8,8);
-		bullet_sprite = Sprite(data, size);
-		bullet_sprite.tint = glm::u8vec4(255, 255, 255, 255);
-	}
-	{
-		std::vector< glm::u8vec4 > data(64, glm::u8vec4(255,255,255,255));
-		glm::uvec2 size(8,8);
-		floor_sprite = Sprite(data, size);
-		floor_sprite.tint = glm::u8vec4(255, 255, 255, 255);
-		floor_sprite.transform.size = glm::vec2(32.f,32.f);
-	}
+	floor_sprite = Sprite(*green_tile, "sprite");
+	player_sprite = Sprite(*green_smiley, "sprite");
+	enemy_sprite = Sprite(*red_smiley, "sprite");
+	p_bullet = Sprite(*green_circle, "sprite");
+	e_bullet = Sprite(*red_circle, "sprite");
+	blank_sprite = Sprite(*black, "sprite");
+	// {
+	// 	std::vector< glm::u8vec4 > data(64, glm::u8vec4(255,0,0,255));
+	// 	glm::uvec2 size(8,8);
+	// 	player_sprite = Sprite(data, size);
+	// 	player_sprite.tint = glm::u8vec4(255, 0, 0, 255);
+	// }
+	// {
+	// 	std::vector< glm::u8vec4 > data(64, glm::u8vec4(255,255,255,255));
+	// 	glm::uvec2 size(8,8);
+	// 	bullet_sprite = Sprite(data, size);
+	// 	bullet_sprite.tint = glm::u8vec4(255, 255, 255, 255);
+	// }
+	// {
+	// 	std::vector< glm::u8vec4 > data(64, glm::u8vec4(255,255,255,255));
+	// 	glm::uvec2 size(8,8);
+	// 	floor_sprite = Sprite(data, size);
+	// 	floor_sprite.tint = glm::u8vec4(255, 255, 255, 255);
+	// 	floor_sprite.transform.size = glm::vec2(32.f,32.f);
+	// }
 
 	{ //solid white texture:
 		//ask OpenGL to fill white_tex with the name of an unused texture object:
@@ -444,26 +450,26 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	// };
 
 	//clear the color buffer:
-	bullet_sprite.tint = fg_color;
+	// bullet_sprite.tint = fg_color;
 	glClearColor(bg_color.r / 255.0f, bg_color.g / 255.0f, bg_color.b / 255.0f, bg_color.a / 255.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+
+
 	{
-		#define FLOOR_TILE_SIZE 64.f
-		floor_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE * 15.f/16.f, FLOOR_TILE_SIZE * 15.f/16.f);
+		#define FLOOR_TILE_SIZE 32.f
+		floor_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
 		glm::ivec2 tile_id = dg->map.GetTile(player->get_pos().x, player->get_pos().y);
 		for(int i = tile_id.x - 12; i <= tile_id.x + 12; i++){
 			for(int j = tile_id.y - 12; j <= tile_id.y + 12; j++){
 				floor_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
 				glm::ivec2 cur_tile_id = dg->map.GetTile(floor_sprite.transform.displacement.x, floor_sprite.transform.displacement.y);
 				if(cur_tile_id.x < 0 || cur_tile_id.y < 0)
-					floor_sprite.tint = glm::u8vec4(0, 0, 0, 255);
-				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y)) //TODO: Change this when do sprites, this check is backwards but looks nice for the demo.
-					floor_sprite.tint = glm::u8vec4(64, 64, 64, 255);
+					blank_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 0) //TODO: Change this when do sprites, this check is backwards but looks nice for the demo.
+					blank_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 				else
-					floor_sprite.tint = glm::u8vec4(255, 255, 255, 255);
-
-				floor_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+					floor_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 			}
 		}
 		#undef FLOOR_TILE_SIZE
@@ -472,23 +478,23 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	player_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 
 	for(auto b : bullets) {
-		bullet_sprite.transform.displacement = b->get_pos();
-		bullet_sprite.transform.size = glm::vec2(10.0f, 10.0f);
-		bullet_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		p_bullet.transform.displacement = b->get_pos();
+		p_bullet.transform.size = glm::vec2(10.0f, 10.0f);
+		p_bullet.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
 
 	for(auto b : enemy_bullets) {
-		bullet_sprite.transform.displacement = b->get_pos();
-		bullet_sprite.transform.size = glm::vec2(20.0f, 20.0f);
-		bullet_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		e_bullet.transform.displacement = b->get_pos();
+		e_bullet.transform.size = glm::vec2(20.0f, 20.0f);
+		e_bullet.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
 
 	for(auto e : enemies) {
-		player_sprite.transform.displacement = e->get_pos();
-		player_sprite.transform.size = glm::vec2(10.0f, 10.0f);
-		player_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		enemy_sprite.transform.displacement = e->get_pos();
+		enemy_sprite.transform.size = glm::vec2(10.0f, 10.0f);
+		enemy_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
 
