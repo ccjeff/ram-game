@@ -150,6 +150,7 @@ GAME_NAMES =
 	ColorProgram
 	Items
 	ReinforcementLearning
+	RayTracing
 	;
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory

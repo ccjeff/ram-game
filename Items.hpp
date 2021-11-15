@@ -5,6 +5,7 @@
 
 #include "Player.hpp"
 #include "Sprites.hpp"
+#include "Bullet.hpp"
 
 class Items {
 public:
@@ -15,6 +16,7 @@ public:
 	virtual void on_dealt_damage() {};
 	virtual void on_kill() {};
 	virtual void on_bullet_destroyed() {};
+	virtual void on_shoot(Bullet* b) {};
 
 	glm::vec2 get_pos();
 	float get_width();

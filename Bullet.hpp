@@ -11,9 +11,12 @@ public:
 	
 	const glm::vec2& get_pos();
 	const glm::vec2& get_vel();
+	void set_vel(const glm::vec2& vel);
 
 	float get_damage();
 	float get_width();
+	void set_bounces(int bounces);
+	int get_bounces();
 	
 protected:
 	glm::vec2 pos;
@@ -21,4 +24,5 @@ protected:
 
 	float damage = 1.0f;
 	float width = 16.0f;
+	int bounces;
 };

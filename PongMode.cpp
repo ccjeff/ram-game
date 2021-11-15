@@ -85,6 +85,7 @@ PongMode::PongMode() {
 	e_bullet = Sprite(*red_circle, "sprite");
 	blank_sprite = Sprite(*black, "sprite");
 	r_learning_sprite = Sprite(*r_learning, "sprite");
+	ray_tracing_sprite = Sprite(*ray_tracing, "sprite");
 
 	{ //solid white texture:
 		//ask OpenGL to fill white_tex with the name of an unused texture object:
@@ -132,6 +133,7 @@ PongMode::PongMode() {
 	//Add things for testing
 	{
 		items_on_ground.emplace_back(new ReinforcementLearning(player, dg->player_start, &r_learning_sprite));
+		items.emplace_back(new RayTracing(player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
 	}
 }
 
@@ -177,6 +179,10 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		// cout << evt.motion.x << " " <<  evt.motion.y << endl;
 
 		bullets.emplace_back(b);
+
+		for(auto i : items) {
+			i->on_shoot(b);
+		}
 	} else {
 		if (evt.type == SDL_KEYDOWN) {
 			if (evt.key.keysym.sym == SDLK_a) {
@@ -252,6 +258,16 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 			if (dg->map.ValueAtWorld(pos.x, pos.y) == 0 
 				|| dg->map.ValueAtWorld(old_pos.x, pos.y) == 0
 				|| dg->map.ValueAtWorld(pos.x, old_pos.y) == 0) {
+
+				//Bounce the bullet if there are bounces left
+				if(bullets[i]->get_bounces() >= 1) {
+					bullets[i]->set_vel(-bullets[i]->get_vel());
+					bullets[i]->set_bounces(bullets[i]->get_bounces() - 1);
+					bullets[i]->update_pos(elapsed * 500.0f);
+					cout << "bounced " << elapsed << endl;
+					continue;
+				}
+
 				deleted++;
 				delete bullets[i];
 				bullets.erase(bullets.begin() + (i--));
@@ -533,7 +549,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 		i->get_sprite()->transform.displacement = i->get_pos();
 		i->get_sprite()->transform.size = glm::vec2(i->get_width(), i->get_width());
 		i->get_sprite()->draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
-		cout << "Drawn item on ground " << glm::to_string(dg->player_start) << " " << glm::to_string(i->get_pos()) << endl; 
+		//cout << "Drawn item on ground " << i->get_width() << " " << glm::to_string(i->get_pos()) << endl; 
 	}
 
 	//---- actual drawing ----
