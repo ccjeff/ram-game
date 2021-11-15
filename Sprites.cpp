@@ -2,13 +2,14 @@
 #include "ColorTextureProgram.hpp"
 #include "gl_errors.hpp"
 #include "load_save_png.hpp"
+#include "data_path.hpp"
 
 #include <iostream>
 
 Load <SpriteMap> green_tile(LoadTagDefault, [](){
     glm::uvec2 size;
     std::vector < glm::u8vec4 > data;
-    load_png("green_tile.png", &size, &data, LowerLeftOrigin);
+    load_png(data_path("green_tile.png"), &size, &data, LowerLeftOrigin);
 
     GLuint tex;
     glGenTextures(1, &tex);
@@ -36,7 +37,7 @@ Load <SpriteMap> green_tile(LoadTagDefault, [](){
 Load <SpriteMap> black(LoadTagDefault, [](){
     glm::uvec2 size;
     std::vector < glm::u8vec4 > data;
-    load_png("black.png", &size, &data, LowerLeftOrigin);
+    load_png(data_path("black.png"), &size, &data, LowerLeftOrigin);
 
     GLuint tex;
     glGenTextures(1, &tex);
@@ -64,7 +65,7 @@ Load <SpriteMap> black(LoadTagDefault, [](){
 Load <SpriteMap> green_circle(LoadTagDefault, [](){
     glm::uvec2 size;
     std::vector < glm::u8vec4 > data;
-    load_png("green_circle.png", &size, &data, LowerLeftOrigin);
+    load_png(data_path("green_circle.png"), &size, &data, LowerLeftOrigin);
 
     GLuint tex;
     glGenTextures(1, &tex);
@@ -92,7 +93,7 @@ Load <SpriteMap> green_circle(LoadTagDefault, [](){
 Load <SpriteMap> red_circle(LoadTagDefault, [](){
     glm::uvec2 size;
     std::vector < glm::u8vec4 > data;
-    load_png("red_circle.png", &size, &data, LowerLeftOrigin);
+    load_png(data_path("red_circle.png"), &size, &data, LowerLeftOrigin);
 
     GLuint tex;
     glGenTextures(1, &tex);
@@ -120,7 +121,7 @@ Load <SpriteMap> red_circle(LoadTagDefault, [](){
 Load <SpriteMap> green_smiley(LoadTagDefault, [](){
     glm::uvec2 size;
     std::vector < glm::u8vec4 > data;
-    load_png("green_smiley.png", &size, &data, LowerLeftOrigin);
+    load_png(data_path("green_smiley.png"), &size, &data, LowerLeftOrigin);
 
     GLuint tex;
     glGenTextures(1, &tex);
@@ -148,7 +149,7 @@ Load <SpriteMap> green_smiley(LoadTagDefault, [](){
 Load <SpriteMap> red_smiley(LoadTagDefault, [](){
     glm::uvec2 size;
     std::vector < glm::u8vec4 > data;
-    load_png("red_smiley.png", &size, &data, LowerLeftOrigin);
+    load_png(data_path("red_smiley.png"), &size, &data, LowerLeftOrigin);
 
     GLuint tex;
     glGenTextures(1, &tex);
