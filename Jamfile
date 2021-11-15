@@ -148,6 +148,8 @@ GAME_NAMES =
 	PathFont
 	PathFont-font
 	ColorProgram
+	Items
+	ReinforcementLearning
 	;
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory

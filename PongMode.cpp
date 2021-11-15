@@ -125,7 +125,11 @@ PongMode::PongMode() {
 			enemies.emplace_back(new BasicEnemy(dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f)));
 		}
 		
-		
+	}
+
+	//Add things for testing
+	{
+		items.emplace_back(new ReinforcementLearning(player));
 	}
 }
 
@@ -211,6 +215,10 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 }
 
 void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
+	for(auto item : items) {
+		item->preupdate();
+	}
+
 	glm::vec2 player_vel = player->get_vel();
 
 	if (left.pressed && !right.pressed) {
@@ -245,6 +253,11 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				deleted++;
 				delete bullets[i];
 				bullets.erase(bullets.begin() + (i--));
+
+				for(auto item : items) {
+					item->on_bullet_destroyed();
+				}
+
 				continue;
 			}
 
@@ -257,10 +270,15 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				float dist_x = abs(e->get_pos().x - pos.x);
 				float dist_y = abs(e->get_pos().y - pos.y);
 
-				if(dist_x < 10.0f && dist_y < 10.0f) {
+				if(dist_x < e->get_width()/2.0f && dist_y < e->get_width()/2.0f) {
+					//std::cout << "Enemy was hit by a bullet" << std::endl;
 					e->on_hit(bullets[i]->get_damage());
-					std::cout << "Enemy was hit by a bullet" << std::endl;
 					enemy_hit = true;
+
+					for(auto item : items) {
+						item->on_dealt_damage();
+					}
+
 					break;
 				}
 			}
@@ -277,7 +295,15 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 						enemies_deleted++;
 						delete enemies[i];
 						enemies.erase(enemies.begin() + (i--));
+
+						for(auto item : items) {
+							item->on_kill();
+						}
 					}
+				}
+
+				for(auto item : items) {
+					item->on_bullet_destroyed();
 				}
 
 				continue;
@@ -290,6 +316,10 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				deleted++;
 				delete bullets[i];
 				bullets.erase(bullets.begin() + (i--));
+
+				for(auto item : items) {
+					item->on_bullet_destroyed();
+				}
 
 				continue;
 			}
@@ -327,10 +357,19 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				delete enemy_bullets[i];
 				enemy_bullets.erase(enemy_bullets.begin() + (i--));
 
+				//Player death
+				//TODO: pull this out to a method and add other fancy stuff like remove items
 				if(player->get_hp() <= 0) {
 					glm::vec2 pos = dg->map.GetWorldCoord(dg->playerStart);
 					player->set_pos(pos);
+					player->add_hp(5.0f);
+					return;
 				}
+
+				for(auto item : items) {
+					item->on_recv_damage();
+				}
+
 				continue;
 			}
 			
@@ -362,6 +401,12 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 	player->update(elapsed, dg->map);
 	player_sprite.transform.displacement = player->get_pos();
+
+	for(auto item : items) {
+		item->postupdate();
+	}
+
+	//cout << player->get_hp() << endl;
 }
 
 void PongMode::draw(glm::uvec2 const &drawable_size) {
@@ -445,24 +490,40 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 			}
 		}
 	}
-	player_sprite.transform.size = glm::vec2(player->get_width(), player->get_width());
+	player_sprite.transform.size = glm::vec2(
+		player->get_vel().x < 0 ? 
+				-1.0f * player->get_width() : 
+				player->get_width(), player->get_width()
+	);
 	player_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 
 	for(auto b : bullets) {
 		p_bullet.transform.displacement = b->get_pos();
-		p_bullet.transform.size = glm::vec2(b->get_width(), b->get_width());
+		p_bullet.transform.size = glm::vec2(
+			b->get_vel().x < 0 ? 
+				-1.0f * b->get_width() : 
+				b->get_width(), b->get_width()
+		);
 		p_bullet.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
 
 	for(auto b : enemy_bullets) {
 		e_bullet.transform.displacement = b->get_pos();
-		e_bullet.transform.size = glm::vec2(b->get_width(), b->get_width());
+		e_bullet.transform.size = glm::vec2(
+			b->get_vel().x < 0 ? 
+				-1.0f * b->get_width() : 
+				b->get_width(), b->get_width()
+		);
 		e_bullet.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
 
 	for(auto e : enemies) {
 		enemy_sprite.transform.displacement = e->get_pos();
-		enemy_sprite.transform.size = glm::vec2(e->get_width(), e->get_width());
+		enemy_sprite.transform.size = glm::vec2(
+			e->get_vel().x < 0 ? 
+				-1.0f * e->get_width() : 
+				e->get_width(), e->get_width()
+		);
 		enemy_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
 

@@ -77,3 +77,7 @@ void Player::on_hit(float damage) {
 float Player::get_hp() {
     return this->hp;
 }
+
+void Player::add_hp(float hp) {
+	this->hp += hp;
+}

@@ -1,24 +1,30 @@
 #pragma once
+#include "GL.hpp"
+#include <glm/glm.hpp>
 #include "ColorTextureProgram.hpp"
 
+#include <memory>
+#include <vector>
+
 #include "Mode.hpp"
+
 #include "Bullet.hpp"
 #include "Pistol.hpp"
 #include "Gun.hpp"
-#include "GL.hpp"
+
 #include "Player.hpp"
+
+//Enemies
 #include "Enemy.hpp"
 #include "BasicEnemy.hpp"
+
+//Items
+#include "Items.hpp"
+#include "ReinforcementLearning.hpp"
 
 #include "Sprites.hpp"
 #include "DrawLines.hpp"
 #include "DungeonGenerator.hpp"
-
-#include <memory>
-
-#include <glm/glm.hpp>
-
-#include <vector>
 
 /*
  * PongMode is a game mode that implements a single-player game of Pong.
@@ -53,6 +59,8 @@ struct PongMode : Mode {
 
 	std::shared_ptr<Player> player;
 	DungeonGenerator* dg;
+
+	std::vector<Items*> items;
 
 	Sprite floor_sprite, player_sprite, enemy_sprite, p_bullet, e_bullet, blank_sprite;
 
