@@ -4,6 +4,10 @@
 
 using namespace std;
 
+bool collisionMat[] = { true, false, false };
+
+std::string prefabs[] = { "test1", "test2", "test3", "test4"};
+
 DungeonGenerator::DungeonGenerator(size_t x, size_t y)
 {
 	dimX = x;
@@ -25,19 +29,25 @@ size_t DungeonGenerator::index(size_t xIndex, size_t yIndex)
 
 bool DungeonGenerator::Generate(size_t numberOfRooms)
 {
+	printf("Starting dungeon gen!\n");
 	rooms.clear();
 	for (size_t count = 0; count < numberOfRooms; count++)
 	{
 		bool success = true;
 		for (size_t attempt = 0; attempt < attemptsPerRoom; attempt++)
 		{
+			int len = sizeof(prefabs) / sizeof(prefabs[0]);
+			RoomTemplate temp = RoomTemplate(prefabs[rand() % len]);
+
 			
-			size_t width  = (rand() % (maxRoomSize - minRoomSize)) + minRoomSize;
-			size_t height = (rand() % (maxRoomSize - minRoomSize)) + minRoomSize;
+			size_t width = temp.width;// (rand() % (maxRoomSize - minRoomSize)) + minRoomSize;
+			size_t height = temp.height;// (rand() % (maxRoomSize - minRoomSize)) + minRoomSize;
 			size_t startX = (rand() % (dimX - width  - 2)) + 1;
 			size_t startY = (rand() % (dimY - height - 2)) + 1;
 
-			Room newRoom = Room(startX, startY, width, height);
+			
+			Room newRoom = Room(temp);
+			newRoom.SetPosition(startX, startY);
 
 			success = true;
 			for (Room r : rooms)
@@ -57,22 +67,24 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 		}
 		if (!success)
 		{
-			//printf("Generator failed to place room after %zu tries. Aborting dungeon gen.\n", attemptsPerRoom);
 			return false;
 		}
 	}
 
-	//printf("Generator succeeded in finding positiosn for all rooms.\n");
+	printf("Made all the rooms!\n");
+
 	for (Room r : rooms)
 	{
-		r.Write(&map);
+		r.SetMap(&map);
+		r.Write();
 		map.rooms.push_back(r);
 	}
+
+	printf("Wrote all the rooms!\n");
 
 	ConnectRooms();
 
 	int playerRoom = rand() % rooms.size();
-
 	playerStart = rooms[playerRoom].GetCenter();
 	rooms.erase(std::next(rooms.begin(), playerRoom));
 
@@ -81,8 +93,7 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 		monsterPositions.push_back(r.GetCenter());
 	}
 
-	//printf("Generator succeeded in writing all rooms.\n");
-	//PrintMap();
+	PrintMap();
 
 	return true;
 }
@@ -176,10 +187,25 @@ void DungeonGenerator::PrintMap()
 	{
 		for (size_t x = 0; x < dimX; x++)
 		{
-		
-			//printf("%d", map.ValueAt(x, y));
+			printf("%d", map.ValueAt(x, y));
 		}
-		//printf(" - %zu\n", y);
+		printf(" - %zu\n", y);
+	}
+
+	for (size_t y = 0; y < dimY; y++)
+	{
+		for (size_t x = 0; x < dimX; x++)
+		{
+			if (map.collision[x][y])
+			{
+				printf("X");
+			}
+			else
+			{
+				printf(" ");
+			}
+		}
+		printf("\n");
 	}
 }
 
@@ -190,13 +216,23 @@ Map::Map(size_t x, size_t y)
 
 	map.clear();
 	rooms.clear();
+	collision.clear();
+	spriteMap.clear();
 
 	map = std::vector<std::vector<int>> (dimX, std::vector<int>(dimY, 0));
+	collision = std::vector<std::vector<bool>>(dimX, std::vector<bool>(dimY, true));
+	spriteMap = std::vector<std::vector<int>>(dimX, std::vector<int>(dimY, 0));
 }
 
 void Map::SetAt(size_t x, size_t y, int value)
 {
 	map[x][y] = value;
+	SetCollisionAt(x, y, collisionMat[value]);
+}
+
+void Map::SetCollisionAt(size_t x, size_t y, bool value)
+{
+	collision[x][y] = value;
 }
 
 int Map::ValueAt(size_t x, size_t y)
@@ -246,13 +282,37 @@ glm::vec2 Map::GetWorldCoord(int x, int y)
 	return (glm::vec2(x, y) + glm::vec2(.5f, .5f)) * scalingFactor;
 }
 
-Room::Room(size_t x, size_t y, size_t width, size_t height)
+Room::Room(size_t width, size_t height)
 {
-	this->x = x;
-	this->y = y;
 	this->width = width;
 	this->height = height;
 	connected = false;
+
+	this->layout.clear();
+
+	this->layout = std::vector<std::vector<int>>(this->width, std::vector<int>(this->height, 1));
+
+	for (int i = 0; i < layout.size(); i++)
+	{
+		for (int j = 0; j < layout[0].size(); j++)
+		{
+			printf("%d", layout[i][j]);
+		}
+		printf("\n");
+	}
+}
+
+Room::Room(RoomTemplate roomTemplate)
+{
+	this->width = roomTemplate.width;
+	this->height = roomTemplate.height;
+	this->layout = roomTemplate.layout;
+}
+
+void Room::SetPosition(size_t x, size_t y)
+{
+	this->x = x;
+	this->y = y;
 }
 
 //Best collision check I know: ! of all the cases where it can't possibly collide
@@ -266,13 +326,20 @@ bool Room::Collides(Room other)
 		);
 }
 
-void Room::Write(Map *map)
+bool Room::IsIn(glm::vec2 position)
 {
-	for (size_t xIndex = x; xIndex < (x + width); xIndex++)
+	size_t xPos = size_t(position.x / map->scalingFactor);
+	size_t yPos = size_t(position.y / map->scalingFactor);
+	return !(xPos < x || xPos >= (x + width) || yPos < y || yPos >= (y + width));
+}
+
+void Room::Write()
+{
+	for (size_t xIndex = 0; xIndex < width; xIndex++)
 	{
-		for (size_t yIndex = y; yIndex < (y + height); yIndex++)
+		for (size_t yIndex =  0; yIndex < height; yIndex++)
 		{
-			map->SetAt(xIndex, yIndex, 1);
+			map->SetAt(xIndex + x, yIndex + y, layout[xIndex][yIndex]);
 		}
 	}
 
@@ -281,4 +348,95 @@ void Room::Write(Map *map)
 glm::ivec2 Room::GetCenter()
 {
 	return glm::ivec2(x + (width / 2), y + (height / 2));
+}
+
+void Room::SetMap(Map* map)
+{
+	this->map = map;
+}
+
+void Room::LockRoom()
+{
+	for (size_t xIndex = x; xIndex < x + width; xIndex++)
+	{
+		for (size_t yIndex = y; yIndex < y + height; yIndex++)
+		{
+			if (map->ValueAt(xIndex, yIndex) == doorNum)
+			{
+				map->SetCollisionAt(xIndex, yIndex, true);
+			}
+		}
+	}
+}
+
+void Room::UnlockRoom()
+{
+	for (size_t xIndex = x; xIndex < x + width; xIndex++)
+	{
+		for (size_t yIndex = y; yIndex < y + height; yIndex++)
+		{
+			if (map->ValueAt(xIndex, yIndex) == doorNum)
+			{
+				map->SetCollisionAt(xIndex, yIndex, false);
+			}
+		}
+	}
+}
+
+
+
+//------------------Room template code-------------------------
+RoomTemplate::RoomTemplate(std::string path)
+{
+	std::string filepath = data_path("prefabs/" + path + ".txt");
+	FILE* input;
+	
+	if (fopen_s(&input, &filepath.at(0), "r") == 0)
+	{
+
+		fscanf_s(input, "%zu %zu\n", &this->width, &this->height);
+		layout = std::vector<std::vector<int>>(width, std::vector<int>(height, -1));
+		//char* line = (char*)malloc(width * 5 * sizeof(char));
+		/*
+		for (size_t y = 0; y < height; y++)
+		{
+			fscanf_s(input, "%s\n", line, uint32_t(width * sizeof(char)));
+			for (size_t x = 0; x < width; x++)
+			{
+				char val = line[x];
+				
+				layout[x][y] = atoi(&val);
+				printf("%zu, %zu - %d\n", x, y, atoi(&val));
+			}
+		}*/
+		char val;
+		for (int y = 0; y < height; y++)
+		{
+			for (int x = 0; x < width; x++)
+			{
+				fscanf_s(input, "%c", &val, 1);
+				while (val == '\n')
+				{
+					fscanf_s(input, "%c", &val, 1);
+				}
+				layout[x][y] = atoi(&val);
+			}
+		}
+
+		fclose(input);
+	}
+	else
+	{
+		printf("Something went horribly wrong! File could not be opened\n");
+	}
+
+	printf("Read a room! Here it is:\n");
+	for (size_t i = 0; i < height; i++)
+	{
+		for (size_t j = 0; j < width; j++)
+		{
+			printf("%d", layout[j][i]);
+		}
+		printf("\n");
+	}
 }
