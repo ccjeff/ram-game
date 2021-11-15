@@ -81,7 +81,6 @@ PongMode::PongMode() {
 	player_sprite = Sprite(*green_smiley, "sprite");
 	enemy_sprite = Sprite(*red_smiley, "sprite");
 	p_bullet = Sprite(*green_circle, "sprite");
-	p_bullet.tint = {155, 55, 155, 255};
 	e_bullet = Sprite(*red_circle, "sprite");
 	blank_sprite = Sprite(*black, "sprite");
 
