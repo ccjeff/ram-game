@@ -3,6 +3,8 @@
 #include <iostream>
 #include <stdio.h>
 
+#define _CRT_SECURE_NO_DEPRECATE
+
 extern "C" {
 	FILE	*fopen(const char * __restrict __filename, const char * __restrict __mode);
 	int fscanf ( FILE * stream, const char * format, ... );
@@ -386,18 +388,28 @@ RoomTemplate::RoomTemplate(std::string path)
 	FILE* input = fopen(filepath.c_str(), "r");
 	if (input != NULL)
 	{
-		fscanf(input, "%zu %zu\n", &this->width, &this->height);
+		if (fscanf(input, "%zu %zu\n", &this->width, &this->height) < 0) {
+			std::cout << "Error reading room template file: " << filepath << std::endl;
+			return;
+		}
 		layout = std::vector<std::vector<int>>(width, std::vector<int>(height, -1));
 
 		char val;
-		for (int y = 0; y < height; y++)
+		for (size_t y = 0; y < height; y++)
 		{
-			for (int x = 0; x < width; x++)
+			for (size_t x = 0; x < width; x++)
 			{
-				fscanf(input, "%c", &val);
+				if (fscanf(input, "%c", &val) < 0)
+				{
+					std::cout << "Error reading file: " << filepath << std::endl;
+					return;
+				};
 				while (val == '\n')
 				{
-					fscanf(input, "%c", &val);
+					if (fscanf(input, "%c", &val) < 0){
+						std::cout << "Error reading file: " << filepath << std::endl;
+						return;
+					}
 				}
 				layout[x][y] = atoi(&val);
 			}
