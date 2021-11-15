@@ -67,3 +67,4 @@ extern Load<SpriteMap> green_smiley;
 extern Load<SpriteMap> red_smiley;
 extern Load<SpriteMap> green_circle;
 extern Load<SpriteMap> red_circle;
+extern Load<SpriteMap> r_learning;

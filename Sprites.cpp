@@ -5,11 +5,12 @@
 #include "data_path.hpp"
 
 #include <iostream>
+#include <string>
 
-Load <SpriteMap> green_tile(LoadTagDefault, [](){
-    glm::uvec2 size;
+SpriteMap* load_func(std::string png) {
+	glm::uvec2 size;
     std::vector < glm::u8vec4 > data;
-    load_png(data_path("green_tile.png"), &size, &data, LowerLeftOrigin);
+    load_png(data_path(png), &size, &data, LowerLeftOrigin);
 
     GLuint tex;
     glGenTextures(1, &tex);
@@ -32,151 +33,20 @@ Load <SpriteMap> green_tile(LoadTagDefault, [](){
     smap->tex = tex;
     smap->sprites["sprite"] = TexRectangle(0.f, 0.f, 1.f, 1.f);
     return smap;
-});
+}
 
-Load <SpriteMap> black(LoadTagDefault, [](){
-    glm::uvec2 size;
-    std::vector < glm::u8vec4 > data;
-    load_png(data_path("black.png"), &size, &data, LowerLeftOrigin);
-
-    GLuint tex;
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
-    
-    //set filtering and wrapping parameters:
-    //(it's a bit silly to mipmap a 1x1 texture, but I'm doing it because you may want to use this code to load different sizes of texture)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    GL_ERRORS();
-
-    SpriteMap *smap = new SpriteMap();
-    smap->tex = tex;
-    smap->sprites["sprite"] = TexRectangle(0.f, 0.f, 1.f, 1.f);
-    return smap;
-});
-
-Load <SpriteMap> green_circle(LoadTagDefault, [](){
-    glm::uvec2 size;
-    std::vector < glm::u8vec4 > data;
-    load_png(data_path("green_circle.png"), &size, &data, LowerLeftOrigin);
-
-    GLuint tex;
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
-    
-    //set filtering and wrapping parameters:
-    //(it's a bit silly to mipmap a 1x1 texture, but I'm doing it because you may want to use this code to load different sizes of texture)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    GL_ERRORS();
-
-    SpriteMap *smap = new SpriteMap();
-    smap->tex = tex;
-    smap->sprites["sprite"] = TexRectangle(0.f, 0.f, 1.f, 1.f);
-    return smap;
-});
-
-Load <SpriteMap> red_circle(LoadTagDefault, [](){
-    glm::uvec2 size;
-    std::vector < glm::u8vec4 > data;
-    load_png(data_path("red_circle.png"), &size, &data, LowerLeftOrigin);
-
-    GLuint tex;
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
-    
-    //set filtering and wrapping parameters:
-    //(it's a bit silly to mipmap a 1x1 texture, but I'm doing it because you may want to use this code to load different sizes of texture)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    GL_ERRORS();
-
-    SpriteMap *smap = new SpriteMap();
-    smap->tex = tex;
-    smap->sprites["sprite"] = TexRectangle(0.f, 0.f, 1.f, 1.f);
-    return smap;
-});
-
-Load <SpriteMap> green_smiley(LoadTagDefault, [](){
-    glm::uvec2 size;
-    std::vector < glm::u8vec4 > data;
-    load_png(data_path("green_smiley.png"), &size, &data, LowerLeftOrigin);
-
-    GLuint tex;
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
-    
-    //set filtering and wrapping parameters:
-    //(it's a bit silly to mipmap a 1x1 texture, but I'm doing it because you may want to use this code to load different sizes of texture)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    GL_ERRORS();
-
-    SpriteMap *smap = new SpriteMap();
-    smap->tex = tex;
-    smap->sprites["sprite"] = TexRectangle(0.f, 0.f, 1.f, 1.f);
-    return smap;
-});
-
-Load <SpriteMap> red_smiley(LoadTagDefault, [](){
-    glm::uvec2 size;
-    std::vector < glm::u8vec4 > data;
-    load_png(data_path("red_smiley.png"), &size, &data, LowerLeftOrigin);
-
-    GLuint tex;
-    glGenTextures(1, &tex);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
-    
-    //set filtering and wrapping parameters:
-    //(it's a bit silly to mipmap a 1x1 texture, but I'm doing it because you may want to use this code to load different sizes of texture)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    GL_ERRORS();
-
-    SpriteMap *smap = new SpriteMap();
-    smap->tex = tex;
-    smap->sprites["sprite"] = TexRectangle(0.f, 0.f, 1.f, 1.f);
-    return smap;
-});
+Load <SpriteMap> green_tile(LoadTagDefault, [](){ return load_func("green_tile.png"); });
+Load <SpriteMap> black(LoadTagDefault, [](){ return load_func("black.png"); });
+Load <SpriteMap> green_circle(LoadTagDefault, [](){ return load_func("green_circle.png"); });
+Load <SpriteMap> red_circle(LoadTagDefault, [](){ load_func("red_circle.png"); });
+Load <SpriteMap> green_smiley(LoadTagDefault, [](){ load_func("green_smiley.png"); });
+Load <SpriteMap> red_smiley(LoadTagDefault, [](){ load_func("red_smiley.png"); });
+Load <SpriteMap> r_learning(LoadTagDefault, [](){ return load_func("r_learning.png"); });
 
 TexRectangle::TexRectangle(float _x0, float _y0, float _x1, float _y1){
     x0 = _x0; y0 = _y0; x1 = _x1; y1 = _y1;
 }
+
 TexRectangle::TexRectangle(){
     x0=y0=x1=y1=0.f;
 }

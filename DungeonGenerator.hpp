@@ -87,7 +87,7 @@ struct DungeonGenerator {
 
 	std::vector<std::vector<int>> tiles;
 
-	glm::ivec2 playerStart;
+	glm::ivec2 player_start;
 	std::vector<glm::vec2> monsterPositions;
 
 	//-----------Variables to use while rooms are generated-------------

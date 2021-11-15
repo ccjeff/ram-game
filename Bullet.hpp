@@ -20,5 +20,5 @@ protected:
 	glm::vec2 vel;
 
 	float damage = 1.0f;
-	float width = 10.0f;
+	float width = 16.0f;
 };

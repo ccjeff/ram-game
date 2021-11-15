@@ -83,6 +83,7 @@ PongMode::PongMode() {
 	p_bullet = Sprite(*green_circle, "sprite");
 	e_bullet = Sprite(*red_circle, "sprite");
 	blank_sprite = Sprite(*black, "sprite");
+	r_learning_sprite = Sprite(*r_learning, "sprite");
 
 	{ //solid white texture:
 		//ask OpenGL to fill white_tex with the name of an unused texture object:
@@ -118,7 +119,7 @@ PongMode::PongMode() {
 		dg->Generate(20);
 		dg->map.SetScalingFactor(64.0f);
 
-		player = std::make_shared<Player>(dg->map.GetWorldCoord(dg->playerStart), glm::vec2(0.0f, 0.0f), 32.0f);
+		player = std::make_shared<Player>(dg->map.GetWorldCoord(dg->player_start), glm::vec2(0.0f, 0.0f), 32.0f);
 
 		for (glm::ivec2 pos : dg->monsterPositions)
 		{
@@ -129,7 +130,7 @@ PongMode::PongMode() {
 
 	//Add things for testing
 	{
-		items.emplace_back(new ReinforcementLearning(player));
+		items_on_ground.emplace_back(new ReinforcementLearning(player, dg->player_start));
 	}
 }
 
@@ -360,7 +361,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				//Player death
 				//TODO: pull this out to a method and add other fancy stuff like remove items
 				if(player->get_hp() <= 0) {
-					glm::vec2 pos = dg->map.GetWorldCoord(dg->playerStart);
+					glm::vec2 pos = dg->map.GetWorldCoord(dg->player_start);
 					player->set_pos(pos);
 					player->add_hp(5.0f);
 					return;

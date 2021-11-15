@@ -61,8 +61,15 @@ struct PongMode : Mode {
 	DungeonGenerator* dg;
 
 	std::vector<Items*> items;
+	std::vector<Items*> items_on_ground;
 
-	Sprite floor_sprite, player_sprite, enemy_sprite, p_bullet, e_bullet, blank_sprite;
+	Sprite floor_sprite,
+		player_sprite,
+		enemy_sprite,
+		p_bullet,
+		e_bullet,
+		blank_sprite,
+		r_learning_sprite;
 
 	//----- opengl assets / helpers ------
 

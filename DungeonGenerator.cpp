@@ -90,7 +90,7 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 	ConnectRooms();
 
 	int playerRoom = rand() % rooms.size();
-	playerStart = rooms[playerRoom].GetCenter();
+	player_start = rooms[playerRoom].GetCenter();
 	rooms.erase(std::next(rooms.begin(), playerRoom));
 
 	for (Room r : rooms)
