@@ -5,6 +5,7 @@
 
 //for glm::value_ptr() :
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include <random>
 #include "DungeonGenerator.hpp"
@@ -130,7 +131,7 @@ PongMode::PongMode() {
 
 	//Add things for testing
 	{
-		items_on_ground.emplace_back(new ReinforcementLearning(player, dg->player_start));
+		items_on_ground.emplace_back(new ReinforcementLearning(player, dg->player_start, &r_learning_sprite));
 	}
 }
 
@@ -526,6 +527,13 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 				e->get_width(), e->get_width()
 		);
 		enemy_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+	}
+
+	for(auto i : items_on_ground) {
+		i->get_sprite()->transform.displacement = i->get_pos();
+		i->get_sprite()->transform.size = glm::vec2(i->get_width(), i->get_width());
+		i->get_sprite()->draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		cout << "Drawn item on ground " << glm::to_string(dg->player_start) << " " << glm::to_string(i->get_pos()) << endl; 
 	}
 
 	//---- actual drawing ----

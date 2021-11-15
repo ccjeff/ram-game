@@ -8,7 +8,7 @@
 
 class Items {
 public:
-	Items(std::shared_ptr<Player> player, glm::vec2 pos);
+	Items(std::shared_ptr<Player> player, glm::vec2 pos, Sprite* sprite);
 	virtual void preupdate() {};
 	virtual void postupdate() {};
 	virtual void on_recv_damage() {};
@@ -18,9 +18,11 @@ public:
 
 	glm::vec2 get_pos();
 	float get_width();
+	Sprite* get_sprite();
 
 protected:
 	glm::vec2 pos;
-	float width;
+	float width = 32.0f;
 	std::shared_ptr<Player> player;
+	Sprite* sprite;
 };

@@ -38,9 +38,9 @@ SpriteMap* load_func(std::string png) {
 Load <SpriteMap> green_tile(LoadTagDefault, [](){ return load_func("green_tile.png"); });
 Load <SpriteMap> black(LoadTagDefault, [](){ return load_func("black.png"); });
 Load <SpriteMap> green_circle(LoadTagDefault, [](){ return load_func("green_circle.png"); });
-Load <SpriteMap> red_circle(LoadTagDefault, [](){ load_func("red_circle.png"); });
-Load <SpriteMap> green_smiley(LoadTagDefault, [](){ load_func("green_smiley.png"); });
-Load <SpriteMap> red_smiley(LoadTagDefault, [](){ load_func("red_smiley.png"); });
+Load <SpriteMap> red_circle(LoadTagDefault, [](){ return load_func("red_circle.png"); });
+Load <SpriteMap> green_smiley(LoadTagDefault, [](){ return load_func("green_smiley.png"); });
+Load <SpriteMap> red_smiley(LoadTagDefault, [](){ return load_func("red_smiley.png"); });
 Load <SpriteMap> r_learning(LoadTagDefault, [](){ return load_func("r_learning.png"); });
 
 TexRectangle::TexRectangle(float _x0, float _y0, float _x1, float _y1){
