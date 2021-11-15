@@ -1,6 +1,7 @@
 #include "DungeonGenerator.hpp"
 #include <algorithm>
 #include <iostream>
+#include <stdio.h>
 
 using namespace std;
 
@@ -382,7 +383,7 @@ RoomTemplate::RoomTemplate(std::string path)
 	{
 
 		fscanf_s(input, "%zu %zu\n", &this->width, &this->height);
-		layout = std::vector<std::vector<int>>(width, std::vector<int>(height, -1));
+		layout = vector<std::vector<int>>(width, std::vector<int>(height, -1));
 
 		char val;
 		for (int y = 0; y < height; y++)
