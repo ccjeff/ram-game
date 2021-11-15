@@ -13,10 +13,12 @@ public:
 	const glm::vec2& get_vel();
 
 	float get_damage();
+	float get_width();
 	
 protected:
 	glm::vec2 pos;
 	glm::vec2 vel;
 
 	float damage = 1.0f;
+	float width = 10.0f;
 };

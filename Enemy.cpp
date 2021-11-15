@@ -15,3 +15,7 @@ float Enemy::get_hp() {
 float Enemy::distance(const glm::vec2 &player_pos) {
 	return glm::distance(this->position, player_pos);
 }
+
+float Enemy::get_width() {
+	return this->width;
+}

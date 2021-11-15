@@ -76,6 +76,7 @@ PongMode::PongMode() {
 
 		GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
 	}
+
 	floor_sprite = Sprite(*green_tile, "sprite");
 	player_sprite = Sprite(*green_smiley, "sprite");
 	enemy_sprite = Sprite(*red_smiley, "sprite");
@@ -353,7 +354,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 		e->move(elapsed, player->get_pos(), dg->map);
 		Bullet* b = e->do_attack(player->get_pos());
 		if(b != nullptr) {
-			cout << "enemy attack D: " << endl;
+			//cout << "enemy attack D: " << endl;
 			enemy_bullets.emplace_back(b);
 		}
 	}
@@ -450,19 +451,19 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 
 	for(auto b : bullets) {
 		p_bullet.transform.displacement = b->get_pos();
-		p_bullet.transform.size = glm::vec2(10.0f, 10.0f);
+		p_bullet.transform.size = glm::vec2(b->get_width(), b->get_width());
 		p_bullet.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
 
 	for(auto b : enemy_bullets) {
 		e_bullet.transform.displacement = b->get_pos();
-		e_bullet.transform.size = glm::vec2(20.0f, 20.0f);
+		e_bullet.transform.size = glm::vec2(b->get_width(), b->get_width());
 		e_bullet.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
 
 	for(auto e : enemies) {
 		enemy_sprite.transform.displacement = e->get_pos();
-		enemy_sprite.transform.size = glm::vec2(10.0f, 10.0f);
+		enemy_sprite.transform.size = glm::vec2(e->get_width(), e->get_width());
 		enemy_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
 

@@ -14,4 +14,10 @@ How To Play:
 
 Sources: (TODO: list a source URL for any assets you did not create yourself. Make sure you have a license for the asset.)
 
+Tech Dungeon asset pack
+https://trevor-pupkin.itch.io/tech-dungeon-roguelite
+
+Outer Buddies asset pack
+https://trevor-pupkin.itch.io/outer-buddies
+
 This game was built with [NEST](NEST.md).

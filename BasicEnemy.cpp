@@ -25,7 +25,7 @@ void BasicEnemy::move(float elapsed, const glm::vec2 &player_pos, Map &map) {
 			}
 		}
 	}
-	std::cout << "BasicEnemy::move" << this->position.x << "&" << this->position.y << std::endl;
+	//std::cout << "BasicEnemy::move" << this->position.x << "&" << this->position.y << std::endl;
 }
 
 

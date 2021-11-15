@@ -28,6 +28,7 @@ public:
 
 	float get_hp();
     float distance(const glm::vec2 &player_pos);
+	float get_width();
 
 protected:
 	glm::vec2 position; // should init to a location
@@ -39,4 +40,6 @@ protected:
 	float time_step;
 
 	float hp;
+
+	float width = 32.0f;
 };
