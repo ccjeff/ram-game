@@ -11,8 +11,9 @@ void BasicEnemy::update(float elapsed) {
 
 void BasicEnemy::move(float elapsed, const glm::vec2 &player_pos, Map &map) {
 	glm::vec2 old_pos = this->position;
-	if (distance(player_pos) > 40.0f) {
+	if (distance(player_pos) > 3.0f * this->get_width()) {
 		glm::vec2 direction = glm::normalize(player_pos - this->position);
+		this->set_vel(direction);
 		this->position += direction * speed_val * elapsed;
 		if (map.ValueAtWorld(this->position.x, this->position.y) == 0) {
 			// this->position = old_pos;

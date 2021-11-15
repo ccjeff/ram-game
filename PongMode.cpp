@@ -490,24 +490,40 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 			}
 		}
 	}
-	player_sprite.transform.size = glm::vec2(player->get_width(), player->get_width());
+	player_sprite.transform.size = glm::vec2(
+		player->get_vel().x < 0 ? 
+				-1.0f * player->get_width() : 
+				player->get_width(), player->get_width()
+	);
 	player_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 
 	for(auto b : bullets) {
 		p_bullet.transform.displacement = b->get_pos();
-		p_bullet.transform.size = glm::vec2(b->get_width(), b->get_width());
+		p_bullet.transform.size = glm::vec2(
+			b->get_vel().x < 0 ? 
+				-1.0f * b->get_width() : 
+				b->get_width(), b->get_width()
+		);
 		p_bullet.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
 
 	for(auto b : enemy_bullets) {
 		e_bullet.transform.displacement = b->get_pos();
-		e_bullet.transform.size = glm::vec2(b->get_width(), b->get_width());
+		e_bullet.transform.size = glm::vec2(
+			b->get_vel().x < 0 ? 
+				-1.0f * b->get_width() : 
+				b->get_width(), b->get_width()
+		);
 		e_bullet.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
 
 	for(auto e : enemies) {
 		enemy_sprite.transform.displacement = e->get_pos();
-		enemy_sprite.transform.size = glm::vec2(e->get_width(), e->get_width());
+		enemy_sprite.transform.size = glm::vec2(
+			e->get_vel().x < 0 ? 
+				-1.0f * e->get_width() : 
+				e->get_width(), e->get_width()
+		);
 		enemy_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
 
