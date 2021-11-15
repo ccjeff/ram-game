@@ -1,15 +1,15 @@
+#define _CRT_SECURE_NO_DEPRECATE
+
 #include "DungeonGenerator.hpp"
 #include <algorithm>
 #include <iostream>
-#include <stdio.h>
 
-#define _CRT_SECURE_NO_DEPRECATE
 
-extern "C" {
+/*extern "C" {
 	FILE	*fopen(const char * __restrict __filename, const char * __restrict __mode);
 	int fscanf ( FILE * stream, const char * format, ... );
 	int fclose ( FILE * stream );
-}
+}*/
 
 using namespace std;
 
