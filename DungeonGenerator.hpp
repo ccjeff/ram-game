@@ -2,23 +2,51 @@
 #include <vector>
 #include <glm/glm.hpp>
 #include <algorithm>
+#include <string.h>
+#include "data_path.hpp"
+
+#define doorNum 2
 
 struct DungeonGenerator;
 struct Map;
+
+
+
+struct RoomTemplate
+{
+	size_t width;
+	size_t height;
+	std::vector<std::vector<int>> layout;
+
+	RoomTemplate(std::string path);
+};
 
 struct Room {
 	size_t x;
 	size_t y;
 	size_t width;
 	size_t height;
+	std::vector<std::vector<int>> layout;
 
-	Room(size_t x, size_t y, size_t width, size_t height);
+	Map* map;
+
+	Room(size_t width, size_t height);
+	Room(RoomTemplate roomTemplate);
+
+	void SetPosition(size_t x, size_t y);
+
+	bool is_inside(glm::vec2 position);
 
 	bool Collides(Room other);
 
-	void Write(Map* map);
+	void SetMap(Map* map);
+
+	void Write();
 
 	glm::ivec2 GetCenter();
+
+	void LockRoom();
+	void UnlockRoom();
 
 	bool connected;
 };
@@ -33,8 +61,11 @@ struct Map {
 
 	std::vector<Room> rooms;
 	std::vector<std::vector<int>> map;
+	std::vector<std::vector<bool>> collision;
+	std::vector<std::vector<int>> spriteMap;
 
 	void SetAt(size_t x, size_t y, int value);
+	void SetCollisionAt(size_t x, size_t y, bool value);
 	int ValueAt(size_t x, size_t y);
 
 	int ValueAtWorld(float x, float y);
@@ -53,6 +84,8 @@ struct DungeonGenerator {
 	Map map = Map(0, 0);
 	size_t dimX;
 	size_t dimY;
+
+	std::vector<std::vector<int>> tiles;
 
 	glm::ivec2 playerStart;
 	std::vector<glm::vec2> monsterPositions;

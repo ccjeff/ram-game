@@ -17,3 +17,7 @@ const glm::vec2& Bullet::get_vel() {
 float Bullet::get_damage() {
 	return this->damage;
 }
+
+float Bullet::get_width() {
+	return this->width;
+}

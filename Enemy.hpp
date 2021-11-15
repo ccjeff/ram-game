@@ -12,6 +12,7 @@ public:
 		: position(position), velocity(velocity){};
 
     virtual void update(float elapsed) {};
+    virtual void move(float elapsed, const glm::vec2 &player_pos, Map &map) {};
     virtual Bullet* do_attack(const glm::vec2 &player_pos) { return nullptr; };
 	virtual void on_hit(float damage) {
 		this->hp -= damage;
@@ -26,14 +27,19 @@ public:
     void add_vel(float x, float y);
 
 	float get_hp();
+    float distance(const glm::vec2 &player_pos);
+	float get_width();
 
 protected:
 	glm::vec2 position; // should init to a location
     glm::vec2 velocity;
+    float speed_val = 40.0f;
     Sprite s;
 
 	//For determining enemy actions
 	float time_step;
 
 	float hp;
+
+	float width = 32.0f;
 };

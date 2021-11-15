@@ -3,5 +3,4 @@ dist/README-SDL.txt
 dist/game.ilk
 dist/game.pdb
 dist/SDL2.dll
-dist/game
-dist/game.exe
+dist/game*
