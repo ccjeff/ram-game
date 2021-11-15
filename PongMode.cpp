@@ -452,7 +452,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	{
-		#define FLOOR_TILE_SIZE 32.f
+		#define FLOOR_TILE_SIZE 64.f
 		floor_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
 		glm::ivec2 tile_id = dg->map.GetTile(player->get_pos().x, player->get_pos().y);
 		for(int i = tile_id.x - 12; i <= tile_id.x + 12; i++){

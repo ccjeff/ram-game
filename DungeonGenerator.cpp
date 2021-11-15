@@ -71,16 +71,12 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 		}
 	}
 
-	printf("Made all the rooms!\n");
-
 	for (Room r : rooms)
 	{
 		r.SetMap(&map);
 		r.Write();
 		map.rooms.push_back(r);
 	}
-
-	printf("Wrote all the rooms!\n");
 
 	ConnectRooms();
 
@@ -187,9 +183,9 @@ void DungeonGenerator::PrintMap()
 	{
 		for (size_t x = 0; x < dimX; x++)
 		{
-			printf("%d", map.ValueAt(x, y));
+			//printf("%d", map.ValueAt(x, y));
 		}
-		printf(" - %zu\n", y);
+		//printf(" - %zu\n", y);
 	}
 
 	for (size_t y = 0; y < dimY; y++)
@@ -198,14 +194,14 @@ void DungeonGenerator::PrintMap()
 		{
 			if (map.collision[x][y])
 			{
-				printf("X");
+				//printf("X");
 			}
 			else
 			{
-				printf(" ");
+				//printf(" ");
 			}
 		}
-		printf("\n");
+		//printf("\n");
 	}
 }
 
@@ -291,15 +287,6 @@ Room::Room(size_t width, size_t height)
 	this->layout.clear();
 
 	this->layout = std::vector<std::vector<int>>(this->width, std::vector<int>(this->height, 1));
-
-	for (int i = 0; i < layout.size(); i++)
-	{
-		for (int j = 0; j < layout[0].size(); j++)
-		{
-			printf("%d", layout[i][j]);
-		}
-		printf("\n");
-	}
 }
 
 Room::Room(RoomTemplate roomTemplate)
@@ -396,19 +383,7 @@ RoomTemplate::RoomTemplate(std::string path)
 
 		fscanf_s(input, "%zu %zu\n", &this->width, &this->height);
 		layout = std::vector<std::vector<int>>(width, std::vector<int>(height, -1));
-		//char* line = (char*)malloc(width * 5 * sizeof(char));
-		/*
-		for (size_t y = 0; y < height; y++)
-		{
-			fscanf_s(input, "%s\n", line, uint32_t(width * sizeof(char)));
-			for (size_t x = 0; x < width; x++)
-			{
-				char val = line[x];
-				
-				layout[x][y] = atoi(&val);
-				printf("%zu, %zu - %d\n", x, y, atoi(&val));
-			}
-		}*/
+
 		char val;
 		for (int y = 0; y < height; y++)
 		{
@@ -427,16 +402,6 @@ RoomTemplate::RoomTemplate(std::string path)
 	}
 	else
 	{
-		printf("Something went horribly wrong! File could not be opened\n");
-	}
-
-	printf("Read a room! Here it is:\n");
-	for (size_t i = 0; i < height; i++)
-	{
-		for (size_t j = 0; j < width; j++)
-		{
-			printf("%d", layout[j][i]);
-		}
-		printf("\n");
+		//printf("Something went horribly wrong! File could not be opened\n");
 	}
 }
