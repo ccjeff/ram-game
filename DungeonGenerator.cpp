@@ -266,6 +266,10 @@ bool Room::Collides(Room other)
 		);
 }
 
+bool Room::is_inside(glm::vec2 point) {
+	return (point.x >= x && point.x <= x + width && point.y >= y && point.y <= y + height);
+}
+
 void Room::Write(Map *map)
 {
 	for (size_t xIndex = x; xIndex < (x + width); xIndex++)

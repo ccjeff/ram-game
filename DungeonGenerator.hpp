@@ -16,6 +16,8 @@ struct Room {
 
 	bool Collides(Room other);
 
+	bool is_inside(glm::vec2 point);
+
 	void Write(Map* map);
 
 	glm::ivec2 GetCenter();
