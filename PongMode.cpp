@@ -80,27 +80,9 @@ PongMode::PongMode() {
 	player_sprite = Sprite(*green_smiley, "sprite");
 	enemy_sprite = Sprite(*red_smiley, "sprite");
 	p_bullet = Sprite(*green_circle, "sprite");
+	p_bullet.tint = {155, 55, 155, 255};
 	e_bullet = Sprite(*red_circle, "sprite");
 	blank_sprite = Sprite(*black, "sprite");
-	// {
-	// 	std::vector< glm::u8vec4 > data(64, glm::u8vec4(255,0,0,255));
-	// 	glm::uvec2 size(8,8);
-	// 	player_sprite = Sprite(data, size);
-	// 	player_sprite.tint = glm::u8vec4(255, 0, 0, 255);
-	// }
-	// {
-	// 	std::vector< glm::u8vec4 > data(64, glm::u8vec4(255,255,255,255));
-	// 	glm::uvec2 size(8,8);
-	// 	bullet_sprite = Sprite(data, size);
-	// 	bullet_sprite.tint = glm::u8vec4(255, 255, 255, 255);
-	// }
-	// {
-	// 	std::vector< glm::u8vec4 > data(64, glm::u8vec4(255,255,255,255));
-	// 	glm::uvec2 size(8,8);
-	// 	floor_sprite = Sprite(data, size);
-	// 	floor_sprite.tint = glm::u8vec4(255, 255, 255, 255);
-	// 	floor_sprite.transform.size = glm::vec2(32.f,32.f);
-	// }
 
 	{ //solid white texture:
 		//ask OpenGL to fill white_tex with the name of an unused texture object:
@@ -425,15 +407,10 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	//NOTE: glm matrices are specified in *Column-Major* order,
 	// so each line above is specifying a *column* of the matrix(!)
 
-	//other useful drawing constants:
-	// const float wall_radius = 0.05f;
-	// const float shadow_offset = 0.07f;
-	// const float padding = 0.14f; //padding between outside of walls and edge of window
-
 	//---- compute vertices to draw ----
 
 	//vertices will be accumulated into this list and then uploaded+drawn at the end of this function:
-	std::vector< Vertex > vertices;
+	// std::vector< Vertex > vertices;
 
 	//inline helper function for rectangle drawing:
 	// auto draw_rectangle = [&vertices](glm::vec2 const &center, glm::vec2 const &radius, glm::u8vec4 const &color) {
@@ -452,7 +429,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	{
-		#define FLOOR_TILE_SIZE 64.f
+		const float FLOOR_TILE_SIZE = dg->map.scalingFactor;
 		floor_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
 		glm::ivec2 tile_id = dg->map.GetTile(player->get_pos().x, player->get_pos().y);
 		for(int i = tile_id.x - 12; i <= tile_id.x + 12; i++){
@@ -467,7 +444,6 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 					floor_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 			}
 		}
-		#undef FLOOR_TILE_SIZE
 	}
 	player_sprite.transform.size = glm::vec2(player->get_width(), player->get_width());
 	player_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
@@ -498,10 +474,10 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	//don't use the depth test:
 	glDisable(GL_DEPTH_TEST);
 
-	//upload vertices to vertex_buffer:
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer); //set vertex_buffer as current
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STREAM_DRAW); //upload vertices array
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	// //upload vertices to vertex_buffer:
+	// glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer); //set vertex_buffer as current
+	// glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STREAM_DRAW); //upload vertices array
+	// glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//set color_texture_program as current program:
 	glUseProgram(color_texture_program.program);
@@ -512,18 +488,18 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	//use the mapping vertex_buffer_for_color_texture_program to fetch vertex data:
 	glBindVertexArray(vertex_buffer_for_color_texture_program);
 
-	//bind the solid white texture to location zero so things will be drawn just with their colors:
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, white_tex);
+	// //bind the solid white texture to location zero so things will be drawn just with their colors:
+	// glActiveTexture(GL_TEXTURE0);
+	// glBindTexture(GL_TEXTURE_2D, white_tex);
 
-	//run the OpenGL pipeline:
-	glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
+	// //run the OpenGL pipeline:
+	// glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
 
-	//unbind the solid white texture:
-	glBindTexture(GL_TEXTURE_2D, 0);
+	// //unbind the solid white texture:
+	// glBindTexture(GL_TEXTURE_2D, 0);
 
-	//reset vertex array to none:
-	glBindVertexArray(0);
+	// //reset vertex array to none:
+	// glBindVertexArray(0);
 
 	//reset current program to none:
 	glUseProgram(0);
