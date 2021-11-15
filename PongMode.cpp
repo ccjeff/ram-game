@@ -452,7 +452,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	{
-		#define FLOOR_TILE_SIZE 64.f
+		const float FLOOR_TILE_SIZE = dg->map.scalingFactor;
 		floor_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
 		glm::ivec2 tile_id = dg->map.GetTile(player->get_pos().x, player->get_pos().y);
 		for(int i = tile_id.x - 12; i <= tile_id.x + 12; i++){
@@ -467,7 +467,6 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 					floor_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 			}
 		}
-		#undef FLOOR_TILE_SIZE
 	}
 	player_sprite.transform.size = glm::vec2(player->get_width(), player->get_width());
 	player_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
