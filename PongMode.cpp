@@ -408,8 +408,6 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	//some nice colors from the course web page:
 	#define HEX_TO_U8VEC4( HX ) (glm::u8vec4( (HX >> 24) & 0xff, (HX >> 16) & 0xff, (HX >> 8) & 0xff, (HX) & 0xff ))
 	const glm::u8vec4 bg_color = HEX_TO_U8VEC4(0x193b59ff);
-	const glm::u8vec4 fg_color = HEX_TO_U8VEC4(0x829256ff);
-	// const glm::u8vec4 shadow_color = HEX_TO_U8VEC4(0xf2ad94ff);
 	const std::vector< glm::u8vec4 > trail_colors = {
 		HEX_TO_U8VEC4(0xf2ad9488),
 		HEX_TO_U8VEC4(0xf2897288),
@@ -450,11 +448,8 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	// };
 
 	//clear the color buffer:
-	// bullet_sprite.tint = fg_color;
 	glClearColor(bg_color.r / 255.0f, bg_color.g / 255.0f, bg_color.b / 255.0f, bg_color.a / 255.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
-
-
 
 	{
 		#define FLOOR_TILE_SIZE 32.f
@@ -481,21 +476,18 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 		p_bullet.transform.displacement = b->get_pos();
 		p_bullet.transform.size = glm::vec2(10.0f, 10.0f);
 		p_bullet.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
-		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
 
 	for(auto b : enemy_bullets) {
 		e_bullet.transform.displacement = b->get_pos();
 		e_bullet.transform.size = glm::vec2(20.0f, 20.0f);
 		e_bullet.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
-		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
 
 	for(auto e : enemies) {
 		enemy_sprite.transform.displacement = e->get_pos();
 		enemy_sprite.transform.size = glm::vec2(10.0f, 10.0f);
 		enemy_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
-		//draw_rectangle(b->get_pos(), glm::vec2(0.2f, 0.2f), fg_color);
 	}
 
 	//---- actual drawing ----
