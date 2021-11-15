@@ -270,7 +270,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				float dist_x = abs(e->get_pos().x - pos.x);
 				float dist_y = abs(e->get_pos().y - pos.y);
 
-				if(dist_x < 10.0f && dist_y < 10.0f) {
+				if(dist_x < e->get_width()/2.0f && dist_y < e->get_width()/2.0f) {
 					//std::cout << "Enemy was hit by a bullet" << std::endl;
 					e->on_hit(bullets[i]->get_damage());
 					enemy_hit = true;
@@ -357,9 +357,12 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				delete enemy_bullets[i];
 				enemy_bullets.erase(enemy_bullets.begin() + (i--));
 
+				//Player death
+				//TODO: pull this out to a method and add other fancy stuff like remove items
 				if(player->get_hp() <= 0) {
 					glm::vec2 pos = dg->map.GetWorldCoord(dg->playerStart);
 					player->set_pos(pos);
+					player->add_hp(5.0f);
 					return;
 				}
 
@@ -403,7 +406,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 		item->postupdate();
 	}
 
-	cout << player->get_hp() << endl;
+	//cout << player->get_hp() << endl;
 }
 
 void PongMode::draw(glm::uvec2 const &drawable_size) {
