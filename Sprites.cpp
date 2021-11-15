@@ -1,59 +1,199 @@
 #include "Sprites.hpp"
 #include "ColorTextureProgram.hpp"
 #include "gl_errors.hpp"
+#include "load_save_png.hpp"
 
 #include <iostream>
 
-Sprite::Sprite(std::vector< glm::u8vec4 > data, glm::uvec2 size, Transform transform){
+Load <SpriteMap> green_tile(LoadTagDefault, [](){
+    glm::uvec2 size;
+    std::vector < glm::u8vec4 > data;
+    load_png("green_tile.png", &size, &data, LowerLeftOrigin);
+
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+    
+    //set filtering and wrapping parameters:
+    //(it's a bit silly to mipmap a 1x1 texture, but I'm doing it because you may want to use this code to load different sizes of texture)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    GL_ERRORS();
+
+    SpriteMap *smap = new SpriteMap();
+    smap->tex = tex;
+    smap->sprites["sprite"] = TexRectangle(0.f, 0.f, 1.f, 1.f);
+    return smap;
+});
+
+Load <SpriteMap> black(LoadTagDefault, [](){
+    glm::uvec2 size;
+    std::vector < glm::u8vec4 > data;
+    load_png("black.png", &size, &data, LowerLeftOrigin);
+
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+    
+    //set filtering and wrapping parameters:
+    //(it's a bit silly to mipmap a 1x1 texture, but I'm doing it because you may want to use this code to load different sizes of texture)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    GL_ERRORS();
+
+    SpriteMap *smap = new SpriteMap();
+    smap->tex = tex;
+    smap->sprites["sprite"] = TexRectangle(0.f, 0.f, 1.f, 1.f);
+    return smap;
+});
+
+Load <SpriteMap> green_circle(LoadTagDefault, [](){
+    glm::uvec2 size;
+    std::vector < glm::u8vec4 > data;
+    load_png("green_circle.png", &size, &data, LowerLeftOrigin);
+
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+    
+    //set filtering and wrapping parameters:
+    //(it's a bit silly to mipmap a 1x1 texture, but I'm doing it because you may want to use this code to load different sizes of texture)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    GL_ERRORS();
+
+    SpriteMap *smap = new SpriteMap();
+    smap->tex = tex;
+    smap->sprites["sprite"] = TexRectangle(0.f, 0.f, 1.f, 1.f);
+    return smap;
+});
+
+Load <SpriteMap> red_circle(LoadTagDefault, [](){
+    glm::uvec2 size;
+    std::vector < glm::u8vec4 > data;
+    load_png("red_circle.png", &size, &data, LowerLeftOrigin);
+
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+    
+    //set filtering and wrapping parameters:
+    //(it's a bit silly to mipmap a 1x1 texture, but I'm doing it because you may want to use this code to load different sizes of texture)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    GL_ERRORS();
+
+    SpriteMap *smap = new SpriteMap();
+    smap->tex = tex;
+    smap->sprites["sprite"] = TexRectangle(0.f, 0.f, 1.f, 1.f);
+    return smap;
+});
+
+Load <SpriteMap> green_smiley(LoadTagDefault, [](){
+    glm::uvec2 size;
+    std::vector < glm::u8vec4 > data;
+    load_png("green_smiley.png", &size, &data, LowerLeftOrigin);
+
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+    
+    //set filtering and wrapping parameters:
+    //(it's a bit silly to mipmap a 1x1 texture, but I'm doing it because you may want to use this code to load different sizes of texture)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    GL_ERRORS();
+
+    SpriteMap *smap = new SpriteMap();
+    smap->tex = tex;
+    smap->sprites["sprite"] = TexRectangle(0.f, 0.f, 1.f, 1.f);
+    return smap;
+});
+
+Load <SpriteMap> red_smiley(LoadTagDefault, [](){
+    glm::uvec2 size;
+    std::vector < glm::u8vec4 > data;
+    load_png("red_smiley.png", &size, &data, LowerLeftOrigin);
+
+    GLuint tex;
+    glGenTextures(1, &tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data.data());
+    
+    //set filtering and wrapping parameters:
+    //(it's a bit silly to mipmap a 1x1 texture, but I'm doing it because you may want to use this code to load different sizes of texture)
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    GL_ERRORS();
+
+    SpriteMap *smap = new SpriteMap();
+    smap->tex = tex;
+    smap->sprites["sprite"] = TexRectangle(0.f, 0.f, 1.f, 1.f);
+    return smap;
+});
+
+TexRectangle::TexRectangle(float _x0, float _y0, float _x1, float _y1){
+    x0 = _x0; y0 = _y0; x1 = _x1; y1 = _y1;
+}
+TexRectangle::TexRectangle(){
+    x0=y0=x1=y1=0.f;
+}
+
+SpriteMap::SpriteMap(){
+    this->tex = 0;
+}
+
+SpriteMap::~SpriteMap(){}
+
+Sprite::Sprite(const SpriteMap &s_map, const std::string &s_name, Transform transform){
     this->transform = transform;
-    this->picture = {data, size};
-    this->tint = {0,0,0,0};
-    glGenTextures(1, &tex);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    //upload a 1x1 image of solid white to the texture:
-    std::vector< glm::u8vec4 > data2(1, glm::u8vec4(255, 255, 255, 255));
-    glm::uvec2 size2(1,1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size2.x, size2.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data2.data());
-
-    //set filtering and wrapping parameters:
-    //(it's a bit silly to mipmap a 1x1 texture, but I'm doing it because you may want to use this code to load different sizes of texture)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    //since texture uses a mipmap and we haven't uploaded one, instruct opengl to make one for us:
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    this->tex = s_map.tex;
+    this->tex_coords = s_map.sprites.at(s_name);
 }
-Sprite::Sprite(){
-    this->tint = {0,0,0,0};
-    glGenTextures(1, &tex);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex);
-    this->picture = {std::vector<glm::u8vec4>(), glm::uvec2(0,0)};
-    //upload a 1x1 image of solid white to the texture:
-    std::vector< glm::u8vec4 > data2(1, glm::u8vec4(255, 255, 255, 255));
-    glm::uvec2 size2(1,1);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size2.x, size2.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data2.data());
+Sprite::Sprite(){}
 
-    //set filtering and wrapping parameters:
-    //(it's a bit silly to mipmap a 1x1 texture, but I'm doing it because you may want to use this code to load different sizes of texture)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    //since texture uses a mipmap and we haven't uploaded one, instruct opengl to make one for us:
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-Sprite::~Sprite(){
-    glDeleteTextures(1, &tex);
-    tex = 0;
-}
+Sprite::~Sprite(){}
 
 void Sprite::draw(glm::vec2 camera_center,
     ColorTextureProgram &color_texture_program,
@@ -68,15 +208,15 @@ void Sprite::draw(glm::vec2 camera_center,
     #define WORLD_TO_SCREEN 2.f
 
 	//inline helper function for rectangle drawing:
-	auto draw_rectangle = [&rect](glm::vec2 const &center, glm::vec2 const &radius, float rotation, glm::u8vec4 const &color) {
+	auto draw_rectangle = [&rect, this](glm::vec2 const &center, glm::vec2 const &radius, float rotation, glm::u8vec4 const &color) {
 		//draw rectangle as two CCW-oriented triangles:
-		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(-radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(0.f, 0.f));
-		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(1.f, 0.f));
-		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(radius.x, radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(1.f, 1.f));
+		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(-radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(tex_coords.x0, tex_coords.y0));
+		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(tex_coords.x1, tex_coords.y0));
+		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(radius.x, radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(tex_coords.x1, tex_coords.y1));
 
-		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(-radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(0.f, 0.f));
-        rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(radius.x, radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(1.f, 1.f));
-		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(-radius.x, radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(0.f, 1.f));
+		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(-radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(tex_coords.x0, tex_coords.y0));
+        rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(radius.x, radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(tex_coords.x1, tex_coords.y1));
+		rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(-radius.x, radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, color, glm::vec2(tex_coords.x0, tex_coords.y1));
 	};
 
     draw_rectangle(sprite_center, glm::vec2(transform.size.x / 2, transform.size.y / 2), transform.rotation, tint);

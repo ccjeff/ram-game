@@ -54,7 +54,7 @@ struct PongMode : Mode {
 	std::shared_ptr<Player> player;
 	DungeonGenerator* dg;
 
-	Sprite player_sprite, bullet_sprite, floor_sprite;
+	Sprite floor_sprite, player_sprite, enemy_sprite, p_bullet, e_bullet, blank_sprite;
 
 	//----- opengl assets / helpers ------
 
