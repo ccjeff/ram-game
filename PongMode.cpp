@@ -137,7 +137,11 @@ PongMode::PongMode() {
 			enemies.emplace_back(new BasicEnemy(dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f)));
 		}
 		
-		
+	}
+
+	//Add things for testing
+	{
+		items.emplace_back(new ReinforcementLearning(player));
 	}
 }
 
@@ -223,6 +227,10 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 }
 
 void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
+	for(auto item : items) {
+		item->preupdate();
+	}
+
 	glm::vec2 player_vel = player->get_vel();
 
 	if (left.pressed && !right.pressed) {
@@ -257,6 +265,11 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				deleted++;
 				delete bullets[i];
 				bullets.erase(bullets.begin() + (i--));
+
+				for(auto item : items) {
+					item->on_bullet_destroyed();
+				}
+
 				continue;
 			}
 
@@ -270,9 +283,14 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				float dist_y = abs(e->get_pos().y - pos.y);
 
 				if(dist_x < 10.0f && dist_y < 10.0f) {
+					//std::cout << "Enemy was hit by a bullet" << std::endl;
 					e->on_hit(bullets[i]->get_damage());
-					std::cout << "Enemy was hit by a bullet" << std::endl;
 					enemy_hit = true;
+
+					for(auto item : items) {
+						item->on_dealt_damage();
+					}
+
 					break;
 				}
 			}
@@ -289,7 +307,15 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 						enemies_deleted++;
 						delete enemies[i];
 						enemies.erase(enemies.begin() + (i--));
+
+						for(auto item : items) {
+							item->on_kill();
+						}
 					}
+				}
+
+				for(auto item : items) {
+					item->on_bullet_destroyed();
 				}
 
 				continue;
@@ -302,6 +328,10 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				deleted++;
 				delete bullets[i];
 				bullets.erase(bullets.begin() + (i--));
+
+				for(auto item : items) {
+					item->on_bullet_destroyed();
+				}
 
 				continue;
 			}
@@ -342,7 +372,13 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				if(player->get_hp() <= 0) {
 					glm::vec2 pos = dg->map.GetWorldCoord(dg->playerStart);
 					player->set_pos(pos);
+					return;
 				}
+
+				for(auto item : items) {
+					item->on_recv_damage();
+				}
+
 				continue;
 			}
 			
@@ -365,7 +401,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 		Bullet* b = e->do_attack(player->get_pos());
 		if(b != nullptr) {
-			cout << "enemy attack D: " << endl;
+			//cout << "enemy attack D: " << endl;
 			enemy_bullets.emplace_back(b);
 		}
 	}
@@ -374,6 +410,12 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 	player->update(elapsed, dg->map);
 	player_sprite.transform.displacement = player->get_pos();
+
+	for(auto item : items) {
+		item->postupdate();
+	}
+
+	cout << player->get_hp() << endl;
 }
 
 void PongMode::draw(glm::uvec2 const &drawable_size) {

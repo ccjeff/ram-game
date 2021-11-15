@@ -30,6 +30,7 @@ public:
 
 	void on_hit(float damage);
 	float get_hp();
+	void add_hp(float hp);
 
 protected:
 	glm::vec2 position; // should init to a location
