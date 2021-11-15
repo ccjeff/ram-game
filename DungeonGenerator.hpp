@@ -35,7 +35,7 @@ struct Room {
 
 	void SetPosition(size_t x, size_t y);
 
-	bool IsIn(glm::vec2 position);
+	bool is_inside(glm::vec2 position);
 
 	bool Collides(Room other);
 

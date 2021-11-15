@@ -326,7 +326,7 @@ bool Room::Collides(Room other)
 		);
 }
 
-bool Room::IsIn(glm::vec2 position)
+bool Room::is_inside(glm::vec2 position)
 {
 	size_t xPos = size_t(position.x / map->scalingFactor);
 	size_t yPos = size_t(position.y / map->scalingFactor);

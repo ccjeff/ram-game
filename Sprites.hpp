@@ -3,8 +3,11 @@
 #include "GL.hpp"
 #include "ColorTextureProgram.hpp"
 #include <glm/gtx/rotate_vector.hpp>
+#include "Load.hpp"
 
 #include <vector>
+#include <unordered_map>
+#include <string>
 
 //transform order: position + rotation * scale * pt
 struct Transform{
@@ -16,15 +19,26 @@ struct Transform{
     glm::vec2 size = {1.f, 1.f};
 };
 
-struct Picture{
+struct TexRectangle{
+    TexRectangle();
+    TexRectangle(float _x0, float _y0, float _x1, float _y1);
+    float x0;
+    float y0;
+    float x1;
+    float y1;
+};
 
-    std::vector< glm::u8vec4 > data;
-    glm::uvec2 size;
-    // Picture();
+struct SpriteMap {
+    // Figure out how to fix the sprite map
+    //SpriteMap(GLuint tex, glm::uvec2 size, Transform transform = {{0.f, 0.f}, 0.f, {16.f, 16.f}});
+    ~SpriteMap();
+    SpriteMap();
+    GLuint tex = 0;
+    std::unordered_map<std::string, TexRectangle> sprites;
 };
 
 struct Sprite {
-    Sprite(std::vector< glm::u8vec4 > data, glm::uvec2 size, Transform transform = {{0.f, 0.f}, 0.f, {16.f, 16.f}});
+    Sprite(const SpriteMap &s_map, const std::string &s_name, Transform transform = {{0.f, 0.f}, 0.f, {1.f, 1.f}});
     ~Sprite();
     Sprite();
     struct Vertex {
@@ -37,12 +51,19 @@ struct Sprite {
     static_assert(sizeof(Vertex) == 4*3 + 1*4 + 4*2, "Sprites::Vertex should be packed");
     //indicates a transform w.r.t. the containing class
     GLuint tex = 0;
+    TexRectangle tex_coords;
     Transform transform;
-    Picture picture;
-    glm::uvec4 tint;
+    glm::uvec4 tint = {255, 255, 255, 255};
 
     void draw(glm::vec2 camera_center,
         ColorTextureProgram &color_texture_program,
         GLuint vertex_buffer_for_color_texture_program,
         GLuint vertex_buffer);
 };
+
+extern Load<SpriteMap> black;
+extern Load<SpriteMap> green_tile;
+extern Load<SpriteMap> green_smiley;
+extern Load<SpriteMap> red_smiley;
+extern Load<SpriteMap> green_circle;
+extern Load<SpriteMap> red_circle;
