@@ -140,7 +140,6 @@ GAME_NAMES =
 	Gun
 	Pistol
 	Bullet
-	data_path
 	Sprites
 	Player
 	Enemy

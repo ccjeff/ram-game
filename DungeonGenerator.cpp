@@ -1,6 +1,13 @@
 #include "DungeonGenerator.hpp"
 #include <algorithm>
 #include <iostream>
+#include <stdio.h>
+
+extern "C" {
+	FILE	*fopen(const char * __restrict __filename, const char * __restrict __mode);
+	int fscanf ( FILE * stream, const char * format, ... );
+	int fclose ( FILE * stream );
+}
 
 using namespace std;
 
@@ -376,12 +383,10 @@ void Room::UnlockRoom()
 RoomTemplate::RoomTemplate(std::string path)
 {
 	std::string filepath = data_path("prefabs/" + path + ".txt");
-	FILE* input;
-	
-	if (fopen_s(&input, &filepath.at(0), "r") == 0)
+	FILE* input = fopen(filepath.c_str(), "r");
+	if (input != NULL)
 	{
-
-		fscanf_s(input, "%zu %zu\n", &this->width, &this->height);
+		fscanf(input, "%zu %zu\n", &this->width, &this->height);
 		layout = std::vector<std::vector<int>>(width, std::vector<int>(height, -1));
 
 		char val;
@@ -389,10 +394,10 @@ RoomTemplate::RoomTemplate(std::string path)
 		{
 			for (int x = 0; x < width; x++)
 			{
-				fscanf_s(input, "%c", &val, 1);
+				fscanf(input, "%c", &val);
 				while (val == '\n')
 				{
-					fscanf_s(input, "%c", &val, 1);
+					fscanf(input, "%c", &val);
 				}
 				layout[x][y] = atoi(&val);
 			}
