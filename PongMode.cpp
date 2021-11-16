@@ -326,7 +326,18 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 				//Bounce the bullet if there are bounces left
 				if(bullets[i]->get_bounces() >= 1) {
-					bullets[i]->set_vel(-bullets[i]->get_vel());
+					glm::vec2 tile_pos = pos / dg->map.scalingFactor;
+					float diffx = tile_pos.x - floor(tile_pos.x);
+					float diffy = tile_pos.y - floor(tile_pos.y);
+					float absdiffx = min(diffx, 1.f - diffx);
+					float absdiffy = min(diffy, 1.f - diffy);
+					glm::vec2 bvel = bullets[i]->get_vel();
+					if(absdiffx < absdiffy) {// bounce bullet with x
+						bullets[i]->set_vel(glm::vec2(-bvel.x, bvel.y));
+					}
+					else {//bounce bullet with y
+						bullets[i]->set_vel(glm::vec2(bvel.x, -bvel.y));
+					}
 					bullets[i]->set_bounces(bullets[i]->get_bounces() - 1);
 					bullets[i]->update_pos(elapsed * 500.0f);
 					continue;
@@ -708,7 +719,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 		//cout << "Drawn item on ground " << i->get_width() << " " << glm::to_string(i->get_pos()) << endl; 
 	}
 
-	int player_hp_bar = player->get_hp();
+	int player_hp_bar = int(player->get_hp());
 	std::cout << player_hp_bar << std::endl;
 	for (int i = 0; i < player_hp_bar; i++) {
 		draw_rectangle(glm::vec2(-(i) * 8.0f + 16.0f, -48.0f), glm::vec2(8.0f, 2.0f), HEX_TO_U8VEC4(0xff0000ff));
