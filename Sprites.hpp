@@ -65,6 +65,7 @@ extern Load<SpriteMap> black;
 extern Load<SpriteMap> green_tile;
 extern Load<SpriteMap> green_smiley;
 extern Load<SpriteMap> red_smiley;
+extern Load<SpriteMap> melee_enemy;
 extern Load<SpriteMap> green_circle;
 extern Load<SpriteMap> red_circle;
 extern Load<SpriteMap> r_learning;

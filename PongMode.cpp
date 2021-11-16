@@ -93,7 +93,8 @@ PongMode::PongMode() {
 
 	floor_sprite = Sprite(*green_tile, "sprite");
 	player_sprite = Sprite(*green_smiley, "sprite");
-	enemy_sprite = Sprite(*red_smiley, "sprite");
+	basic_enemy_sprite = Sprite(*red_smiley, "sprite");
+	melee_enemy_sprite = Sprite(*melee_enemy, "sprite");
 	p_bullet = Sprite(*green_circle, "sprite");
 	e_bullet = Sprite(*red_circle, "sprite");
 	blank_sprite = Sprite(*black, "sprite");
@@ -142,7 +143,13 @@ PongMode::PongMode() {
 
 		for (glm::ivec2 pos : dg->monsterPositions)
 		{
-			enemies.emplace_back(new BasicEnemy(dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f)));
+			int spawn = rand() % 2;
+			if(spawn == 0) {
+				enemies.emplace_back(new BasicEnemy(dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_sprite));
+			}
+			else {
+				enemies.emplace_back(new MeleeEnemy(dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_sprite));
+			}
 		}
 		
 	}
@@ -538,7 +545,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 		item->postupdate();
 	}
 
-	//cout << player->get_hp() << endl;
+	cout << player->get_hp() << endl;
 }
 
 void PongMode::draw(glm::uvec2 const &drawable_size) {
@@ -682,13 +689,13 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	}
 
 	for(auto e : enemies) {
-		enemy_sprite.transform.displacement = e->get_pos();
-		enemy_sprite.transform.size = glm::vec2(
+		e->get_sprite()->transform.displacement = e->get_pos();
+		e->get_sprite()->transform.size = glm::vec2(
 			e->get_vel().x < 0 ? 
 				-1.0f * e->get_width() : 
 				e->get_width(), e->get_width()
 		);
-		enemy_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		e->get_sprite()->draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
 
 	for(auto i : items_on_ground) {

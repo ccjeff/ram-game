@@ -23,3 +23,7 @@ float Enemy::distance(const glm::vec2 &player_pos) {
 float Enemy::get_width() {
 	return this->width;
 }
+
+Sprite* Enemy::get_sprite() {
+	return this->s;
+}

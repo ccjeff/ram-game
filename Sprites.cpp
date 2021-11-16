@@ -41,6 +41,7 @@ Load <SpriteMap> green_circle(LoadTagDefault, [](){ return load_func("green_circ
 Load <SpriteMap> red_circle(LoadTagDefault, [](){ return load_func("red_circle.png"); });
 Load <SpriteMap> green_smiley(LoadTagDefault, [](){ return load_func("green_smiley.png"); });
 Load <SpriteMap> red_smiley(LoadTagDefault, [](){ return load_func("red_smiley.png"); });
+Load <SpriteMap> melee_enemy(LoadTagDefault, [](){ return load_func("melee_enemy.png"); });
 Load <SpriteMap> r_learning(LoadTagDefault, [](){ return load_func("r_learning.png"); });
 Load <SpriteMap> ray_tracing(LoadTagDefault, [](){ return load_func("ray_tracing.png"); });
 Load <SpriteMap> door_locked(LoadTagDefault, [](){ return load_func("door_locked.png"); });

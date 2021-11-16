@@ -15,6 +15,7 @@
 //Enemies
 #include "Enemy.hpp"
 #include "BasicEnemy.hpp"
+#include "MeleeEnemy.hpp"
 
 //Items
 #include "Items.hpp"
@@ -67,7 +68,8 @@ struct PongMode : Mode {
 
 	Sprite floor_sprite,
 		player_sprite,
-		enemy_sprite,
+		basic_enemy_sprite,
+		melee_enemy_sprite,
 		p_bullet,
 		e_bullet,
 		blank_sprite,

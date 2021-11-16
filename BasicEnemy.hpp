@@ -6,8 +6,8 @@ class BasicEnemy : public Enemy {
 public:
     ~BasicEnemy() = default;
 	BasicEnemy();
-    BasicEnemy(glm::vec2 position, glm::vec2 velocity)
-		: Enemy(position, velocity) {
+    BasicEnemy(glm::vec2 position, glm::vec2 velocity, Sprite* s)
+		: Enemy(position, velocity, s) {
 		this->hp = 3.0f;
 	};
     void move(float elapsed, const glm::vec2 &player_pos, Map &map) override;
