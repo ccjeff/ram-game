@@ -94,7 +94,7 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 		r.WriteDoors();
 	}
 
-	int playerRoom = rand() % rooms.size();
+	size_t playerRoom = rand() % rooms.size();
 	player_start = rooms[playerRoom].GetCenter();
 
 	for (size_t i = 0; i < rooms.size(); i++)
