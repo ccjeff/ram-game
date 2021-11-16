@@ -32,6 +32,7 @@ int main(int argc, char **argv) {
 #endif
 
 	//------------  initialization ------------
+	srand((unsigned int)time(NULL));
 
 	//Initialize SDL library:
 	SDL_Init(SDL_INIT_VIDEO);
@@ -97,7 +98,7 @@ int main(int argc, char **argv) {
 
 	//------------ create game mode + make current --------------
 	Mode::set_current(std::make_shared< PongMode >());
-	srand((unsigned int)time(NULL));
+	
 
 	//------------ main loop ------------
 
