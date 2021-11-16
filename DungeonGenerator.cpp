@@ -13,7 +13,7 @@
 
 using namespace std;
 
-bool collisionMat[] = { true, false, false };
+bool collisionMat[] = { true, false, false, true };
 
 std::string prefabs[] = { "test1", "test2", "test3", "test4"};
 
@@ -38,7 +38,6 @@ size_t DungeonGenerator::index(size_t xIndex, size_t yIndex)
 
 bool DungeonGenerator::Generate(size_t numberOfRooms)
 {
-	printf("Starting dungeon gen!\n");
 	rooms.clear();
 	for (size_t count = 0; count < numberOfRooms; count++)
 	{
@@ -89,13 +88,18 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 
 	ConnectRooms();
 
-	int playerRoom = rand() % rooms.size();
+	size_t playerRoom = rand() % rooms.size();
 	player_start = rooms[playerRoom].GetCenter();
-	rooms.erase(std::next(rooms.begin(), playerRoom));
 
-	for (Room r : rooms)
+	for (size_t i = 0; i < rooms.size(); i++)
 	{
-		monsterPositions.push_back(r.GetCenter());
+		if (i == playerRoom) continue;
+		rooms[i].SetMap(&map); // WHY
+		std::vector<glm::vec2> positions = rooms[i].CreatePositions(5);
+		for (size_t i = 0; i < positions.size(); i++)
+		{
+			monsterPositions.push_back(positions[i]);
+		}
 	}
 
 	PrintMap();
@@ -256,6 +260,17 @@ int Map::ValueAtWorld(float x, float y)
 	return ValueAt(coord.x, coord.y);
 }
 
+bool Map::Collides(float x, float y)
+{
+	glm::ivec2 coord = GetTile(x, y);
+	if (coord.x < 0 || coord.y < 0 || coord.x >= int(dimX) || coord.y >= int(dimY))
+	{
+		//Outside of bounds is a wall
+		return 0;
+	}
+	return collision[coord.x][coord.y];
+}
+
 glm::ivec2 Map::GetTile(float x, float y)
 {
 	if (x < 0 || y < 0 || x / scalingFactor >= dimX || y / scalingFactor >= dimY)
@@ -338,7 +353,6 @@ void Room::Write()
 			map->SetAt(xIndex + x, yIndex + y, layout[xIndex][yIndex]);
 		}
 	}
-
 }
 
 glm::ivec2 Room::GetCenter()
@@ -351,15 +365,37 @@ void Room::SetMap(Map* map)
 	this->map = map;
 }
 
+std::vector<glm::vec2> Room::CreatePositions(size_t numPositions)
+{
+	std::vector<glm::vec2> positions;
+	for (size_t i = 0; i < numPositions; i++)
+	{
+		while (true)
+		{
+			size_t xVal = rand() % width;
+			size_t yVal = rand() % height;
+			if (!map->collision[x + xVal][y + yVal])
+			{
+				positions.push_back((glm::vec2(x + xVal, y + yVal) + glm::vec2(0.5, 0.5)));
+				break;
+			}
+		}
+	}
+
+	return positions;
+}
+
 void Room::LockRoom()
 {
-	for (size_t xIndex = x; xIndex < x + width; xIndex++)
+	locked = true;
+	for (size_t xIndex = x - 1; xIndex < x + width + 1; xIndex++)
 	{
-		for (size_t yIndex = y; yIndex < y + height; yIndex++)
+		for (size_t yIndex = y - 1; yIndex < y + height + 1; yIndex++)
 		{
 			if (map->ValueAt(xIndex, yIndex) == doorNum)
 			{
-				map->SetCollisionAt(xIndex, yIndex, true);
+				printf("Found a spot! It's at: (%zu, %zu)", xIndex, yIndex);
+				map->SetAt(xIndex, yIndex, closedNum);
 			}
 		}
 	}
@@ -367,13 +403,14 @@ void Room::LockRoom()
 
 void Room::UnlockRoom()
 {
-	for (size_t xIndex = x; xIndex < x + width; xIndex++)
+	locked = false;
+	for (size_t xIndex = x - 1; xIndex < x + width + 1; xIndex++)
 	{
-		for (size_t yIndex = y; yIndex < y + height; yIndex++)
+		for (size_t yIndex = y - 1; yIndex < y + height + 1; yIndex++)
 		{
-			if (map->ValueAt(xIndex, yIndex) == doorNum)
+			if (map->ValueAt(xIndex, yIndex) == closedNum)
 			{
-				map->SetCollisionAt(xIndex, yIndex, false);
+				map->SetAt(xIndex, yIndex, doorNum);
 			}
 		}
 	}

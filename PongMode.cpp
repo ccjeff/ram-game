@@ -450,6 +450,47 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 			enemy_bullets.emplace_back(b);
 		}
 	}
+
+	{ //Room locking updates
+		if (activeRoom == NULL)
+		{
+			for (size_t i = 0; i < dg->rooms.size(); i++)
+			{
+				if (dg->rooms[i].is_inside(player->get_pos()))
+				{
+					activeRoom = &dg->rooms[i];
+					activeRoom->SetMap(&dg->map);
+					activeRoom->LockRoom();
+					break;
+				}
+			}
+		}
+		else
+		{
+			if (activeRoom->locked)
+			{
+				bool valid = true;
+				for (auto e : enemies) {
+					if (activeRoom->is_inside(e->get_pos()))
+					{
+						valid = false;
+						break;
+					}
+				}
+				if (valid)
+				{
+					activeRoom->UnlockRoom();
+				}
+			}
+			else
+			{
+				if (!activeRoom->is_inside(player->get_pos()))
+				{			
+					activeRoom = NULL;
+				}
+			}
+		}
+	}
 	
 	//cout <<player->get_pos().x << " " << player->get_pos().y << endl;
 
@@ -537,7 +578,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 				glm::ivec2 cur_tile_id = dg->map.GetTile(floor_sprite.transform.displacement.x, floor_sprite.transform.displacement.y);
 				if(cur_tile_id.x < 0 || cur_tile_id.y < 0)
 					blank_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
-				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 0) //TODO: Change this when do sprites, this check is backwards but looks nice for the demo.
+				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 0 || dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 3) //TODO: Change this when do sprites, this check is backwards but looks nice for the demo.
 					blank_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 				else
 					floor_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
