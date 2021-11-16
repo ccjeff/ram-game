@@ -574,10 +574,12 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	};
 	#undef HEX_TO_U8VEC4
 
+	float camera_scaling = fmaxf(fminf(drawable_size.x/640.f, drawable_size.y/480.f), 1.f);
+
 	//build matrix that scales and translates appropriately:
 	glm::mat4 court_to_clip = glm::mat4(
-		glm::vec4(1.0f / drawable_size.x, 0.0f, 0.0f, 0.0f),
-		glm::vec4(0.0f, 1.0f / drawable_size.y, 0.0f, 0.0f),
+		glm::vec4(camera_scaling / drawable_size.x, 0.0f, 0.0f, 0.0f),
+		glm::vec4(0.0f, camera_scaling / drawable_size.y, 0.0f, 0.0f),
 		glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
 		glm::vec4(0, 0, 0.0f, 1.0f)
 	);
