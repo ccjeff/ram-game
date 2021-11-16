@@ -146,7 +146,7 @@ PongMode::PongMode() {
 	}
 	//Add things for testing
 	{
-		items_on_ground.emplace_back(new ReinforcementLearning(player, dg->player_start, &r_learning_sprite));
+		items_on_ground.emplace_back(new ReinforcementLearning(player, glm::vec2(dg->player_start) * dg->map.scalingFactor, &r_learning_sprite));
 		items.emplace_back(new RayTracing(player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
 	}
 }
@@ -300,7 +300,6 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 					bullets[i]->set_vel(-bullets[i]->get_vel());
 					bullets[i]->set_bounces(bullets[i]->get_bounces() - 1);
 					bullets[i]->update_pos(elapsed * 500.0f);
-					cout << "bounced " << elapsed << endl;
 					continue;
 				}
 
