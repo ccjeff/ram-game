@@ -486,12 +486,16 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 	//Ask enemies to attack after to give players more advantage
 	for(auto e : enemies) {
-		e->update(elapsed);
-		e->move(elapsed, player->get_pos(), dg->map);
-		Bullet* b = e->do_attack(player->get_pos());
-		if(b != nullptr) {
-			//cout << "enemy attack D: " << endl;
-			enemy_bullets.emplace_back(b);
+		if (activeRoom != NULL)
+		{
+			if (!activeRoom->is_inside(e->get_pos())) continue;
+			e->update(elapsed);
+			e->move(elapsed, player->get_pos(), dg->map);
+			Bullet* b = e->do_attack(player->get_pos());
+			if (b != nullptr) {
+				//cout << "enemy attack D: " << endl;
+				enemy_bullets.emplace_back(b);
+			}
 		}
 	}
 
@@ -708,7 +712,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 		//cout << "Drawn item on ground " << i->get_width() << " " << glm::to_string(i->get_pos()) << endl; 
 	}
 
-	int player_hp_bar = player->get_hp();
+	int player_hp_bar = (int) player->get_hp();
 	std::cout << player_hp_bar << std::endl;
 	for (int i = 0; i < player_hp_bar; i++) {
 		draw_rectangle(glm::vec2(-(i) * 8.0f + 16.0f, -48.0f), glm::vec2(8.0f, 2.0f), HEX_TO_U8VEC4(0xff0000ff));
