@@ -93,7 +93,8 @@ PongMode::PongMode() {
 
 	floor_sprite = Sprite(*green_tile, "sprite");
 	player_sprite = Sprite(*green_smiley, "sprite");
-	enemy_sprite = Sprite(*red_smiley, "sprite");
+	basic_enemy_sprite = Sprite(*red_smiley, "sprite");
+	melee_enemy_sprite = Sprite(*melee_enemy, "sprite");
 	p_bullet = Sprite(*green_circle, "sprite");
 	e_bullet = Sprite(*red_circle, "sprite");
 	blank_sprite = Sprite(*black, "sprite");
@@ -142,7 +143,13 @@ PongMode::PongMode() {
 
 		for (glm::ivec2 pos : dg->monsterPositions)
 		{
-			enemies.emplace_back(new BasicEnemy(dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f)));
+			int spawn = rand() % 2;
+			if(spawn == 0) {
+				enemies.emplace_back(new BasicEnemy(dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_sprite));
+			}
+			else {
+				enemies.emplace_back(new MeleeEnemy(dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_sprite));
+			}
 		}
 		
 	}
@@ -538,7 +545,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 		item->postupdate();
 	}
 
-	//cout << player->get_hp() << endl;
+	cout << player->get_hp() << endl;
 }
 
 void PongMode::draw(glm::uvec2 const &drawable_size) {
@@ -574,10 +581,12 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	};
 	
 
+	float camera_scaling = fmaxf(fminf(drawable_size.x/640.f, drawable_size.y/480.f), 1.f);
+
 	//build matrix that scales and translates appropriately:
 	glm::mat4 court_to_clip = glm::mat4(
-		glm::vec4(1.0f / drawable_size.x, 0.0f, 0.0f, 0.0f),
-		glm::vec4(0.0f, 1.0f / drawable_size.y, 0.0f, 0.0f),
+		glm::vec4(camera_scaling / drawable_size.x, 0.0f, 0.0f, 0.0f),
+		glm::vec4(0.0f, camera_scaling / drawable_size.y, 0.0f, 0.0f),
 		glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
 		glm::vec4(0, 0, 0.0f, 1.0f)
 	);
@@ -608,10 +617,14 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	{
 		const float FLOOR_TILE_SIZE = dg->map.scalingFactor;
 		floor_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
+		door_unlocked_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
+		door_locked_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
 		glm::ivec2 tile_id = dg->map.GetTile(player->get_pos().x, player->get_pos().y);
+
 		for(int i = tile_id.x - 12; i <= tile_id.x + 12; i++){
 			for(int j = tile_id.y - 12; j <= tile_id.y + 12; j++){
 				floor_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
+
 				glm::ivec2 cur_tile_id = dg->map.GetTile(floor_sprite.transform.displacement.x, floor_sprite.transform.displacement.y);
 				if(cur_tile_id.x < 0 || cur_tile_id.y < 0)
 					blank_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
@@ -619,16 +632,34 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 					blank_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 2)
 				{
+					door_unlocked_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
 					door_unlocked_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 				}
 				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 3)
 				{
+					door_locked_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
 					door_locked_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 				}
 				else
 				{
 					floor_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 				}
+
+				// 				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 2)
+				// {
+				// 	door_unlocked_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
+				// 	door_unlocked_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				// }
+				// else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 3)
+				// {
+				// 	door_locked_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
+				// 	door_locked_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				// }
+				// else
+				// {
+				// 	floor_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
+				// 	floor_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				// }
 			}
 		}
 	}
@@ -660,13 +691,13 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	}
 
 	for(auto e : enemies) {
-		enemy_sprite.transform.displacement = e->get_pos();
-		enemy_sprite.transform.size = glm::vec2(
+		e->get_sprite()->transform.displacement = e->get_pos();
+		e->get_sprite()->transform.size = glm::vec2(
 			e->get_vel().x < 0 ? 
 				-1.0f * e->get_width() : 
 				e->get_width(), e->get_width()
 		);
-		enemy_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		e->get_sprite()->draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
 
 	for(auto i : items_on_ground) {

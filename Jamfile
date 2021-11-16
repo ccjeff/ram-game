@@ -144,6 +144,7 @@ GAME_NAMES =
 	Player
 	Enemy
 	BasicEnemy
+	MeleeEnemy
 	DrawLines
 	PathFont
 	PathFont-font
