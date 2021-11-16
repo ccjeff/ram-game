@@ -6,6 +6,7 @@
 #include "data_path.hpp"
 
 #define doorNum 2
+#define closedNum 3
 
 struct DungeonGenerator;
 struct Map;
@@ -48,7 +49,10 @@ struct Room {
 	void LockRoom();
 	void UnlockRoom();
 
+	std::vector<glm::vec2> CreatePositions(size_t numPositions);
+
 	bool connected;
+	bool locked = false;
 };
 
 struct Map {
@@ -66,9 +70,11 @@ struct Map {
 
 	void SetAt(size_t x, size_t y, int value);
 	void SetCollisionAt(size_t x, size_t y, bool value);
+
 	int ValueAt(size_t x, size_t y);
 
 	int ValueAtWorld(float x, float y);
+	bool Collides(float x, float y);
 
 	glm::vec2 Boundary();
 

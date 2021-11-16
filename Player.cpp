@@ -18,11 +18,11 @@ void Player::move(glm::vec2 direction, float elapsed) {
 void Player::update(float elapsed, Map &map) {
     glm::vec2 old_pos = this->position;
     move(elapsed);
-    if (map.ValueAtWorld(this->position.x, this->position.y) == 0) {
+    if (map.Collides(this->position.x, this->position.y)) {
         // this->position = old_pos;
-        if (map.ValueAtWorld(old_pos.x, this->position.y) != 0) {
+        if (!map.Collides(old_pos.x, this->position.y)) {
             this->position.x = old_pos.x;
-        } else if (map.ValueAtWorld(this->position.x, old_pos.y) != 0) {
+        } else if (!map.Collides(this->position.x, old_pos.y)) {
             this->position.y = old_pos.y;
         } else {
             this->position = old_pos;

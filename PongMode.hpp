@@ -56,6 +56,8 @@ struct PongMode : Mode {
 
 	glm::vec2 window_size;
 
+	Room* activeRoom = NULL;
+
 	std::vector<Bullet*> bullets;
 
 	std::vector<Bullet*> enemy_bullets;
