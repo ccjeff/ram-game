@@ -19,6 +19,9 @@
 #include <stdexcept>
 #include <memory>
 #include <algorithm>
+#include <time.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 using namespace std;
 
@@ -94,6 +97,7 @@ int main(int argc, char **argv) {
 
 	//------------ create game mode + make current --------------
 	Mode::set_current(std::make_shared< PongMode >());
+	srand((unsigned int)time(NULL));
 
 	//------------ main loop ------------
 
