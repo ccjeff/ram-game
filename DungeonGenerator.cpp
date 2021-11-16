@@ -88,6 +88,12 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 
 	ConnectRooms();
 
+	for (Room r : rooms)
+	{
+		r.SetMap(&map);
+		r.WriteDoors();
+	}
+
 	int playerRoom = rand() % rooms.size();
 	player_start = rooms[playerRoom].GetCenter();
 
@@ -196,9 +202,9 @@ void DungeonGenerator::PrintMap()
 	{
 		for (size_t x = 0; x < dimX; x++)
 		{
-			//printf("%d", map.ValueAt(x, y));
+			printf("%d", map.ValueAt(x, y));
 		}
-		//printf(" - %zu\n", y);
+		printf(" - %zu\n", y);
 	}
 
 	for (size_t y = 0; y < dimY; y++)
@@ -330,10 +336,10 @@ void Room::SetPosition(size_t x, size_t y)
 bool Room::Collides(Room other)
 {
 	return !(
-		(x + width)				 < other.x ||
-		(y + height)			 < other.y ||
-		(other.x + other.width)  < x	   ||
-		(other.y + other.height) < y 
+		(x + width + 1)				 < other.x ||
+		(y + height + 1)			 < other.y ||
+		(other.x + other.width + 1)  < x	   ||
+		(other.y + other.height + 1) < y 
 		);
 }
 
@@ -344,6 +350,11 @@ bool Room::is_inside(glm::vec2 position)
 	return !(xPos < x || xPos >= (x + width) || yPos < y || yPos >= (y + width));
 }
 
+bool Room::is_inside(size_t xPos, size_t yPos)
+{
+	return !(xPos < x || xPos >= (x + width) || yPos < y || yPos >= (y + width));
+}
+
 void Room::Write()
 {
 	for (size_t xIndex = 0; xIndex < width; xIndex++)
@@ -351,6 +362,33 @@ void Room::Write()
 		for (size_t yIndex =  0; yIndex < height; yIndex++)
 		{
 			map->SetAt(xIndex + x, yIndex + y, layout[xIndex][yIndex]);
+		}
+	}
+}
+
+void Room::WriteDoors()
+{
+	for (size_t xIndex = x - 1; xIndex <= x + width; xIndex++)
+	{
+		if (map->ValueAt(xIndex, y - 1) == 1)
+		{
+			map->SetAt(xIndex, y - 1, 2);
+		}
+		if (map->ValueAt(xIndex, y + height) == 1)
+		{
+			map->SetAt(xIndex, y + height, 2);
+		}
+	}
+
+	for (size_t yIndex = y - 1; yIndex <= y + height; yIndex++)
+	{
+		if (map->ValueAt(x - 1, yIndex) == 1)
+		{
+			map->SetAt(x - 1, yIndex, 2);
+		}
+		if (map->ValueAt(x + width, yIndex))
+		{
+			map->SetAt(x + width, yIndex, 2);
 		}
 	}
 }
