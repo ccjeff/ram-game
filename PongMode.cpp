@@ -17,6 +17,15 @@ Load< Sound::Sample > load_bgm(LoadTagDefault, []() -> Sound::Sample const * {
 	return new Sound::Sample(data_path("bgm.opus"));
 });
 
+
+Load< Sound::Sample > load_shoot(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("gun_shot.wav"));
+});
+
+Load< Sound::Sample > load_walk(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("walk.wav"));
+});
+
 PongMode::PongMode() {
 	// Room r1 = Room(0, 0, 12, 10);
 	// Room r2 = Room(15, 9, 1, 1);
@@ -89,11 +98,9 @@ PongMode::PongMode() {
 	e_bullet = Sprite(*red_circle, "sprite");
 	blank_sprite = Sprite(*black, "sprite");
 	r_learning_sprite = Sprite(*r_learning, "sprite");
-
-	Sound::init();
-	
-	bgm = Sound::loop(*load_bgm, 1.0f, 0.0f);
 	ray_tracing_sprite = Sprite(*ray_tracing, "sprite");
+	
+	bgm = Sound::loop(*load_bgm, 0.5f, 0.0f);
 
 	{ //solid white texture:
 		//ask OpenGL to fill white_tex with the name of an unused texture object:
@@ -182,9 +189,8 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 			)
 		);
 
-		// cout << float(evt.motion.x) / window_size.x * 2.0f - 1.0f << " " <<  float(evt.motion.y) / window_size.y *-2.0f + 1.0f << endl;
-		// cout << evt.motion.x << " " <<  evt.motion.y << endl;
-
+		shoot_sound = Sound::play(*load_shoot, 0.5f, 0.0f);
+		
 		bullets.emplace_back(b);
 
 		for(auto i : items) {
@@ -235,20 +241,43 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	}
 
 	glm::vec2 player_vel = player->get_vel();
-
 	if (left.pressed && !right.pressed) {
+		if (walk_sound_cd >= 0.25f) {
+			walk_sound = Sound::play(*load_walk, 0.25f, 0.0f);
+			walk_sound_cd = 0.0f;
+		}
+		walk_sound_cd += elapsed;
 		player_vel.x -= PLAYER_SPEED;
 		player_vel.x = std::max(player_vel.x, -PLAYER_MAX_SPEED);
 	}
 	if (!left.pressed && right.pressed) {
+		if (walk_sound_cd >= 0.25f) {
+			walk_sound = Sound::play(*load_walk, 0.25f, 0.0f);
+			walk_sound_cd = 0.0f;
+		}
+		walk_sound_cd += elapsed;
 		player_vel.x += PLAYER_SPEED;
 		player_vel.x = std::min(player_vel.x, PLAYER_MAX_SPEED);
 	}
 	if (down.pressed && !up.pressed) {
+		if (walk_sound_cd >= 0.25f && !left.pressed && !right.pressed) {
+			walk_sound = Sound::play(*load_walk, 0.25f, 0.0f);
+			walk_sound_cd = 0.0f;
+		}
+		if (!left.pressed && !right.pressed) {
+			walk_sound_cd += elapsed;
+		}
 		player_vel.y -= PLAYER_SPEED;
 		player_vel.y = std::max(player_vel.y, -PLAYER_MAX_SPEED);
 	}
 	if (!down.pressed && up.pressed) {
+		if (walk_sound_cd >= 0.25f && !left.pressed && !right.pressed) {
+			walk_sound = Sound::play(*load_walk, 0.25f, 0.0f);
+			walk_sound_cd = 0.0f;
+		}
+		if (!left.pressed && !right.pressed) {
+			walk_sound_cd += elapsed;
+		}
 		player_vel.y += PLAYER_SPEED;
 		player_vel.y = std::min(player_vel.y, PLAYER_MAX_SPEED);
 	}

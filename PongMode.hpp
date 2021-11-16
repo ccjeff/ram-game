@@ -7,11 +7,9 @@
 #include <vector>
 
 #include "Mode.hpp"
-
 #include "Bullet.hpp"
 #include "Pistol.hpp"
 #include "Gun.hpp"
-
 #include "Player.hpp"
 
 //Enemies
@@ -22,11 +20,9 @@
 #include "Items.hpp"
 #include "ReinforcementLearning.hpp"
 #include "RayTracing.hpp"
-
 #include "Sprites.hpp"
 #include "DrawLines.hpp"
 #include "DungeonGenerator.hpp"
-
 #include "Load.hpp"
 #include "Sound.hpp"
 
@@ -80,7 +76,9 @@ struct PongMode : Mode {
 	
 	// sound effects
 	std::shared_ptr<Sound::PlayingSample> bgm;
-
+	std::shared_ptr<Sound::PlayingSample> shoot_sound;
+	std::shared_ptr<Sound::PlayingSample> walk_sound;
+	float walk_sound_cd = 0.0f;
 	//----- opengl assets / helpers ------
 
 	//draw functions will work on vectors of vertices, defined as follows:
