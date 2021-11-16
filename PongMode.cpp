@@ -615,8 +615,16 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 				glm::ivec2 cur_tile_id = dg->map.GetTile(floor_sprite.transform.displacement.x, floor_sprite.transform.displacement.y);
 				if(cur_tile_id.x < 0 || cur_tile_id.y < 0)
 					blank_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
-				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 0 || dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 3) //TODO: Change this when do sprites, this check is backwards but looks nice for the demo.
+				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 0) //TODO: Change this when do sprites, this check is backwards but looks nice for the demo.
 					blank_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 2)
+				{
+					door_unlocked_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				}
+				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 3)
+				{
+					door_locked_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				}
 				else
 					floor_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 			}
