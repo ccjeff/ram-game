@@ -24,5 +24,5 @@ protected:
 
 	float damage = 1.0f;
 	float width = 16.0f;
-	int bounces;
+	int bounces = 0;
 };
