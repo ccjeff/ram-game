@@ -155,8 +155,8 @@ PongMode::PongMode() {
 	}
 	//Add things for testing
 	{
-		items_on_ground.emplace_back(new ReinforcementLearning(player, glm::vec2(dg->player_start) * dg->map.scalingFactor, &r_learning_sprite));
-		items.emplace_back(new RayTracing(player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
+		// items_on_ground.emplace_back(new ReinforcementLearning(player, glm::vec2(dg->player_start) * dg->map.scalingFactor, &r_learning_sprite));
+		// items.emplace_back(new RayTracing(player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
 	}
 }
 
@@ -292,24 +292,24 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	}
 
 	//Item pickups
-	// {
-	// 	int deleted = 0;
-	// 	for(size_t i = 0; i < items_on_ground.size(); i++) {
-	// 		float dist_x = abs(items_on_ground[i]->get_pos().x - player->get_pos().x);
-	// 		float dist_y = abs(items_on_ground[i]->get_pos().y - player->get_pos().y);
+	{
+		int deleted = 0;
+		for(size_t i = 0; i < items_on_ground.size(); i++) {
+			float dist_x = abs(items_on_ground[i]->get_pos().x - player->get_pos().x);
+			float dist_y = abs(items_on_ground[i]->get_pos().y - player->get_pos().y);
 
-	// 		if(dist_x < player->get_width() && dist_y < player->get_width()) {
-	// 			items.emplace_back(items_on_ground[i]);
+			if(dist_x < player->get_width() && dist_y < player->get_width()) {
+				items.emplace_back(items_on_ground[i]);
 
-	// 			//DO NOT delete here because the ptr is reused
-	// 			deleted++;
-	// 			items_on_ground.erase(items_on_ground.begin() + (i--));
+				//DO NOT delete here because the ptr is reused
+				deleted++;
+				items_on_ground.erase(items_on_ground.begin() + (i--));
 
-	// 			continue;
-	// 		}
+				continue;
+			}
 			
-	// 	}
-	// }
+		}
+	}
 
 	//Player bullet updates
 	{
@@ -326,7 +326,18 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 				//Bounce the bullet if there are bounces left
 				if(bullets[i]->get_bounces() >= 1) {
-					bullets[i]->set_vel(-bullets[i]->get_vel());
+					glm::vec2 tile_pos = pos / dg->map.scalingFactor;
+					float diffx = tile_pos.x - floor(tile_pos.x);
+					float diffy = tile_pos.y - floor(tile_pos.y);
+					float absdiffx = min(diffx, 1.f - diffx);
+					float absdiffy = min(diffy, 1.f - diffy);
+					glm::vec2 bvel = bullets[i]->get_vel();
+					if(absdiffx < absdiffy) {// bounce bullet with x
+						bullets[i]->set_vel(glm::vec2(-bvel.x, bvel.y));
+					}
+					else {//bounce bullet with y
+						bullets[i]->set_vel(glm::vec2(bvel.x, -bvel.y));
+					}
 					bullets[i]->set_bounces(bullets[i]->get_bounces() - 1);
 					bullets[i]->update_pos(elapsed * 500.0f);
 					continue;
