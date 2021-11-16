@@ -14,10 +14,22 @@ const glm::vec2& Bullet::get_vel() {
 	return this->vel;
 }
 
+void Bullet::set_vel(const glm::vec2& vel) {
+	this->vel = vel;
+}
+
 float Bullet::get_damage() {
 	return this->damage;
 }
 
 float Bullet::get_width() {
 	return this->width;
+}
+
+void Bullet::set_bounces(int bounces) {
+	this->bounces = bounces;
+}
+
+int Bullet::get_bounces() {
+	return this->bounces;
 }

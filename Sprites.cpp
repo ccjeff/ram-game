@@ -42,6 +42,7 @@ Load <SpriteMap> red_circle(LoadTagDefault, [](){ return load_func("red_circle.p
 Load <SpriteMap> green_smiley(LoadTagDefault, [](){ return load_func("green_smiley.png"); });
 Load <SpriteMap> red_smiley(LoadTagDefault, [](){ return load_func("red_smiley.png"); });
 Load <SpriteMap> r_learning(LoadTagDefault, [](){ return load_func("r_learning.png"); });
+Load <SpriteMap> ray_tracing(LoadTagDefault, [](){ return load_func("ray_tracing.png"); });
 
 TexRectangle::TexRectangle(float _x0, float _y0, float _x1, float _y1){
     x0 = _x0; y0 = _y0; x1 = _x1; y1 = _y1;

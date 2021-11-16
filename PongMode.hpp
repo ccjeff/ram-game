@@ -21,6 +21,7 @@
 //Items
 #include "Items.hpp"
 #include "ReinforcementLearning.hpp"
+#include "RayTracing.hpp"
 
 #include "Sprites.hpp"
 #include "DrawLines.hpp"
@@ -72,7 +73,8 @@ struct PongMode : Mode {
 		p_bullet,
 		e_bullet,
 		blank_sprite,
-		r_learning_sprite;
+		r_learning_sprite,
+		ray_tracing_sprite;
 	
 	// sound effects
 	std::shared_ptr<Sound::PlayingSample> bgm;
