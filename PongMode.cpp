@@ -13,6 +13,10 @@
 
 using namespace std;
 
+Load< Sound::Sample > load_bgm(LoadTagDefault, []() -> Sound::Sample const * {
+	return new Sound::Sample(data_path("bgm.opus"));
+});
+
 PongMode::PongMode() {
 	// Room r1 = Room(0, 0, 12, 10);
 	// Room r2 = Room(15, 9, 1, 1);
@@ -85,6 +89,8 @@ PongMode::PongMode() {
 	e_bullet = Sprite(*red_circle, "sprite");
 	blank_sprite = Sprite(*black, "sprite");
 	r_learning_sprite = Sprite(*r_learning, "sprite");
+	
+	bgm = Sound::loop(*load_bgm, 1.0f, 0.0f);
 
 	{ //solid white texture:
 		//ask OpenGL to fill white_tex with the name of an unused texture object:
@@ -128,7 +134,6 @@ PongMode::PongMode() {
 		}
 		
 	}
-
 	//Add things for testing
 	{
 		items_on_ground.emplace_back(new ReinforcementLearning(player, dg->player_start, &r_learning_sprite));

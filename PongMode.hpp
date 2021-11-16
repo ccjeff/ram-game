@@ -1,8 +1,8 @@
 #pragma once
 #include "GL.hpp"
-#include <glm/glm.hpp>
 #include "ColorTextureProgram.hpp"
 
+#include <glm/glm.hpp>
 #include <memory>
 #include <vector>
 
@@ -25,6 +25,9 @@
 #include "Sprites.hpp"
 #include "DrawLines.hpp"
 #include "DungeonGenerator.hpp"
+
+#include "Load.hpp"
+#include "Sound.hpp"
 
 /*
  * PongMode is a game mode that implements a single-player game of Pong.
@@ -70,6 +73,9 @@ struct PongMode : Mode {
 		e_bullet,
 		blank_sprite,
 		r_learning_sprite;
+	
+	// sound effects
+	std::shared_ptr<Sound::PlayingSample> bgm;
 
 	//----- opengl assets / helpers ------
 
