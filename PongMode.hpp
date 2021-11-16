@@ -83,6 +83,7 @@ struct PongMode : Mode {
 	std::shared_ptr<Sound::PlayingSample> shoot_sound;
 	std::shared_ptr<Sound::PlayingSample> walk_sound;
 	float walk_sound_cd = 0.0f;
+	float shoot_cd = 0.0f;
 	//----- opengl assets / helpers ------
 
 	//draw functions will work on vectors of vertices, defined as follows:

@@ -189,6 +189,7 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 	this->window_size = window_size;
 
 	if(evt.type == SDL_MOUSEBUTTONDOWN) {
+		if (shoot_cd < 0.2) return true;
 		Pistol p;
 		Bullet* b = p.do_shoot(player->get_pos(), glm::normalize(
 				glm::vec2(
@@ -199,12 +200,14 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		);
 
 		shoot_sound = Sound::play(*load_shoot, 0.5f, 0.0f);
+		shoot_cd = 0.0f;
 		
 		bullets.emplace_back(b);
 
 		for(auto i : items) {
 			i->on_shoot(b);
 		}
+		return true;
 	} else {
 		if (evt.type == SDL_KEYDOWN) {
 			if (evt.key.keysym.sym == SDLK_a) {
@@ -249,6 +252,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 		item->preupdate();
 	}
 
+	shoot_cd += elapsed;
 	glm::vec2 player_vel = player->get_vel();
 	if (left.pressed && !right.pressed) {
 		if (walk_sound_cd >= 0.25f) {
@@ -468,6 +472,9 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 					glm::vec2 pos = dg->map.GetWorldCoord(dg->player_start);
 					player->set_pos(pos);
 					player->add_hp(5.0f);
+					if(activeRoom != nullptr){
+						activeRoom->UnlockRoom();
+					}
 					return;
 				}
 
@@ -516,6 +523,18 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 					activeRoom = &dg->rooms[i];
 					activeRoom->SetMap(&dg->map);
 					activeRoom->LockRoom();
+					bool valid = true;
+					for (auto e : enemies) {
+						if (activeRoom->is_inside(e->get_pos()))
+						{
+							valid = false;
+							break;
+						}
+					}
+					if (valid)
+					{
+						activeRoom->UnlockRoom();
+					}
 					break;
 				}
 			}
@@ -700,16 +719,18 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 		);
 		e_bullet.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
-
-	for(auto e : enemies) {
-		e->get_sprite()->transform.displacement = e->get_pos();
-		e->get_sprite()->transform.size = glm::vec2(
-			e->get_vel().x < 0 ? 
-				-1.0f * e->get_width() : 
-				e->get_width(), e->get_width()
-		);
-		e->get_sprite()->draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
-	}
+	
+	if(activeRoom != nullptr)
+		for(auto e : enemies) {
+			if (!activeRoom->is_inside(e->get_pos())) continue;
+			e->get_sprite()->transform.displacement = e->get_pos();
+			e->get_sprite()->transform.size = glm::vec2(
+				e->get_vel().x < 0 ? 
+					-1.0f * e->get_width() : 
+					e->get_width(), e->get_width()
+			);
+			e->get_sprite()->draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		}
 
 	for(auto i : items_on_ground) {
 
