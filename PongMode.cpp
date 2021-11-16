@@ -99,6 +99,8 @@ PongMode::PongMode() {
 	blank_sprite = Sprite(*black, "sprite");
 	r_learning_sprite = Sprite(*r_learning, "sprite");
 	ray_tracing_sprite = Sprite(*ray_tracing, "sprite");
+	door_locked = Sprite(*door_locked, "sprite");
+	door_unlocked = Sprite(*door_unlocked, "sprite");
 	
 	bgm = Sound::loop(*load_bgm, 0.5f, 0.0f);
 

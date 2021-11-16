@@ -69,3 +69,4 @@ extern Load<SpriteMap> green_circle;
 extern Load<SpriteMap> red_circle;
 extern Load<SpriteMap> r_learning;
 extern Load<SpriteMap> ray_tracing;
+extern Load<SpriteMap> door_locked;

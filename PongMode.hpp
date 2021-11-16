@@ -72,7 +72,9 @@ struct PongMode : Mode {
 		e_bullet,
 		blank_sprite,
 		r_learning_sprite,
-		ray_tracing_sprite;
+		ray_tracing_sprite,
+		door_locked_sprite,
+		door_unlocked_sprite;
 	
 	// sound effects
 	std::shared_ptr<Sound::PlayingSample> bgm;
