@@ -155,7 +155,7 @@ PongMode::PongMode() {
 	}
 	//Add things for testing
 	{
-		items_on_ground.emplace_back(new ReinforcementLearning(player, glm::vec2(dg->player_start) * dg->map.scalingFactor + 32.0f, &r_learning_sprite));
+		items_on_ground.emplace_back(new ReinforcementLearning(player, glm::vec2(dg->player_start) * dg->map.scalingFactor, &r_learning_sprite));
 		items.emplace_back(new RayTracing(player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
 	}
 }
@@ -292,24 +292,24 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	}
 
 	//Item pickups
-	{
-		int deleted = 0;
-		for(size_t i = 0; i < items_on_ground.size(); i++) {
-			float dist_x = abs(items_on_ground[i]->get_pos().x - player->get_pos().x);
-			float dist_y = abs(items_on_ground[i]->get_pos().y - player->get_pos().y);
+	// {
+	// 	int deleted = 0;
+	// 	for(size_t i = 0; i < items_on_ground.size(); i++) {
+	// 		float dist_x = abs(items_on_ground[i]->get_pos().x - player->get_pos().x);
+	// 		float dist_y = abs(items_on_ground[i]->get_pos().y - player->get_pos().y);
 
-			if(dist_x < player->get_width() && dist_y < player->get_width()) {
-				items.emplace_back(items_on_ground[i]);
+	// 		if(dist_x < player->get_width() && dist_y < player->get_width()) {
+	// 			items.emplace_back(items_on_ground[i]);
 
-				//DO NOT delete here because the ptr is reused
-				deleted++;
-				items_on_ground.erase(items_on_ground.begin() + (i--));
+	// 			//DO NOT delete here because the ptr is reused
+	// 			deleted++;
+	// 			items_on_ground.erase(items_on_ground.begin() + (i--));
 
-				continue;
-			}
+	// 			continue;
+	// 		}
 			
-		}
-	}
+	// 	}
+	// }
 
 	//Player bullet updates
 	{
@@ -382,16 +382,12 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 						//Drop item with rng
 						int drop = rand() % 10;
-						cout << drop << endl;
-
 						if(drop == 0) {
-							cout << "yay item" << endl;
 							drop = rand() % 2;
-
 							if(drop == 1)
-								items_on_ground.emplace_back(new ReinforcementLearning(player, glm::vec2(enemies[i]->get_pos()) * dg->map.scalingFactor, &r_learning_sprite));
+								items_on_ground.emplace_back(new ReinforcementLearning(player, enemies[i]->get_pos(), &r_learning_sprite));
 							else
-								items_on_ground.emplace_back(new RayTracing(player, glm::vec2(enemies[i]->get_pos()) * dg->map.scalingFactor, &ray_tracing_sprite));
+								items_on_ground.emplace_back(new RayTracing(player, enemies[i]->get_pos(), &ray_tracing_sprite));
 						}
 
 						enemies_deleted++;
@@ -545,7 +541,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 		item->postupdate();
 	}
 
-	cout << player->get_hp() << endl;
+	//cout << player->get_hp() << endl;
 }
 
 void PongMode::draw(glm::uvec2 const &drawable_size) {
@@ -708,8 +704,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 		//cout << "Drawn item on ground " << i->get_width() << " " << glm::to_string(i->get_pos()) << endl; 
 	}
 
-	int player_hp_bar = player->get_hp();
-	std::cout << player_hp_bar << std::endl;
+	int player_hp_bar = (int)player->get_hp();
 	for (int i = 0; i < player_hp_bar; i++) {
 		draw_rectangle(glm::vec2(-(i) * 8.0f + 16.0f, -48.0f), glm::vec2(8.0f, 2.0f), HEX_TO_U8VEC4(0xff0000ff));
 	}
