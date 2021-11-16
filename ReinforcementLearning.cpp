@@ -4,5 +4,6 @@ ReinforcementLearning::ReinforcementLearning(std::shared_ptr<Player> player, glm
 	: Items(player, pos, sprite) {};
 
 void ReinforcementLearning::on_kill() {
-   player->add_hp(1.0f);
+	if(player->get_hp() < 7.0f)
+		player->add_hp(1.0f);
 }
