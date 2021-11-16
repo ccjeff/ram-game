@@ -432,7 +432,6 @@ void Room::LockRoom()
 		{
 			if (map->ValueAt(xIndex, yIndex) == doorNum)
 			{
-				printf("Found a spot! It's at: (%zu, %zu)", xIndex, yIndex);
 				map->SetAt(xIndex, yIndex, closedNum);
 			}
 		}
