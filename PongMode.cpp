@@ -572,7 +572,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 		HEX_TO_U8VEC4(0xf2897288),
 		HEX_TO_U8VEC4(0xbacac088),
 	};
-	#undef HEX_TO_U8VEC4
+	
 
 	//build matrix that scales and translates appropriately:
 	glm::mat4 court_to_clip = glm::mat4(
@@ -587,19 +587,19 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	//---- compute vertices to draw ----
 
 	//vertices will be accumulated into this list and then uploaded+drawn at the end of this function:
-	// std::vector< Vertex > vertices;
+	std::vector< Vertex > vertices;
 
 	//inline helper function for rectangle drawing:
-	// auto draw_rectangle = [&vertices](glm::vec2 const &center, glm::vec2 const &radius, glm::u8vec4 const &color) {
-	// 	//draw rectangle as two CCW-oriented triangles:
-	// 	vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-	// 	vertices.emplace_back(glm::vec3(center.x+radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-	// 	vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+	auto draw_rectangle = [&vertices](glm::vec2 const &center, glm::vec2 const &radius, glm::u8vec4 const &color) {
+		//draw rectangle as two CCW-oriented triangles:
+		vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+		vertices.emplace_back(glm::vec3(center.x+radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+		vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
 
-	// 	vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-	// 	vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-	// 	vertices.emplace_back(glm::vec3(center.x-radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-	// };
+		vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+		vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+		vertices.emplace_back(glm::vec3(center.x-radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+	};
 
 	//clear the color buffer:
 	glClearColor(bg_color.r / 255.0f, bg_color.g / 255.0f, bg_color.b / 255.0f, bg_color.a / 255.0f);
@@ -677,6 +677,12 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 		//cout << "Drawn item on ground " << i->get_width() << " " << glm::to_string(i->get_pos()) << endl; 
 	}
 
+	int player_hp_bar = player->get_hp();
+	std::cout << player_hp_bar << std::endl;
+	for (int i = 0; i < player_hp_bar; i++) {
+		draw_rectangle(glm::vec2(-(i) * 8.0f + 16.0f, -48.0f), glm::vec2(8.0f, 2.0f), HEX_TO_U8VEC4(0xff0000ff));
+	}
+	#undef HEX_TO_U8VEC4
 	//---- actual drawing ----
 
 	//use alpha blending:
@@ -686,9 +692,9 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	glDisable(GL_DEPTH_TEST);
 
 	// //upload vertices to vertex_buffer:
-	// glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer); //set vertex_buffer as current
-	// glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STREAM_DRAW); //upload vertices array
-	// glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer); //set vertex_buffer as current
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STREAM_DRAW); //upload vertices array
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//set color_texture_program as current program:
 	glUseProgram(color_texture_program.program);
@@ -699,18 +705,18 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	//use the mapping vertex_buffer_for_color_texture_program to fetch vertex data:
 	glBindVertexArray(vertex_buffer_for_color_texture_program);
 
-	// //bind the solid white texture to location zero so things will be drawn just with their colors:
-	// glActiveTexture(GL_TEXTURE0);
-	// glBindTexture(GL_TEXTURE_2D, white_tex);
+	//bind the solid white texture to location zero so things will be drawn just with their colors:
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, white_tex);
 
 	// //run the OpenGL pipeline:
-	// glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
+	glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
 
-	// //unbind the solid white texture:
-	// glBindTexture(GL_TEXTURE_2D, 0);
+	//unbind the solid white texture:
+	glBindTexture(GL_TEXTURE_2D, 0);
 
-	// //reset vertex array to none:
-	// glBindVertexArray(0);
+	//reset vertex array to none:
+	glBindVertexArray(0);
 
 	//reset current program to none:
 	glUseProgram(0);
