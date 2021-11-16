@@ -721,7 +721,7 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 
 	int player_hp_bar = (int)player->get_hp();
 	for (int i = 0; i < player_hp_bar; i++) {
-		draw_rectangle(glm::vec2(-(i) * 8.0f + 16.0f, -48.0f), glm::vec2(8.0f, 2.0f), HEX_TO_U8VEC4(0xff0000ff));
+		draw_rectangle(glm::vec2(-(i) * 8.0f + 16.0f, -48.0f), glm::vec2(8.0f, 2.0f), HEX_TO_U8VEC4(0xde6564ff));
 	}
 	#undef HEX_TO_U8VEC4
 	//---- actual drawing ----

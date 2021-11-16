@@ -29,7 +29,7 @@ void MeleeEnemy::move(float elapsed, const glm::vec2 &player_pos, Map &map) {
 
 
 Bullet* MeleeEnemy::do_attack(const glm::vec2 &player_pos) {
-	if(time_step >= 5.0f && distance(player_pos) < 1.0f) {
+	if(time_step >= 2.0f && distance(player_pos) < 1.0f) {
 		Bullet* b = new Bullet(this->position, 
 			glm::normalize(player_pos - this->position + 1.0f)
 		);
