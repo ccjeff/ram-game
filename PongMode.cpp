@@ -626,7 +626,9 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 					door_locked_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 				}
 				else
+				{
 					floor_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				}
 			}
 		}
 	}
