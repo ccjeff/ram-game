@@ -202,9 +202,9 @@ void DungeonGenerator::PrintMap()
 	{
 		for (size_t x = 0; x < dimX; x++)
 		{
-			printf("%d", map.ValueAt(x, y));
+			//printf("%d", map.ValueAt(x, y));
 		}
-		printf(" - %zu\n", y);
+		//printf(" - %zu\n", y);
 	}
 
 	for (size_t y = 0; y < dimY; y++)
