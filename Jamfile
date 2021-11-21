@@ -152,6 +152,7 @@ GAME_NAMES =
 	Items
 	ReinforcementLearning
 	RayTracing
+	Dijkstra
 	GameState
 	;
 

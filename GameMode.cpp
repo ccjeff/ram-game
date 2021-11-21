@@ -100,6 +100,7 @@ GameMode::GameMode() {
 	blank_sprite = Sprite(*black, "sprite");
 	r_learning_sprite = Sprite(*r_learning, "sprite");
 	ray_tracing_sprite = Sprite(*ray_tracing, "sprite");
+	dijkstra_sprite = Sprite(*dijkstra, "sprite");
 	door_locked_sprite = Sprite(*door_locked, "sprite");
 	door_unlocked_sprite = Sprite(*door_unlocked, "sprite");
 	
@@ -151,7 +152,7 @@ GameMode::GameMode() {
 
 	//Add things for testing
 	{
-		// gs->items_on_ground.emplace_back(new ReinforcementLearning(gs->player, glm::vec2(gs->dg->player_start) * gs->dg->map.scalingFactor, &r_learning_sprite));
+		gs->items_on_ground.emplace_back(new Dijkstra(gs->player, glm::vec2(gs->dg->player_start) * gs->dg->map.scalingFactor, &dijkstra_sprite));
 		// gs->items.emplace_back(new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
 	}
 }
@@ -175,6 +176,7 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 	if(evt.type == SDL_MOUSEBUTTONDOWN) {
 		if (shoot_cd < 0.2) return true;
 		Pistol p;
+
 		Bullet* b = p.do_shoot(gs->player->get_pos(), glm::normalize(
 				glm::vec2(
 					(float(evt.motion.x) / window_size.x * 2.0f - 1.0f) * window_size.x,
@@ -189,8 +191,9 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		gs->bullets.emplace_back(b);
 
 		for(auto i : gs->items) {
-			i->on_shoot(b);
+			i->on_shoot(b, gs->enemies);
 		}
+		std::cout << "done item on_shoots" << std::endl;
 		return true;
 	} else {
 		if (evt.type == SDL_KEYDOWN) {
@@ -303,8 +306,17 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	{
 		int deleted = 0;
 		for(size_t i = 0; i < gs->bullets.size(); i++) {
+			std::cout << "in for bullets" << std::endl;
 			glm::vec2 old_pos = gs->bullets[i]->get_pos();
-			gs->bullets[i]->update_pos(elapsed * 500.0f);
+			if (gs->bullets[i]->get_auto_aim() == false) {
+				std::cout << "Not player auto aiming bullet" << std::endl;
+				gs->bullets[i]->update_pos(elapsed * 500.0f);
+			} else {
+				std::cout << "player auto aiming bullet" << std::endl;
+				glm::vec2 dir = glm::normalize(gs->bullets[i]->get_pos() - gs->bullets[i]->get_autoaim_target()->get_pos());
+				gs->bullets[i]->set_vel(-dir);
+				gs->bullets[i]->update_pos(elapsed * 500.0f);
+			}
 
 			glm::vec2 pos = gs->bullets[i]->get_pos();
 			
@@ -382,11 +394,13 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 						//Drop item with rng
 						int drop = rand() % 10;
 						if(drop == 0) {
-							drop = rand() % 2;
+							drop = rand() % 3;
 							if(drop == 1)
 								gs->items_on_ground.emplace_back(new ReinforcementLearning(gs->player, gs->enemies[i]->get_pos(), &r_learning_sprite));
-							else
+							else if (drop == 2)
 								gs->items_on_ground.emplace_back(new RayTracing(gs->player, gs->enemies[i]->get_pos(), &ray_tracing_sprite));
+							else 
+								gs->items_on_ground.emplace_back(new Dijkstra(gs->player, gs->enemies[i]->get_pos(), &dijkstra_sprite));
 						}
 
 						enemies_deleted++;

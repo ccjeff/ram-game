@@ -7,6 +7,8 @@
 #include "Sprites.hpp"
 #include "Bullet.hpp"
 
+struct GameState;
+
 class Items {
 public:
 	Items(std::shared_ptr<Player> player, glm::vec2 pos, Sprite* sprite);
@@ -16,7 +18,7 @@ public:
 	virtual void on_dealt_damage() {};
 	virtual void on_kill() {};
 	virtual void on_bullet_destroyed() {};
-	virtual void on_shoot(Bullet* b) {};
+	virtual void on_shoot(Bullet* b, std::vector<Enemy*>& enemies) {};
 
 	glm::vec2 get_pos();
 	float get_width();

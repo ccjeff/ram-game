@@ -30,6 +30,22 @@ void Bullet::set_bounces(int bounces) {
 	this->bounces = bounces;
 }
 
+void Bullet::set_auto_aim(bool auto_aim) {
+	this->auto_aim = auto_aim;
+}
+
+bool Bullet::get_auto_aim() {
+	return this->auto_aim;
+}
+
 int Bullet::get_bounces() {
 	return this->bounces;
+}
+
+Enemy* Bullet::get_autoaim_target() {
+	return this->autoaim_target;
+}
+
+void Bullet::set_autoaim_target(Enemy* target) {
+	this->autoaim_target = target;
 }
