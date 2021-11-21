@@ -7,20 +7,8 @@
 #include <vector>
 
 #include "Mode.hpp"
-#include "Bullet.hpp"
-#include "Pistol.hpp"
-#include "Gun.hpp"
-#include "Player.hpp"
+#include "GameState.hpp"
 
-//Enemies
-#include "Enemy.hpp"
-#include "BasicEnemy.hpp"
-#include "MeleeEnemy.hpp"
-
-//Items
-#include "Items.hpp"
-#include "ReinforcementLearning.hpp"
-#include "RayTracing.hpp"
 #include "Sprites.hpp"
 #include "DrawLines.hpp"
 #include "DungeonGenerator.hpp"
@@ -28,12 +16,12 @@
 #include "Sound.hpp"
 
 /*
- * PongMode is a game mode that implements a single-player game of Pong.
+ * GameMode is a game mode that implements a single-player game of Pong.
  */
 
-struct PongMode : Mode {
-	PongMode();
-	virtual ~PongMode();
+struct GameMode : Mode {
+	GameMode();
+	virtual ~GameMode();
 
 	//functions called by main loop:
 	virtual bool handle_event(SDL_Event const &, glm::uvec2 const &window_size) override;
@@ -53,18 +41,7 @@ struct PongMode : Mode {
 
 	glm::vec2 window_size;
 
-	Room* activeRoom = NULL;
-
-	std::vector<Bullet*> bullets;
-
-	std::vector<Bullet*> enemy_bullets;
-	std::vector<Enemy*> enemies;
-
-	std::shared_ptr<Player> player;
-	DungeonGenerator* dg;
-
-	std::vector<Items*> items;
-	std::vector<Items*> items_on_ground;
+	std::shared_ptr<GameState> gs;
 
 	Sprite floor_sprite,
 		player_sprite,
@@ -94,7 +71,7 @@ struct PongMode : Mode {
 		glm::u8vec4 Color;
 		glm::vec2 TexCoord;
 	};
-	static_assert(sizeof(Vertex) == 4*3 + 1*4 + 4*2, "PongMode::Vertex should be packed");
+	static_assert(sizeof(Vertex) == 4*3 + 1*4 + 4*2, "GameMode::Vertex should be packed");
 
 	//Shader program that draws transformed, vertices tinted with vertex colors:
 	ColorTextureProgram color_texture_program;

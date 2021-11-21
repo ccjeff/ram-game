@@ -124,7 +124,7 @@ if $(OS) = NT { #Windows
 
 #Store the names of all the .cpp files to build into a variable:
 GAME_NAMES =
-	PongMode
+	GameMode
 	main
 	data_path
 	load_save_png
@@ -152,6 +152,7 @@ GAME_NAMES =
 	Items
 	ReinforcementLearning
 	RayTracing
+	GameState
 	;
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory

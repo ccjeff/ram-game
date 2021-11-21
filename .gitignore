@@ -4,3 +4,5 @@ dist/game.ilk
 dist/game.pdb
 dist/SDL2.dll
 dist/game*
+**/*.zip
+**/*.swp
