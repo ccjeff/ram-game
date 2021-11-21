@@ -1,4 +1,4 @@
-#include "PongMode.hpp"
+#include "GameMode.hpp"
 
 //for the GL_ERRORS() macro:
 #include "gl_errors.hpp"
@@ -26,7 +26,7 @@ Load< Sound::Sample > load_walk(LoadTagDefault, []() -> Sound::Sample const * {
 	return new Sound::Sample(data_path("walk.wav"));
 });
 
-PongMode::PongMode() {
+GameMode::GameMode() {
 	// Room r1 = Room(0, 0, 12, 10);
 	// Room r2 = Room(15, 9, 1, 1);
 	// printf("Collision: %d\n", r1.Collides(r2));
@@ -50,7 +50,7 @@ PongMode::PongMode() {
 		//set vertex_buffer as the source of glVertexAttribPointer() commands:
 		glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
 
-		//set up the vertex array object to describe arrays of PongMode::Vertex:
+		//set up the vertex array object to describe arrays of GameMode::Vertex:
 		glVertexAttribPointer(
 			color_texture_program.Position_vec4, //attribute
 			3, //size
@@ -133,34 +133,30 @@ PongMode::PongMode() {
 		GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
 	}
 	
+	//Game initialization
 	{
-		// initializing player and dungeon
-		dg = new DungeonGenerator(100, 100);
-		dg->Generate(20);
-		dg->map.SetScalingFactor(64.0f);
+		gs = std::make_shared<GameState>();
 
-		player = std::make_shared<Player>(dg->map.GetWorldCoord(dg->player_start), glm::vec2(0.0f, 0.0f), 32.0f);
-
-		for (glm::ivec2 pos : dg->monsterPositions)
+		for (glm::ivec2 pos : gs->dg->monsterPositions)
 		{
 			int spawn = rand() % 2;
 			if(spawn == 0) {
-				enemies.emplace_back(new BasicEnemy(dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_sprite));
+				gs->enemies.emplace_back(new BasicEnemy(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_sprite));
 			}
 			else {
-				enemies.emplace_back(new MeleeEnemy(dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_sprite));
+				gs->enemies.emplace_back(new MeleeEnemy(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_sprite));
 			}
 		}
-		
 	}
+
 	//Add things for testing
 	{
-		// items_on_ground.emplace_back(new ReinforcementLearning(player, glm::vec2(dg->player_start) * dg->map.scalingFactor, &r_learning_sprite));
-		// items.emplace_back(new RayTracing(player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
+		// gs->items_on_ground.emplace_back(new ReinforcementLearning(gs->player, glm::vec2(gs->dg->player_start) * gs->dg->map.scalingFactor, &r_learning_sprite));
+		// gs->items.emplace_back(new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
 	}
 }
 
-PongMode::~PongMode() {
+GameMode::~GameMode() {
 
 	//----- free OpenGL resources -----
 	glDeleteBuffers(1, &vertex_buffer);
@@ -171,27 +167,15 @@ PongMode::~PongMode() {
 
 	glDeleteTextures(1, &white_tex);
 	white_tex = 0;
-
-	for(auto e : enemies) {
-		delete e;
-	}
-
-	for(auto b : bullets) {
-		delete b;
-	}
-
-	for(auto b : enemy_bullets) {
-		delete b;
-	}
 }
 
-bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
+bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
 	this->window_size = window_size;
 
 	if(evt.type == SDL_MOUSEBUTTONDOWN) {
 		if (shoot_cd < 0.2) return true;
 		Pistol p;
-		Bullet* b = p.do_shoot(player->get_pos(), glm::normalize(
+		Bullet* b = p.do_shoot(gs->player->get_pos(), glm::normalize(
 				glm::vec2(
 					(float(evt.motion.x) / window_size.x * 2.0f - 1.0f) * window_size.x,
 					(float(evt.motion.y)  / window_size.y *-2.0f + 1.0f) * window_size.y
@@ -202,9 +186,9 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		shoot_sound = Sound::play(*load_shoot, 0.5f, 0.0f);
 		shoot_cd = 0.0f;
 		
-		bullets.emplace_back(b);
+		gs->bullets.emplace_back(b);
 
-		for(auto i : items) {
+		for(auto i : gs->items) {
 			i->on_shoot(b);
 		}
 		return true;
@@ -247,13 +231,13 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 	return false;
 }
 
-void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
-	for(auto item : items) {
+void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
+	for(auto item : gs->items) {
 		item->preupdate();
 	}
 
 	shoot_cd += elapsed;
-	glm::vec2 player_vel = player->get_vel();
+	glm::vec2 player_vel = gs->player->get_vel();
 	if (left.pressed && !right.pressed) {
 		if (walk_sound_cd >= 0.25f) {
 			walk_sound = Sound::play(*load_walk, 0.25f, 0.0f);
@@ -298,16 +282,16 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	//Item pickups
 	{
 		int deleted = 0;
-		for(size_t i = 0; i < items_on_ground.size(); i++) {
-			float dist_x = abs(items_on_ground[i]->get_pos().x - player->get_pos().x);
-			float dist_y = abs(items_on_ground[i]->get_pos().y - player->get_pos().y);
+		for(size_t i = 0; i < gs->items_on_ground.size(); i++) {
+			float dist_x = abs(gs->items_on_ground[i]->get_pos().x - gs->player->get_pos().x);
+			float dist_y = abs(gs->items_on_ground[i]->get_pos().y - gs->player->get_pos().y);
 
-			if(dist_x < player->get_width() && dist_y < player->get_width()) {
-				items.emplace_back(items_on_ground[i]);
+			if(dist_x < gs->player->get_width() && dist_y < gs->player->get_width()) {
+				gs->items.emplace_back(gs->items_on_ground[i]);
 
 				//DO NOT delete here because the ptr is reused
 				deleted++;
-				items_on_ground.erase(items_on_ground.begin() + (i--));
+				gs->items_on_ground.erase(gs->items_on_ground.begin() + (i--));
 
 				continue;
 			}
@@ -315,64 +299,64 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 		}
 	}
 
-	//Player bullet updates
+	//gs->player bullet updates
 	{
 		int deleted = 0;
-		for(size_t i = 0; i < bullets.size(); i++) {
-			glm::vec2 old_pos = bullets[i]->get_pos();
-			bullets[i]->update_pos(elapsed * 500.0f);
+		for(size_t i = 0; i < gs->bullets.size(); i++) {
+			glm::vec2 old_pos = gs->bullets[i]->get_pos();
+			gs->bullets[i]->update_pos(elapsed * 500.0f);
 
-			glm::vec2 pos = bullets[i]->get_pos();
+			glm::vec2 pos = gs->bullets[i]->get_pos();
 			
-			if (dg->map.ValueAtWorld(pos.x, pos.y) == 0 
-				|| dg->map.ValueAtWorld(old_pos.x, pos.y) == 0
-				|| dg->map.ValueAtWorld(pos.x, old_pos.y) == 0) {
+			if (gs->dg->map.ValueAtWorld(pos.x, pos.y) == 0 
+				|| gs->dg->map.ValueAtWorld(old_pos.x, pos.y) == 0
+				|| gs->dg->map.ValueAtWorld(pos.x, old_pos.y) == 0) {
 
 				//Bounce the bullet if there are bounces left
-				if(bullets[i]->get_bounces() >= 1) {
-					glm::vec2 tile_pos = pos / dg->map.scalingFactor;
+				if(gs->bullets[i]->get_bounces() >= 1) {
+					glm::vec2 tile_pos = pos / gs->dg->map.scalingFactor;
 					float diffx = tile_pos.x - floor(tile_pos.x);
 					float diffy = tile_pos.y - floor(tile_pos.y);
 					float absdiffx = min(diffx, 1.f - diffx);
 					float absdiffy = min(diffy, 1.f - diffy);
-					glm::vec2 bvel = bullets[i]->get_vel();
+					glm::vec2 bvel = gs->bullets[i]->get_vel();
 					if(absdiffx < absdiffy) {// bounce bullet with x
-						bullets[i]->set_vel(glm::vec2(-bvel.x, bvel.y));
+						gs->bullets[i]->set_vel(glm::vec2(-bvel.x, bvel.y));
 					}
 					else {//bounce bullet with y
-						bullets[i]->set_vel(glm::vec2(bvel.x, -bvel.y));
+						gs->bullets[i]->set_vel(glm::vec2(bvel.x, -bvel.y));
 					}
-					bullets[i]->set_bounces(bullets[i]->get_bounces() - 1);
-					bullets[i]->update_pos(elapsed * 500.0f);
+					gs->bullets[i]->set_bounces(gs->bullets[i]->get_bounces() - 1);
+					gs->bullets[i]->update_pos(elapsed * 500.0f);
 					continue;
 				}
 
 				deleted++;
-				delete bullets[i];
-				bullets.erase(bullets.begin() + (i--));
+				delete gs->bullets[i];
+				gs->bullets.erase(gs->bullets.begin() + (i--));
 
-				for(auto item : items) {
+				for(auto item : gs->items) {
 					item->on_bullet_destroyed();
 				}
 
 				continue;
 			}
 
-			float dist_player_x = abs(player->get_pos().x - pos.x);
-			float dist_player_y = abs(player->get_pos().y - pos.y);
+			float dist_player_x = abs(gs->player->get_pos().x - pos.x);
+			float dist_player_y = abs(gs->player->get_pos().y - pos.y);
 
 			//Enemy got hit
 			bool enemy_hit = false;
-			for(auto e : enemies) {
+			for(auto e : gs->enemies) {
 				float dist_x = abs(e->get_pos().x - pos.x);
 				float dist_y = abs(e->get_pos().y - pos.y);
 
 				if(dist_x < e->get_width()/2.0f && dist_y < e->get_width()/2.0f) {
 					//std::cout << "Enemy was hit by a bullet" << std::endl;
-					e->on_hit(bullets[i]->get_damage());
+					e->on_hit(gs->bullets[i]->get_damage());
 					enemy_hit = true;
 
-					for(auto item : items) {
+					for(auto item : gs->items) {
 						item->on_dealt_damage();
 					}
 
@@ -383,15 +367,15 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 			//An enemy was hit, destroy the bullet, check enemy hp, and continue
 			if(enemy_hit) {
 				deleted++;
-				delete bullets[i];
-				bullets.erase(bullets.begin() + (i--));
+				delete gs->bullets[i];
+				gs->bullets.erase(gs->bullets.begin() + (i--));
 
 				int enemies_deleted = 0;
-				for(size_t i = 0; i < enemies.size(); i++) {
+				for(size_t i = 0; i < gs->enemies.size(); i++) {
 
 					//If enemy died
-					if(enemies[i]->get_hp() <= 0.0f) {
-						for(auto item : items) {
+					if(gs->enemies[i]->get_hp() <= 0.0f) {
+						for(auto item : gs->items) {
 							item->on_kill();
 						}
 
@@ -400,18 +384,18 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 						if(drop == 0) {
 							drop = rand() % 2;
 							if(drop == 1)
-								items_on_ground.emplace_back(new ReinforcementLearning(player, enemies[i]->get_pos(), &r_learning_sprite));
+								gs->items_on_ground.emplace_back(new ReinforcementLearning(gs->player, gs->enemies[i]->get_pos(), &r_learning_sprite));
 							else
-								items_on_ground.emplace_back(new RayTracing(player, enemies[i]->get_pos(), &ray_tracing_sprite));
+								gs->items_on_ground.emplace_back(new RayTracing(gs->player, gs->enemies[i]->get_pos(), &ray_tracing_sprite));
 						}
 
 						enemies_deleted++;
-						delete enemies[i];
-						enemies.erase(enemies.begin() + (i--));
+						delete gs->enemies[i];
+						gs->enemies.erase(gs->enemies.begin() + (i--));
 					}
 				}
 
-				for(auto item : items) {
+				for(auto item : gs->items) {
 					item->on_bullet_destroyed();
 				}
 
@@ -420,13 +404,13 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 			
 			if(dist_player_x > drawable_size.x
 				|| dist_player_y > drawable_size.y) {
-				//cout << "del " << i << " " << bullets.size() - deleted << endl;
+				//cout << "del " << i << " " << gs->bullets.size() - deleted << endl;
 				
 				deleted++;
-				delete bullets[i];
-				bullets.erase(bullets.begin() + (i--));
+				delete gs->bullets[i];
+				gs->bullets.erase(gs->bullets.begin() + (i--));
 
-				for(auto item : items) {
+				for(auto item : gs->items) {
 					item->on_bullet_destroyed();
 				}
 
@@ -434,51 +418,51 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 			}
 		}
 	}
-	player->set_vel(player_vel);
+	gs->player->set_vel(player_vel);
 	
 	//Enemy bullet updates
 	{
 		int deleted = 0;
-		for(size_t i = 0; i < enemy_bullets.size(); i++) {
-			glm::vec2 old_pos = enemy_bullets[i]->get_pos();
-			enemy_bullets[i]->update_pos(elapsed * 500.0f);
-			glm::vec2 pos = enemy_bullets[i]->get_pos();
+		for(size_t i = 0; i < gs->enemy_bullets.size(); i++) {
+			glm::vec2 old_pos = gs->enemy_bullets[i]->get_pos();
+			gs->enemy_bullets[i]->update_pos(elapsed * 500.0f);
+			glm::vec2 pos = gs->enemy_bullets[i]->get_pos();
 
-			if (dg->map.ValueAtWorld(pos.x, pos.y) == 0 
-				|| dg->map.ValueAtWorld(old_pos.x, pos.y) == 0
-				|| dg->map.ValueAtWorld(pos.x, old_pos.y) == 0) {
+			if (gs->dg->map.ValueAtWorld(pos.x, pos.y) == 0 
+				|| gs->dg->map.ValueAtWorld(old_pos.x, pos.y) == 0
+				|| gs->dg->map.ValueAtWorld(pos.x, old_pos.y) == 0) {
 				deleted++;
-				delete enemy_bullets[i];
-				enemy_bullets.erase(enemy_bullets.begin() + (i--));
+				delete gs->enemy_bullets[i];
+				gs->enemy_bullets.erase(gs->enemy_bullets.begin() + (i--));
 				continue;
 			}
 			
 			//cout << pos.x << " " << pos.y << endl;
 
-			float dist_x = abs(player->get_pos().x - pos.x);
-			float dist_y = abs(player->get_pos().y - pos.y);
+			float dist_x = abs(gs->player->get_pos().x - pos.x);
+			float dist_y = abs(gs->player->get_pos().y - pos.y);
 
-			//Player got hit
-			if(dist_x < player->get_width()/2.0f && dist_y < player->get_width()/2.0f) {
-				player->on_hit(enemy_bullets[i]->get_damage());
+			//gs->player got hit
+			if(dist_x < gs->player->get_width()/2.0f && dist_y < gs->player->get_width()/2.0f) {
+				gs->player->on_hit(gs->enemy_bullets[i]->get_damage());
 
 				deleted++;
-				delete enemy_bullets[i];
-				enemy_bullets.erase(enemy_bullets.begin() + (i--));
+				delete gs->enemy_bullets[i];
+				gs->enemy_bullets.erase(gs->enemy_bullets.begin() + (i--));
 
-				//Player death
-				//TODO: pull this out to a method and add other fancy stuff like remove items
-				if(player->get_hp() <= 0) {
-					glm::vec2 pos = dg->map.GetWorldCoord(dg->player_start);
-					player->set_pos(pos);
-					player->add_hp(5.0f);
-					if(activeRoom != nullptr){
-						activeRoom->UnlockRoom();
+				//gs->player death
+				//TODO: pull this out to a method and add other fancy stuff like remove gs->items
+				if(gs->player->get_hp() <= 0) {
+					glm::vec2 pos = gs->dg->map.GetWorldCoord(gs->dg->player_start);
+					gs->player->set_pos(pos);
+					gs->player->add_hp(5.0f);
+					if(gs->active_room != nullptr){
+						gs->active_room->UnlockRoom();
 					}
 					return;
 				}
 
-				for(auto item : items) {
+				for(auto item : gs->items) {
 					item->on_recv_damage();
 				}
 
@@ -487,45 +471,45 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 			
 			if(dist_x > drawable_size.x
 				|| dist_y > drawable_size.y) {
-				//cout << "del " << i << " " << bullets.size() - deleted << endl;
+				//cout << "del " << i << " " << gs->bullets.size() - deleted << endl;
 				
 				deleted++;
-				delete enemy_bullets[i];
-				enemy_bullets.erase(enemy_bullets.begin() + (i--));
+				delete gs->enemy_bullets[i];
+				gs->enemy_bullets.erase(gs->enemy_bullets.begin() + (i--));
 
 				continue;
 			}
 		}
 	}
 
-	//Ask enemies to attack after to give players more advantage
-	for(auto e : enemies) {
-		if (activeRoom != NULL)
+	//Ask gs->enemies to attack after to give players more advantage
+	for(auto e : gs->enemies) {
+		if (gs->active_room != NULL)
 		{
-			if (!activeRoom->is_inside(e->get_pos())) continue;
+			if (!gs->active_room->is_inside(e->get_pos())) continue;
 			e->update(elapsed);
-			e->move(elapsed, player->get_pos(), dg->map);
-			Bullet* b = e->do_attack(player->get_pos());
+			e->move(elapsed, gs->player->get_pos(), gs->dg->map);
+			Bullet* b = e->do_attack(gs->player->get_pos());
 			if (b != nullptr) {
 				//cout << "enemy attack D: " << endl;
-				enemy_bullets.emplace_back(b);
+				gs->enemy_bullets.emplace_back(b);
 			}
 		}
 	}
 
 	{ //Room locking updates
-		if (activeRoom == NULL)
+		if (gs->active_room == NULL)
 		{
-			for (size_t i = 0; i < dg->rooms.size(); i++)
+			for (size_t i = 0; i < gs->dg->rooms.size(); i++)
 			{
-				if (dg->rooms[i].is_inside(player->get_pos()))
+				if (gs->dg->rooms[i].is_inside(gs->player->get_pos()))
 				{
-					activeRoom = &dg->rooms[i];
-					activeRoom->SetMap(&dg->map);
-					activeRoom->LockRoom();
+					gs->active_room = &gs->dg->rooms[i];
+					gs->active_room->SetMap(&gs->dg->map);
+					gs->active_room->LockRoom();
 					bool valid = true;
-					for (auto e : enemies) {
-						if (activeRoom->is_inside(e->get_pos()))
+					for (auto e : gs->enemies) {
+						if (gs->active_room->is_inside(e->get_pos()))
 						{
 							valid = false;
 							break;
@@ -533,7 +517,7 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 					}
 					if (valid)
 					{
-						activeRoom->UnlockRoom();
+						gs->active_room->UnlockRoom();
 					}
 					break;
 				}
@@ -541,11 +525,11 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 		}
 		else
 		{
-			if (activeRoom->locked)
+			if (gs->active_room->locked)
 			{
 				bool valid = true;
-				for (auto e : enemies) {
-					if (activeRoom->is_inside(e->get_pos()))
+				for (auto e : gs->enemies) {
+					if (gs->active_room->is_inside(e->get_pos()))
 					{
 						valid = false;
 						break;
@@ -553,32 +537,32 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				}
 				if (valid)
 				{
-					activeRoom->UnlockRoom();
+					gs->active_room->UnlockRoom();
 				}
 			}
 			else
 			{
-				if (!activeRoom->is_inside(player->get_pos()))
+				if (!gs->active_room->is_inside(gs->player->get_pos()))
 				{			
-					activeRoom = NULL;
+					gs->active_room = NULL;
 				}
 			}
 		}
 	}
 	
-	//cout <<player->get_pos().x << " " << player->get_pos().y << endl;
+	//cout <<gs->player->get_pos().x << " " << gs->player->get_pos().y << endl;
 
-	player->update(elapsed, dg->map);
-	player_sprite.transform.displacement = player->get_pos();
+	gs->player->update(elapsed, gs->dg->map);
+	player_sprite.transform.displacement = gs->player->get_pos();
 
-	for(auto item : items) {
+	for(auto item : gs->items) {
 		item->postupdate();
 	}
 
-	//cout << player->get_hp() << endl;
+	//cout << gs->player->get_hp() << endl;
 }
 
-void PongMode::draw(glm::uvec2 const &drawable_size) {
+void GameMode::draw(glm::uvec2 const &drawable_size) {
 	{ //use DrawLines to overlay some text:
 		glDisable(GL_DEPTH_TEST);
 		float aspect = float(drawable_size.x) / float(drawable_size.y);
@@ -590,12 +574,12 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 		));
 
 		// constexpr float H = 0.09f;
-		// lines.draw_text("Player pos: " + to_string(player->get_pos().x) + " " + to_string(player->get_pos().y),
+		// lines.draw_text("gs->player pos: " + to_string(gs->player->get_pos().x) + " " + to_string(gs->player->get_pos().y),
 		// 	glm::vec3(-aspect + 0.1f * H, -1.0 + 0.1f * H, 0.0),
 		// 	glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
 		// 	glm::u8vec4(0x00, 0x00, 0x00, 0x00));
 		// float ofs = 2.0f / drawable_size.y;
-		// lines.draw_text("Player pos: " + to_string(player->get_pos().x) + " " + to_string(player->get_pos().y),
+		// lines.draw_text("gs->player pos: " + to_string(gs->player->get_pos().x) + " " + to_string(gs->player->get_pos().y),
 		// 	glm::vec3(-aspect + 0.1f * H + ofs, -1.0 + + 0.1f * H + ofs, 0.0),
 		// 	glm::vec3(H, 0.0f, 0.0f), glm::vec3(0.0f, H, 0.0f),
 		// 	glm::u8vec4(0xff, 0xff, 0xff, 0x00));
@@ -645,102 +629,102 @@ void PongMode::draw(glm::uvec2 const &drawable_size) {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	{
-		const float FLOOR_TILE_SIZE = dg->map.scalingFactor;
+		const float FLOOR_TILE_SIZE = gs->dg->map.scalingFactor;
 		floor_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
 		door_unlocked_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
 		door_locked_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
-		glm::ivec2 tile_id = dg->map.GetTile(player->get_pos().x, player->get_pos().y);
+		glm::ivec2 tile_id = gs->dg->map.GetTile(gs->player->get_pos().x, gs->player->get_pos().y);
 
 		for(int i = tile_id.x - 12; i <= tile_id.x + 12; i++){
 			for(int j = tile_id.y - 12; j <= tile_id.y + 12; j++){
 				floor_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
 
-				glm::ivec2 cur_tile_id = dg->map.GetTile(floor_sprite.transform.displacement.x, floor_sprite.transform.displacement.y);
+				glm::ivec2 cur_tile_id = gs->dg->map.GetTile(floor_sprite.transform.displacement.x, floor_sprite.transform.displacement.y);
 				if(cur_tile_id.x < 0 || cur_tile_id.y < 0)
-					blank_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
-				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 0) //TODO: Change this when do sprites, this check is backwards but looks nice for the demo.
-					blank_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
-				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 2)
+					blank_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 0) //TODO: Change this when do sprites, this check is backwards but looks nice for the demo.
+					blank_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 2)
 				{
 					door_unlocked_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
-					door_unlocked_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+					door_unlocked_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 				}
-				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 3)
+				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 3)
 				{
 					door_locked_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
-					door_locked_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+					door_locked_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 				}
 				else
 				{
-					floor_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+					floor_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 				}
 
-				// 				else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 2)
+				// 				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 2)
 				// {
 				// 	door_unlocked_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
-				// 	door_unlocked_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				// 	door_unlocked_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 				// }
-				// else if (dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 3)
+				// else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 3)
 				// {
 				// 	door_locked_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
-				// 	door_locked_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				// 	door_locked_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 				// }
 				// else
 				// {
 				// 	floor_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
-				// 	floor_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				// 	floor_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 				// }
 			}
 		}
 	}
 	player_sprite.transform.size = glm::vec2(
-		player->get_vel().x < 0 ? 
-				-1.0f * player->get_width() : 
-				player->get_width(), player->get_width()
+		gs->player->get_vel().x < 0 ? 
+				-1.0f * gs->player->get_width() : 
+				gs->player->get_width(), gs->player->get_width()
 	);
-	player_sprite.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+	player_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 
-	for(auto b : bullets) {
+	for(auto b : gs->bullets) {
 		p_bullet.transform.displacement = b->get_pos();
 		p_bullet.transform.size = glm::vec2(
 			b->get_vel().x < 0 ? 
 				-1.0f * b->get_width() : 
 				b->get_width(), b->get_width()
 		);
-		p_bullet.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		p_bullet.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
 
-	for(auto b : enemy_bullets) {
+	for(auto b : gs->enemy_bullets) {
 		e_bullet.transform.displacement = b->get_pos();
 		e_bullet.transform.size = glm::vec2(
 			b->get_vel().x < 0 ? 
 				-1.0f * b->get_width() : 
 				b->get_width(), b->get_width()
 		);
-		e_bullet.draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		e_bullet.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
 	
-	if(activeRoom != nullptr)
-		for(auto e : enemies) {
-			if (!activeRoom->is_inside(e->get_pos())) continue;
+	if(gs->active_room != nullptr)
+		for(auto e : gs->enemies) {
+			if (!gs->active_room->is_inside(e->get_pos())) continue;
 			e->get_sprite()->transform.displacement = e->get_pos();
 			e->get_sprite()->transform.size = glm::vec2(
 				e->get_vel().x < 0 ? 
 					-1.0f * e->get_width() : 
 					e->get_width(), e->get_width()
 			);
-			e->get_sprite()->draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+			e->get_sprite()->draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 		}
 
-	for(auto i : items_on_ground) {
+	for(auto i : gs->items_on_ground) {
 
 		i->get_sprite()->transform.displacement = i->get_pos();
 		i->get_sprite()->transform.size = glm::vec2(i->get_width(), i->get_width());
-		i->get_sprite()->draw(player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		i->get_sprite()->draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 		//cout << "Drawn item on ground " << i->get_width() << " " << glm::to_string(i->get_pos()) << endl; 
 	}
 
-	int player_hp_bar = (int)player->get_hp();
+	int player_hp_bar = (int)gs->player->get_hp();
 	for (int i = 0; i < player_hp_bar; i++) {
 		draw_rectangle(glm::vec2(-(i) * 8.0f + 16.0f, -48.0f), glm::vec2(8.0f, 2.0f), HEX_TO_U8VEC4(0xde6564ff));
 	}
