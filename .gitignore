@@ -6,3 +6,4 @@ dist/SDL2.dll
 dist/game*
 **/*.zip
 **/*.swp
+**/.DS_Store

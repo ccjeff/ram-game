@@ -22,6 +22,10 @@ float Bullet::get_damage() {
 	return this->damage;
 }
 
+void Bullet::set_damage(float damage) {
+	this->damage = damage;
+}
+
 float Bullet::get_width() {
 	return this->width;
 }

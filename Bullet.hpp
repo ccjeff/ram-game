@@ -15,6 +15,7 @@ public:
 	void set_vel(const glm::vec2& vel);
 
 	float get_damage();
+	void set_damage(float damage);
 	float get_width();
 	void set_bounces(int bounces);
 	int get_bounces();

@@ -53,6 +53,7 @@ struct GameMode : Mode {
 		r_learning_sprite,
 		ray_tracing_sprite,
 		dijkstra_sprite,
+		p_np_sprite,
 		door_locked_sprite,
 		door_unlocked_sprite;
 	

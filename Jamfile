@@ -153,6 +153,7 @@ GAME_NAMES =
 	ReinforcementLearning
 	RayTracing
 	Dijkstra
+	P_NP
 	GameState
 	;
 

@@ -45,6 +45,7 @@ Load <SpriteMap> melee_enemy(LoadTagDefault, [](){ return load_func("melee_enemy
 Load <SpriteMap> r_learning(LoadTagDefault, [](){ return load_func("r_learning.png"); });
 Load <SpriteMap> ray_tracing(LoadTagDefault, [](){ return load_func("ray_tracing.png"); });
 Load <SpriteMap> dijkstra(LoadTagDefault, [](){ return load_func("32dijkstra.png"); });
+Load <SpriteMap> p_np(LoadTagDefault, [](){ return load_func("pnp.png"); });
 Load <SpriteMap> door_locked(LoadTagDefault, [](){ return load_func("door_locked.png"); });
 Load <SpriteMap> door_unlocked(LoadTagDefault, [](){ return load_func("door_unlocked.png"); });
 

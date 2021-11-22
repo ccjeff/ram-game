@@ -101,6 +101,7 @@ GameMode::GameMode() {
 	r_learning_sprite = Sprite(*r_learning, "sprite");
 	ray_tracing_sprite = Sprite(*ray_tracing, "sprite");
 	dijkstra_sprite = Sprite(*dijkstra, "sprite");
+	p_np_sprite = Sprite(*p_np, "sprite");
 	door_locked_sprite = Sprite(*door_locked, "sprite");
 	door_unlocked_sprite = Sprite(*door_unlocked, "sprite");
 	
@@ -152,8 +153,10 @@ GameMode::GameMode() {
 
 	//Add things for testing
 	{
-		gs->items_on_ground.emplace_back(new Dijkstra(gs->player, glm::vec2(gs->dg->player_start) * gs->dg->map.scalingFactor, &dijkstra_sprite));
+		// gs->items_on_ground.emplace_back(new Dijkstra(gs->player, glm::vec2(gs->dg->player_start) * gs->dg->map.scalingFactor, &dijkstra_sprite));
 		// gs->items.emplace_back(new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
+		gs->items.emplace_back(new P_NP(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite));
+
 	}
 }
 
@@ -394,11 +397,13 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 						//Drop item with rng
 						int drop = rand() % 10;
 						if(drop == 0) {
-							drop = rand() % 3;
+							drop = rand() % 4;
 							if(drop == 1)
 								gs->items_on_ground.emplace_back(new ReinforcementLearning(gs->player, gs->enemies[i]->get_pos(), &r_learning_sprite));
 							else if (drop == 2)
 								gs->items_on_ground.emplace_back(new RayTracing(gs->player, gs->enemies[i]->get_pos(), &ray_tracing_sprite));
+							else if (drop == 3)
+								gs->items_on_ground.emplace_back(new P_NP(gs->player, gs->enemies[i]->get_pos(), &p_np_sprite));
 							else 
 								gs->items_on_ground.emplace_back(new Dijkstra(gs->player, gs->enemies[i]->get_pos(), &dijkstra_sprite));
 						}

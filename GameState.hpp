@@ -15,6 +15,7 @@
 #include "ReinforcementLearning.hpp"
 #include "RayTracing.hpp"
 #include "Dijkstra.hpp"
+#include "P_NP.hpp"
 #include "DungeonGenerator.hpp"
 
 struct GameState {
