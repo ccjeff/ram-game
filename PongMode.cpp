@@ -190,6 +190,8 @@ bool PongMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 	if(evt.type == SDL_MOUSEBUTTONDOWN) {
 		if (shoot_cd < 0.2) return true;
+		int currentTile = dg->map.ValueAtWorld(player->get_pos().x, player->get_pos().y);
+		if (currentTile == doorNum || currentTile == closedNum) return true;
 		Pistol p;
 		Bullet* b = p.do_shoot(player->get_pos(), glm::normalize(
 				glm::vec2(
@@ -324,9 +326,9 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 			glm::vec2 pos = bullets[i]->get_pos();
 			
-			if (dg->map.ValueAtWorld(pos.x, pos.y) == 0 
-				|| dg->map.ValueAtWorld(old_pos.x, pos.y) == 0
-				|| dg->map.ValueAtWorld(pos.x, old_pos.y) == 0) {
+			if (dg->map.BulletCollides(pos.x, pos.y)
+				|| dg->map.BulletCollides(old_pos.x, pos.y)
+				|| dg->map.BulletCollides(pos.x, old_pos.y)) {
 
 				//Bounce the bullet if there are bounces left
 				if(bullets[i]->get_bounces() >= 1) {
@@ -444,9 +446,9 @@ void PongMode::update(float elapsed, glm::vec2 const &drawable_size) {
 			enemy_bullets[i]->update_pos(elapsed * 500.0f);
 			glm::vec2 pos = enemy_bullets[i]->get_pos();
 
-			if (dg->map.ValueAtWorld(pos.x, pos.y) == 0 
-				|| dg->map.ValueAtWorld(old_pos.x, pos.y) == 0
-				|| dg->map.ValueAtWorld(pos.x, old_pos.y) == 0) {
+			if (dg->map.BulletCollides(pos.x, pos.y)
+				|| dg->map.BulletCollides(old_pos.x, pos.y)
+				|| dg->map.BulletCollides(pos.x, old_pos.y)) {
 				deleted++;
 				delete enemy_bullets[i];
 				enemy_bullets.erase(enemy_bullets.begin() + (i--));
