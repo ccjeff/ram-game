@@ -30,7 +30,7 @@ static Load< void > setup_buffers(LoadTagDefault, [](){
 		//set vertex_buffer as the source of glVertexAttribPointer() commands:
 		glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
 
-		//set up the vertex array object to describe arrays of PongMode::Vertex:
+		//set up the vertex array object to describe arrays of GameMode::Vertex:
 		glVertexAttribPointer(
 			color_program->Position_vec4, //attribute
 			3, //size

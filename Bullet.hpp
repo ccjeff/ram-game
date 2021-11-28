@@ -1,8 +1,9 @@
 #pragma once
 
 #include "GL.hpp"
-
 #include <glm/glm.hpp>
+
+class Enemy;
 
 class Bullet {
 public:
@@ -14,9 +15,14 @@ public:
 	void set_vel(const glm::vec2& vel);
 
 	float get_damage();
+	void set_damage(float damage);
 	float get_width();
 	void set_bounces(int bounces);
 	int get_bounces();
+	void set_auto_aim(bool auto_aim);
+	bool get_auto_aim();
+	Enemy* get_autoaim_target();
+	void set_autoaim_target(Enemy* target);
 	
 protected:
 	glm::vec2 pos;
@@ -25,4 +31,7 @@ protected:
 	float damage = 1.0f;
 	float width = 16.0f;
 	int bounces = 0;
+	bool auto_aim = false;
+	float auto_aim_timer = 0.0f;
+	Enemy* autoaim_target = nullptr;
 };
