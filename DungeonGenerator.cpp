@@ -14,6 +14,7 @@
 using namespace std;
 
 bool collisionMat[] = { true, false, false, true };
+bool bulletCollisionMat[] = { true, false, true, true };
 
 std::string prefabs[] = { "test1", "test2", "test3", "test4"};
 
@@ -38,6 +39,7 @@ size_t DungeonGenerator::index(size_t xIndex, size_t yIndex)
 
 bool DungeonGenerator::Generate(size_t numberOfRooms)
 {
+	printf("Started dungeon gen!\n");
 	rooms.clear();
 	for (size_t count = 0; count < numberOfRooms; count++)
 	{
@@ -79,12 +81,16 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 		}
 	}
 
+	printf("Placed rooms!\n");
+
 	for (Room r : rooms)
 	{
 		r.SetMap(&map);
 		r.Write();
 		map.rooms.push_back(r);
 	}
+
+	printf("Wrote rooms!");
 
 	ConnectRooms();
 
@@ -93,6 +99,8 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 		r.SetMap(&map);
 		r.WriteDoors();
 	}
+
+	printf("Wrote doors!\n");
 
 	size_t playerRoom = rand() % rooms.size();
 	player_start = rooms[playerRoom].GetCenter();
@@ -236,6 +244,7 @@ Map::Map(size_t x, size_t y)
 
 	map = std::vector<std::vector<int>> (dimX, std::vector<int>(dimY, 0));
 	collision = std::vector<std::vector<bool>>(dimX, std::vector<bool>(dimY, true));
+	bulletCollision = std::vector<std::vector<bool>>(dimX, std::vector<bool>(dimY, true));
 	spriteMap = std::vector<std::vector<int>>(dimX, std::vector<int>(dimY, 0));
 }
 
@@ -243,11 +252,17 @@ void Map::SetAt(size_t x, size_t y, int value)
 {
 	map[x][y] = value;
 	SetCollisionAt(x, y, collisionMat[value]);
+	SetBulletCollisionAt(x, y, bulletCollisionMat[value]);
 }
 
 void Map::SetCollisionAt(size_t x, size_t y, bool value)
 {
 	collision[x][y] = value;
+}
+
+void Map::SetBulletCollisionAt(size_t x, size_t y, bool value)
+{
+	bulletCollision[x][y] = value;
 }
 
 int Map::ValueAt(size_t x, size_t y)
@@ -264,6 +279,17 @@ int Map::ValueAtWorld(float x, float y)
 		return 0;
 	}
 	return ValueAt(coord.x, coord.y);
+}
+
+bool Map::BulletCollides(float x, float y)
+{
+	glm::ivec2 coord = GetTile(x, y);
+	if (coord.x < 0 || coord.y < 0 || coord.x >= int(dimX) || coord.y >= int(dimY))
+	{
+		//Outside of bounds is a wall
+		return true;
+	}
+	return bulletCollision[coord.x][coord.y];
 }
 
 bool Map::Collides(float x, float y)

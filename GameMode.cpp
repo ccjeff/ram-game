@@ -178,6 +178,8 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 
 	if(evt.type == SDL_MOUSEBUTTONDOWN) {
 		if (shoot_cd < 0.2) return true;
+		int currentTile = gs->dg->map.ValueAtWorld(gs->player->get_pos().x, gs->player->get_pos().y);
+		if (currentTile == doorNum || currentTile == closedNum) return true;
 		Pistol p;
 
 		Bullet* b = p.do_shoot(gs->player->get_pos(), glm::normalize(
@@ -323,9 +325,9 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 			glm::vec2 pos = gs->bullets[i]->get_pos();
 			
-			if (gs->dg->map.ValueAtWorld(pos.x, pos.y) == 0 
-				|| gs->dg->map.ValueAtWorld(old_pos.x, pos.y) == 0
-				|| gs->dg->map.ValueAtWorld(pos.x, old_pos.y) == 0) {
+			if (gs->dg->map.BulletCollides(pos.x, pos.y)
+				|| gs->dg->map.BulletCollides(old_pos.x, pos.y)
+				|| gs->dg->map.BulletCollides(pos.x, old_pos.y)) {
 
 				//Bounce the bullet if there are bounces left
 				if(gs->bullets[i]->get_bounces() >= 1) {
@@ -447,9 +449,9 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 			gs->enemy_bullets[i]->update_pos(elapsed * 500.0f);
 			glm::vec2 pos = gs->enemy_bullets[i]->get_pos();
 
-			if (gs->dg->map.ValueAtWorld(pos.x, pos.y) == 0 
-				|| gs->dg->map.ValueAtWorld(old_pos.x, pos.y) == 0
-				|| gs->dg->map.ValueAtWorld(pos.x, old_pos.y) == 0) {
+			if (gs->dg->map.BulletCollides(pos.x, pos.y)
+				|| gs->dg->map.BulletCollides(old_pos.x, pos.y)
+				|| gs->dg->map.BulletCollides(pos.x, old_pos.y)) {
 				deleted++;
 				delete gs->enemy_bullets[i];
 				gs->enemy_bullets.erase(gs->enemy_bullets.begin() + (i--));
