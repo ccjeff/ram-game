@@ -70,15 +70,18 @@ struct Map {
 	std::vector<Room> rooms;
 	std::vector<std::vector<int>> map;
 	std::vector<std::vector<bool>> collision;
+	std::vector<std::vector<bool>> bulletCollision;
 	std::vector<std::vector<int>> spriteMap;
 
 	void SetAt(size_t x, size_t y, int value);
 	void SetCollisionAt(size_t x, size_t y, bool value);
+	void SetBulletCollisionAt(size_t x, size_t y, bool value);
 
 	int ValueAt(size_t x, size_t y);
 
 	int ValueAtWorld(float x, float y);
 	bool Collides(float x, float y);
+	bool BulletCollides(float x, float y);
 
 	glm::vec2 Boundary();
 
