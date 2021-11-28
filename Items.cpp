@@ -1,7 +1,8 @@
 #include "Items.hpp"
 
-Items::Items(std::shared_ptr<Player> player, glm::vec2 pos, Sprite* sprite) {
+Items::Items(std::shared_ptr<Player> player, glm::vec2 pos, Sprite* sprite, std::shared_ptr<GameState> gs) {
 	this->player = player;
+    this->gs = gs;
 	this->pos = pos;
 	this->sprite = sprite;
 };

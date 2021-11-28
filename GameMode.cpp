@@ -155,7 +155,7 @@ GameMode::GameMode() {
 	{
 		// gs->items_on_ground.emplace_back(new Dijkstra(gs->player, glm::vec2(gs->dg->player_start) * gs->dg->map.scalingFactor, &dijkstra_sprite));
 		// gs->items.emplace_back(new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
-		gs->items.emplace_back(new P_NP(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite));
+		gs->items.emplace_back(new Dijkstra(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
 
 	}
 }
@@ -194,9 +194,8 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		gs->bullets.emplace_back(b);
 
 		for(auto i : gs->items) {
-			i->on_shoot(b, gs->enemies);
+			i->on_shoot(b);
 		}
-		std::cout << "done item on_shoots" << std::endl;
 		return true;
 	} else {
 		if (evt.type == SDL_KEYDOWN) {
@@ -309,13 +308,10 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	{
 		int deleted = 0;
 		for(size_t i = 0; i < gs->bullets.size(); i++) {
-			std::cout << "in for bullets" << std::endl;
 			glm::vec2 old_pos = gs->bullets[i]->get_pos();
 			if (gs->bullets[i]->get_auto_aim() == false) {
-				std::cout << "Not player auto aiming bullet" << std::endl;
 				gs->bullets[i]->update_pos(elapsed * 500.0f);
 			} else {
-				std::cout << "player auto aiming bullet" << std::endl;
 				glm::vec2 dir = glm::normalize(gs->bullets[i]->get_pos() - gs->bullets[i]->get_autoaim_target()->get_pos());
 				gs->bullets[i]->set_vel(-dir);
 				gs->bullets[i]->update_pos(elapsed * 500.0f);
@@ -399,13 +395,13 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 						if(drop == 0) {
 							drop = rand() % 4;
 							if(drop == 1)
-								gs->items_on_ground.emplace_back(new ReinforcementLearning(gs->player, gs->enemies[i]->get_pos(), &r_learning_sprite));
+								gs->items_on_ground.emplace_back(new ReinforcementLearning(gs->player, gs->enemies[i]->get_pos(), &r_learning_sprite, gs));
 							else if (drop == 2)
-								gs->items_on_ground.emplace_back(new RayTracing(gs->player, gs->enemies[i]->get_pos(), &ray_tracing_sprite));
+								gs->items_on_ground.emplace_back(new RayTracing(gs->player, gs->enemies[i]->get_pos(), &ray_tracing_sprite, gs));
 							else if (drop == 3)
-								gs->items_on_ground.emplace_back(new P_NP(gs->player, gs->enemies[i]->get_pos(), &p_np_sprite));
+								gs->items_on_ground.emplace_back(new P_NP(gs->player, gs->enemies[i]->get_pos(), &p_np_sprite, gs));
 							else 
-								gs->items_on_ground.emplace_back(new Dijkstra(gs->player, gs->enemies[i]->get_pos(), &dijkstra_sprite));
+								gs->items_on_ground.emplace_back(new Dijkstra(gs->player, gs->enemies[i]->get_pos(), &dijkstra_sprite, gs));
 						}
 
 						enemies_deleted++;
