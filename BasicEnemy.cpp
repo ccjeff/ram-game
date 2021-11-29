@@ -4,6 +4,12 @@
 
 using namespace std;
 
+BasicEnemy::BasicEnemy(glm::vec2 position, glm::vec2 velocity, Sprite* s)
+		: Enemy(position, velocity, s) {
+		this->time_step = float((rand() % 1000)) / 200.0f;
+		this->hp = 3.0f;
+}
+
 void BasicEnemy::update(float elapsed) {
 	// cout << time_step << endl;
 	time_step += elapsed;
