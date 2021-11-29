@@ -32,6 +32,11 @@ public:
 	float get_hp();
 	void add_hp(float hp);
 
+    //draw the player
+    enum PlayerStatus {IDLE, RUNNING, SHOOTING};
+    float anim_time_remaining;
+    void draw(std::vector<Vertex> &vertices);
+
 protected:
 	glm::vec2 position; // should init to a location
     glm::vec2 velocity;

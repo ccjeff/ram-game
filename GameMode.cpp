@@ -652,14 +652,14 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	};
 
 	glm::vec2 camera_center = gs->player->get_pos();
-	auto draw_sprite = [this, &camera_center](
+	auto draw_sprite = [&vertices, this, &camera_center](
 		Sprite &sprite,
 		glm::vec2 object_center,
 		glm::vec2 object_size,
 		float rotation,
 		glm::u8vec4 tint = glm::u8vec4(255,255,255,255)
 	) {
-		sprite.draw(camera_center, object_center, object_size, rotation, tint, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		sprite.draw(camera_center, object_center, object_size, rotation, tint, vertices);
 	};
 
 	//clear the color buffer:
@@ -711,6 +711,7 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 				// }
 			}
 		}
+		tile_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
 	glm::vec2 player_size = glm::vec2(
 		gs->player->get_vel().x < 0 ? 
@@ -718,6 +719,7 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 				gs->player->get_width(), gs->player->get_width()
 	);
 	draw_sprite(player_sprite, gs->player->get_pos(), player_size, 0, glm::u8vec4(255,255,255,255));
+	player_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 
 	for(auto b : gs->bullets) {
 		glm::vec2 bullet_disp = b->get_pos();
@@ -740,6 +742,7 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 		float rotation = b->get_vel() == glm::vec2(0.f) ? 0.f : atan2f(b->get_vel().y, b->get_vel().x);
 		draw_sprite(p_bullet, bullet_disp, bullet_size, rotation, glm::u8vec4(255,255,255,255));
 	}
+	bullet_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	
 	if(gs->active_room != nullptr)
 		for(auto e : gs->enemies) {
@@ -752,6 +755,7 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 			);
 			draw_sprite(*e->get_sprite(), enemy_displ, enemy_size, 0, glm::u8vec4(255,255,255,255));
 		}
+	enemy_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 
 	for(auto i : gs->items_on_ground) {
 
@@ -760,6 +764,7 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 		draw_sprite(*i->get_sprite(), item_displ, item_size, 0, glm::u8vec4(255,255,255,255));
 		//cout << "Drawn item on ground " << i->get_width() << " " << glm::to_string(i->get_pos()) << endl; 
 	}
+	item_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 
 	int player_hp_bar = (int)gs->player->get_hp();
 	for (int i = 0; i < player_hp_bar; i++) {
