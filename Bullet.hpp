@@ -26,6 +26,7 @@ public:
 	bool get_auto_aim();
 	Enemy* get_autoaim_target();
 	void set_autoaim_target(Enemy* target);
+	const std::set<RGB>& get_rgb(); 
 	
 protected:
 	glm::vec2 pos;

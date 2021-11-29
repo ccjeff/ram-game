@@ -93,8 +93,12 @@ GameMode::GameMode() {
 
 	floor_sprite = Sprite(*green_tile, "sprite");
 	player_sprite = Sprite(*green_smiley, "sprite");
-	basic_enemy_sprite = Sprite(*red_smiley, "sprite");
-	melee_enemy_sprite = Sprite(*melee_enemy, "sprite");
+	basic_enemy_red_sprite = Sprite(*basic_enemy_red, "sprite");
+	basic_enemy_green_sprite = Sprite(*basic_enemy_green, "sprite");
+	basic_enemy_blue_sprite = Sprite(*basic_enemy_blue, "sprite");
+	melee_enemy_red_sprite = Sprite(*melee_enemy_red, "sprite");
+	melee_enemy_green_sprite = Sprite(*melee_enemy_green, "sprite");
+	melee_enemy_blue_sprite = Sprite(*melee_enemy_blue, "sprite");
 	p_bullet = Sprite(*green_circle, "sprite");
 	e_bullet = Sprite(*red_circle, "sprite");
 	blank_sprite = Sprite(*black, "sprite");
@@ -142,11 +146,40 @@ GameMode::GameMode() {
 		for (glm::ivec2 pos : gs->dg->monsterPositions)
 		{
 			int spawn = rand() % 2;
+
 			if(spawn == 0) {
-				gs->enemies.emplace_back(new BasicEnemy(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_sprite));
+				spawn = rand() % 3;
+
+				switch(spawn) {
+					case 0:
+						gs->enemies.emplace_back(new BasicEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_red_sprite));
+						break;
+					case 1:
+						gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite));
+						break;
+					case 2:
+						gs->enemies.emplace_back(new BasicEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_blue_sprite));
+						break;
+					default:
+						gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite));
+				}
 			}
 			else {
-				gs->enemies.emplace_back(new MeleeEnemy(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_sprite));
+				spawn = rand() % 3;
+
+				switch(spawn) {
+					case 0:
+						gs->enemies.emplace_back(new MeleeEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_red_sprite));
+						break;
+					case 1:
+						gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite));
+						break;
+					case 2:
+						gs->enemies.emplace_back(new MeleeEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_blue_sprite));
+						break;
+					default:
+						gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite));
+				}
 			}
 		}
 	}
@@ -367,7 +400,7 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 				if(dist_x < e->get_width()/2.0f && dist_y < e->get_width()/2.0f) {
 					//std::cout << "Enemy was hit by a bullet" << std::endl;
-					e->on_hit(gs->bullets[i]->get_damage());
+					e->on_hit(gs->bullets[i]);
 					enemy_hit = true;
 
 					for(auto item : gs->items) {
@@ -744,7 +777,6 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 		}
 
 	for(auto i : gs->items_on_ground) {
-
 		i->get_sprite()->transform.displacement = i->get_pos();
 		i->get_sprite()->transform.size = glm::vec2(i->get_width(), i->get_width());
 		i->get_sprite()->draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);

@@ -30,6 +30,6 @@ Sprite* Enemy::get_sprite() {
 	return this->s;
 }
 
-void Enemy::on_hit(float dmg) {
-	this->hp -= dmg;
+void Enemy::on_hit(Bullet* b) {
+	this->hp -= b->get_damage();
 }
