@@ -8,6 +8,7 @@ BasicEnemyGreen::BasicEnemyGreen(glm::vec2 position, glm::vec2 velocity, Sprite*
 		: Enemy(position, velocity, s) {
 		this->time_step = float((rand() % 1000)) / 200.0f;
 		this->hp = 3.0f;
+		this->color = glm::u8vec4(100,100,255,255);
 }
 
 void BasicEnemyGreen::update(float elapsed) {

@@ -93,12 +93,12 @@ GameMode::GameMode() {
 
 	floor_sprite = Sprite(*tile_sprites, "floor_tile");
 	player_sprite = Sprite(*player_sprites, "idle");
-	basic_enemy_red_sprite = Sprite(*basic_enemy_red, "idle");
-	basic_enemy_green_sprite = Sprite(*basic_enemy_green, "idle");
-	basic_enemy_blue_sprite = Sprite(*basic_enemy_blue, "idle");
-	melee_enemy_red_sprite = Sprite(*melee_enemy_red, "melee_enemy");
-	melee_enemy_green_sprite = Sprite(*melee_enemy_green, "melee_enemy");
-	melee_enemy_blue_sprite = Sprite(*melee_enemy_blue, "melee_enemy");
+	basic_enemy_red_sprite = Sprite(*enemy_sprites, "idle");
+	basic_enemy_green_sprite = Sprite(*enemy_sprites, "idle");
+	basic_enemy_blue_sprite = Sprite(*enemy_sprites, "idle");
+	melee_enemy_red_sprite = Sprite(*enemy_sprites, "melee_enemy");
+	melee_enemy_green_sprite = Sprite(*enemy_sprites, "melee_enemy");
+	melee_enemy_blue_sprite = Sprite(*enemy_sprites, "melee_enemy");
 	p_bullet = Sprite(*bullet_sprites, "player_bullet");
 	e_bullet = Sprite(*bullet_sprites, "enemy_bullet");
 	blank_sprite = Sprite(*tile_sprites, "blank");
@@ -783,7 +783,7 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 					-1.0f * e->get_width() : 
 					e->get_width(), e->get_width()
 			);
-			draw_sprite(*e->get_sprite(), enemy_displ, enemy_size, 0, glm::u8vec4(255,255,255,255));
+			draw_sprite(*e->get_sprite(), enemy_displ, enemy_size, 0, e->get_color());
 		}
 
 	for(auto i : gs->items_on_ground) {

@@ -69,28 +69,8 @@ struct Sprite {
         GLuint vertex_buffer);
 };
 
-<<<<<<< HEAD
 extern Load<SpriteMap> tile_sprites;
 extern Load<SpriteMap> item_sprites;
 extern Load<SpriteMap> player_sprites;
 extern Load<SpriteMap> enemy_sprites;
 extern Load<SpriteMap> bullet_sprites;
-=======
-extern Load<SpriteMap> black;
-extern Load<SpriteMap> green_tile;
-extern Load<SpriteMap> green_smiley;
-extern Load<SpriteMap> basic_enemy_red;
-extern Load<SpriteMap> basic_enemy_green;
-extern Load<SpriteMap> basic_enemy_blue;
-extern Load<SpriteMap> melee_enemy_red;
-extern Load<SpriteMap> melee_enemy_green;
-extern Load<SpriteMap> melee_enemy_blue;
-extern Load<SpriteMap> green_circle;
-extern Load<SpriteMap> red_circle;
-extern Load<SpriteMap> r_learning;
-extern Load<SpriteMap> ray_tracing;
-extern Load<SpriteMap> dijkstra;
-extern Load<SpriteMap> p_np;
-extern Load<SpriteMap> door_locked;
-extern Load<SpriteMap> door_unlocked;
->>>>>>> shane/new_items

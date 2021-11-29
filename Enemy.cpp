@@ -10,6 +10,10 @@ const glm::vec2& Enemy::get_vel() {
 	return this->velocity;
 }
 
+const glm::u8vec4& Enemy::get_color() {
+	return this->color;
+}
+
 void Enemy::set_vel(glm::vec2 &vel) {
 	this->velocity = vel;
 }
