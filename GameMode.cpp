@@ -155,7 +155,7 @@ GameMode::GameMode() {
 	{
 		// gs->items_on_ground.emplace_back(new Dijkstra(gs->player, glm::vec2(gs->dg->player_start) * gs->dg->map.scalingFactor, &dijkstra_sprite));
 		// gs->items.emplace_back(new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
-		gs->items.emplace_back(new Dijkstra(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
+		gs->items.emplace_back(new Multithreading(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
 
 	}
 }

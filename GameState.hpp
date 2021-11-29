@@ -16,6 +16,8 @@
 #include "RayTracing.hpp"
 #include "Dijkstra.hpp"
 #include "P_NP.hpp"
+#include "Multithreading.hpp"
+
 #include "DungeonGenerator.hpp"
 
 class Items;
