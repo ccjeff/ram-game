@@ -91,19 +91,19 @@ GameMode::GameMode() {
 		GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
 	}
 
-	floor_sprite = Sprite(*green_tile, "sprite");
-	player_sprite = Sprite(*green_smiley, "sprite");
-	basic_enemy_sprite = Sprite(*red_smiley, "sprite");
-	melee_enemy_sprite = Sprite(*melee_enemy, "sprite");
-	p_bullet = Sprite(*green_circle, "sprite");
-	e_bullet = Sprite(*red_circle, "sprite");
-	blank_sprite = Sprite(*black, "sprite");
-	r_learning_sprite = Sprite(*r_learning, "sprite");
-	ray_tracing_sprite = Sprite(*ray_tracing, "sprite");
-	dijkstra_sprite = Sprite(*dijkstra, "sprite");
-	p_np_sprite = Sprite(*p_np, "sprite");
-	door_locked_sprite = Sprite(*door_locked, "sprite");
-	door_unlocked_sprite = Sprite(*door_unlocked, "sprite");
+	floor_sprite = Sprite(*tile_sprites, "floor_tile");
+	player_sprite = Sprite(*player_sprites, "idle");
+	basic_enemy_sprite = Sprite(*enemy_sprites, "idle");
+	melee_enemy_sprite = Sprite(*enemy_sprites, "melee_enemy");
+	p_bullet = Sprite(*bullet_sprites, "player_bullet");
+	e_bullet = Sprite(*bullet_sprites, "enemy_bullet");
+	blank_sprite = Sprite(*tile_sprites, "blank");
+	r_learning_sprite = Sprite(*item_sprites, "r_learning");
+	ray_tracing_sprite = Sprite(*item_sprites, "ray_tracing");
+	dijkstra_sprite = Sprite(*item_sprites, "dijkstra");
+	p_np_sprite = Sprite(*item_sprites, "pnp");
+	door_locked_sprite = Sprite(*tile_sprites, "door_locked");
+	door_unlocked_sprite = Sprite(*tile_sprites, "door_unlocked");
 	
 	bgm = Sound::loop(*load_bgm, 0.5f, 0.0f);
 
@@ -720,7 +720,8 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 				-1.0f * b->get_width() : 
 				b->get_width(), b->get_width()
 		);
-		draw_sprite(p_bullet, bullet_disp, bullet_size, 0, glm::u8vec4(255,255,255,255));
+		float rotation = b->get_vel() == glm::vec2(0.f) ? 0.f : atan2f(b->get_vel().y, b->get_vel().x);
+		draw_sprite(p_bullet, bullet_disp, bullet_size, rotation, glm::u8vec4(255,255,255,255));
 	}
 
 	for(auto b : gs->enemy_bullets) {
@@ -730,7 +731,8 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 				-1.0f * b->get_width() : 
 				b->get_width(), b->get_width()
 		);
-		draw_sprite(e_bullet, bullet_disp, bullet_size, 0, glm::u8vec4(255,255,255,255));
+		float rotation = b->get_vel() == glm::vec2(0.f) ? 0.f : atan2f(b->get_vel().y, b->get_vel().x);
+		draw_sprite(p_bullet, bullet_disp, bullet_size, rotation, glm::u8vec4(255,255,255,255));
 	}
 	
 	if(gs->active_room != nullptr)

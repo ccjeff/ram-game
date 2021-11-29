@@ -12,11 +12,9 @@
 //transform order: position + rotation * scale * pt
 struct Transform{
     // the location of the sprite when drawn, in world units
-    glm::vec2 displacement;
-    // Counterclockwise rotation in radians
-    float rotation = 0.f;
+    glm::vec2 translation = {0.f, 0.f};
     // the length/width of the sprite when drawn, in world units
-    glm::vec2 size = {1.f, 1.f};
+    glm::vec2 scale = {1.f, 1.f};
 };
 
 struct TexRectangle{
@@ -33,6 +31,7 @@ struct Animation {
     std::vector<float> durations;
     glm::vec2 sprite_center;
     glm::vec2 sprite_radius;
+    size_t sprite_size;
 };
 
 struct SpriteMap {
@@ -58,6 +57,7 @@ struct Sprite {
     ~Sprite();
     GLuint tex = 0;
     TexRectangle tex_coords;
+    Transform transform;
 
     void draw(glm::vec2 camera_center,
         glm::vec2 object_center,
@@ -69,16 +69,8 @@ struct Sprite {
         GLuint vertex_buffer);
 };
 
-extern Load<SpriteMap> black;
-extern Load<SpriteMap> green_tile;
-extern Load<SpriteMap> green_smiley;
-extern Load<SpriteMap> red_smiley;
-extern Load<SpriteMap> melee_enemy;
-extern Load<SpriteMap> green_circle;
-extern Load<SpriteMap> red_circle;
-extern Load<SpriteMap> r_learning;
-extern Load<SpriteMap> ray_tracing;
-extern Load<SpriteMap> dijkstra;
-extern Load<SpriteMap> p_np;
-extern Load<SpriteMap> door_locked;
-extern Load<SpriteMap> door_unlocked;
+extern Load<SpriteMap> tile_sprites;
+extern Load<SpriteMap> item_sprites;
+extern Load<SpriteMap> player_sprites;
+extern Load<SpriteMap> enemy_sprites;
+extern Load<SpriteMap> bullet_sprites;

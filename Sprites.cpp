@@ -11,8 +11,8 @@
 SpriteMap* load_func(std::string png, std::string filename) {
 	glm::uvec2 size;
     std::vector < glm::u8vec4 > data;
-    std::ifstream data_in(data_path(filename));
-    load_png(data_path(png), &size, &data, LowerLeftOrigin);
+    std::ifstream data_in(data_path("sprites/" + filename));
+    load_png(data_path("sprites/" + png), &size, &data, LowerLeftOrigin);
 
     GLuint tex;
     glGenTextures(1, &tex);
@@ -34,13 +34,13 @@ SpriteMap* load_func(std::string png, std::string filename) {
     SpriteMap *smap = new SpriteMap();
     smap->tex = tex;
     int sprite_size, num_row, num_col, num_anims;
-    data_in >> sprite_size, num_row, num_col, num_anims;
+    data_in >> sprite_size >> num_row >> num_col >> num_anims;
     if (num_row * sprite_size != size.y || num_col * sprite_size != size.x) {
-        std::cerr << "Issue with sprite layouts." << endl;
+        std::cerr << "Issue with sprite layouts." << std::endl;
         assert(false);
     }
     if (num_row <= 0 || num_col <= 0){
-        std::cerr << "columns and rows have to be positive." << endl;
+        std::cerr << "columns and rows have to be positive." << std::endl;
         assert(false);
     }
     for(int i = 0; i < num_anims; i++) {
@@ -48,6 +48,7 @@ SpriteMap* load_func(std::string png, std::string filename) {
         data_in >> sprite_name;
         smap->sprites[sprite_name] = Animation();
         Animation &current_sprite = smap->sprites[sprite_name];
+        current_sprite.sprite_size = sprite_size;
         data_in >> current_sprite.sprite_center.x
             >> current_sprite.sprite_center.y
             >> current_sprite.sprite_radius.x
@@ -59,7 +60,7 @@ SpriteMap* load_func(std::string png, std::string filename) {
         for(int j = 0; j < num_sprites; j++) {
             glm::vec2 sprite_location;
             data_in >> sprite_location.y >> sprite_location.x >> current_sprite.durations[j];
-            assert(sprite_location.y < num_row-1 && sprite_location.x < num_col-1);
+            assert(sprite_location.y <= num_row-1 && sprite_location.x <= num_col-1);
             assert(sprite_location.x >= 0 && sprite_location.y >= 0);
             if (j != 0) 
                 current_sprite.durations[j] += current_sprite.durations[j-1];
@@ -70,19 +71,11 @@ SpriteMap* load_func(std::string png, std::string filename) {
     return smap;
 }
 
-Load <SpriteMap> green_tile(LoadTagDefault, [](){ return load_func("tiles.png", "tiles.info"); });
-Load <SpriteMap> black(LoadTagDefault, [](){ return load_func("black.png"); });
-Load <SpriteMap> green_circle(LoadTagDefault, [](){ return load_func("green_circle.png"); });
-Load <SpriteMap> red_circle(LoadTagDefault, [](){ return load_func("red_circle.png"); });
-Load <SpriteMap> green_smiley(LoadTagDefault, [](){ return load_func("green_smiley.png"); });
-Load <SpriteMap> red_smiley(LoadTagDefault, [](){ return load_func("red_smiley.png"); });
-Load <SpriteMap> melee_enemy(LoadTagDefault, [](){ return load_func("melee_enemy.png"); });
-Load <SpriteMap> r_learning(LoadTagDefault, [](){ return load_func("r_learning.png"); });
-Load <SpriteMap> ray_tracing(LoadTagDefault, [](){ return load_func("ray_tracing.png"); });
-Load <SpriteMap> dijkstra(LoadTagDefault, [](){ return load_func("32dijkstra.png"); });
-Load <SpriteMap> p_np(LoadTagDefault, [](){ return load_func("pnp.png"); });
-Load <SpriteMap> door_locked(LoadTagDefault, [](){ return load_func("door_locked.png"); });
-Load <SpriteMap> door_unlocked(LoadTagDefault, [](){ return load_func("door_unlocked.png"); });
+Load <SpriteMap> tile_sprites(LoadTagDefault, [](){ return load_func("tiles.png", "tiles.info"); });
+Load <SpriteMap> item_sprites(LoadTagDefault, [](){ return load_func("items.png", "items.info"); });
+Load <SpriteMap> player_sprites(LoadTagDefault, [](){ return load_func("player.png", "player.info"); });
+Load <SpriteMap> enemy_sprites(LoadTagDefault, [](){ return load_func("enemies.png", "enemies.info"); });
+Load <SpriteMap> bullet_sprites(LoadTagDefault, [](){ return load_func("bullets.png", "bullets.info"); });
 
 TexRectangle::TexRectangle(float _x0, float _y0, float _x1, float _y1){
     x0 = _x0; y0 = _y0; x1 = _x1; y1 = _y1;
@@ -104,7 +97,11 @@ SpriteMap::~SpriteMap(){
 
 Sprite::Sprite(const SpriteMap &s_map, const std::string &s_name){
     this->tex = s_map.tex;
-    this->tex_coords = s_map.sprites.at(s_name);
+    const Animation &sprite_col = s_map.sprites.at(s_name);
+    this->tex_coords = sprite_col.anim[0];
+    float half_sprite = sprite_col.sprite_size / 2.f;
+    this->transform.translation = (1 / half_sprite) * sprite_col.sprite_center - glm::vec2(1.f);
+    this->transform.scale = glm::vec2(half_sprite / sprite_col.sprite_radius.x, half_sprite / sprite_col.sprite_radius.y);
 }
 Sprite::Sprite(){ this->tex = 0; }
 Sprite::~Sprite(){}
@@ -121,17 +118,18 @@ void Sprite::draw(glm::vec2 camera_center,
     // glm::u8vec4 tint(255,255,255,255);
 
     glm::vec2 center = object_center - camera_center;
-    glm::vec2 radius = size * 0.5f;
+    glm::vec2 radius = size * 0.5f * transform.scale;
+    glm::vec2 tot_trans = -transform.translation * radius;
 
     #define WORLD_TO_SCREEN 2.f
     std::vector<Vertex> rect;
-    rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(-radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, tint, glm::vec2(tex_coords.x0, tex_coords.y0));
-    rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, tint, glm::vec2(tex_coords.x1, tex_coords.y0));
-    rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(radius.x, radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, tint, glm::vec2(tex_coords.x1, tex_coords.y1));
+    rect.emplace_back(glm::vec3(center + glm::rotate(tot_trans + glm::vec2(-radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, tint, glm::vec2(tex_coords.x0, tex_coords.y0));
+    rect.emplace_back(glm::vec3(center + glm::rotate(tot_trans + glm::vec2(radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, tint, glm::vec2(tex_coords.x1, tex_coords.y0));
+    rect.emplace_back(glm::vec3(center + glm::rotate(tot_trans + glm::vec2(radius.x, radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, tint, glm::vec2(tex_coords.x1, tex_coords.y1));
 
-    rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(-radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, tint, glm::vec2(tex_coords.x0, tex_coords.y0));
-    rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(radius.x, radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, tint, glm::vec2(tex_coords.x1, tex_coords.y1));
-    rect.emplace_back(glm::vec3(center + glm::rotate(glm::vec2(-radius.x, radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, tint, glm::vec2(tex_coords.x0, tex_coords.y1));
+    rect.emplace_back(glm::vec3(center + glm::rotate(tot_trans + glm::vec2(-radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, tint, glm::vec2(tex_coords.x0, tex_coords.y0));
+    rect.emplace_back(glm::vec3(center + glm::rotate(tot_trans + glm::vec2(radius.x, radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, tint, glm::vec2(tex_coords.x1, tex_coords.y1));
+    rect.emplace_back(glm::vec3(center + glm::rotate(tot_trans + glm::vec2(-radius.x, radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, tint, glm::vec2(tex_coords.x0, tex_coords.y1));
 
 	// //inline helper function for rectangle drawing:
 	// auto draw_rectangle = [&rect, &radius, =rotation](glm::vec2 const &center, glm::u8vec4 const &color) {
