@@ -157,6 +157,7 @@ GAME_NAMES =
 	GameState
 	Multithreading
 	SphereIntersection
+	RNG
 	;
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory

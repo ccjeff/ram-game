@@ -18,6 +18,7 @@
 #include "P_NP.hpp"
 #include "Multithreading.hpp"
 #include "SphereIntersection.hpp"
+#include "RNG.hpp"
 
 #include "DungeonGenerator.hpp"
 
