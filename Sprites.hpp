@@ -28,34 +28,42 @@ struct TexRectangle{
     float y1;
 };
 
+struct Animation {
+    std::vector<TexRectangle> anim;
+    std::vector<float> durations;
+    glm::vec2 sprite_center;
+    glm::vec2 sprite_radius;
+};
+
 struct SpriteMap {
-    // Figure out how to fix the sprite map
-    //SpriteMap(GLuint tex, glm::uvec2 size, Transform transform = {{0.f, 0.f}, 0.f, {16.f, 16.f}});
     ~SpriteMap();
     SpriteMap();
     GLuint tex = 0;
-    std::unordered_map<std::string, TexRectangle> sprites;
+    std::unordered_map<std::string, Animation> sprites;
 };
 
+struct Vertex {
+    Vertex(glm::vec3 const &Position_, glm::u8vec4 const &Color_, glm::vec2 const &TexCoord_) :
+        Position(Position_), Color(Color_), TexCoord(TexCoord_) { }
+    glm::vec3 Position;
+    glm::u8vec4 Color;
+    glm::vec2 TexCoord;
+};
+
+static_assert(sizeof(Vertex) == 4*3 + 1*4 + 4*2, "Sprites::Vertex should be packed");
+
 struct Sprite {
-    Sprite(const SpriteMap &s_map, const std::string &s_name, Transform transform = {{0.f, 0.f}, 0.f, {1.f, 1.f}});
-    ~Sprite();
+    Sprite(const SpriteMap &s_map, const std::string &s_name);
     Sprite();
-    struct Vertex {
-        Vertex(glm::vec3 const &Position_, glm::u8vec4 const &Color_, glm::vec2 const &TexCoord_) :
-            Position(Position_), Color(Color_), TexCoord(TexCoord_) { }
-        glm::vec3 Position;
-        glm::u8vec4 Color;
-        glm::vec2 TexCoord;
-    };
-    static_assert(sizeof(Vertex) == 4*3 + 1*4 + 4*2, "Sprites::Vertex should be packed");
-    //indicates a transform w.r.t. the containing class
+    ~Sprite();
     GLuint tex = 0;
     TexRectangle tex_coords;
-    Transform transform;
-    glm::uvec4 tint = {255, 255, 255, 255};
 
     void draw(glm::vec2 camera_center,
+        glm::vec2 object_center,
+        glm::vec2 size,
+        float rotation,
+        glm::u8vec4 tint,
         ColorTextureProgram &color_texture_program,
         GLuint vertex_buffer_for_color_texture_program,
         GLuint vertex_buffer);
