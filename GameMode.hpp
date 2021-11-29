@@ -41,7 +41,7 @@ struct GameMode : Mode {
 
 	glm::vec2 window_size;
 
-	std::shared_ptr<GameState> gs;
+	GameState* gs;
 
 	Sprite floor_sprite,
 		player_sprite,

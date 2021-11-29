@@ -6,11 +6,12 @@
 #include "Player.hpp"
 #include "Sprites.hpp"
 #include "Bullet.hpp"
-#include "GameState.hpp"
+
+class GameState;
 
 class Items {
 public:
-	Items(std::shared_ptr<Player> player, glm::vec2 pos, Sprite* sprite, std::shared_ptr<GameState> gs);
+	Items(std::shared_ptr<Player> player, glm::vec2 pos, Sprite* sprite, GameState* gs);
 	virtual void preupdate() {};
 	virtual void postupdate() {};
 	virtual void on_recv_damage() {};
@@ -27,6 +28,6 @@ protected:
 	glm::vec2 pos;
 	float width = 32.0f;
 	std::shared_ptr<Player> player;
-	std::shared_ptr<GameState> gs;
+	GameState* gs;
 	Sprite* sprite;
 };

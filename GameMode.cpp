@@ -137,7 +137,7 @@ GameMode::GameMode() {
 	
 	//Game initialization
 	{
-		gs = std::make_shared<GameState>();
+		gs = new GameState();
 
 		for (glm::ivec2 pos : gs->dg->monsterPositions)
 		{

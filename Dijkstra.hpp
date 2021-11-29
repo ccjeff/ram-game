@@ -4,7 +4,7 @@
 
 class Dijkstra : public Items {
 public:
-    Dijkstra(std::shared_ptr<Player> player, glm::vec2 pos, Sprite* sprite, std::shared_ptr<GameState> gs);
+    Dijkstra(std::shared_ptr<Player> player, glm::vec2 pos, Sprite* sprite, GameState* gs);
 
     void on_shoot(Bullet *b) override;
 };

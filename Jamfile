@@ -155,6 +155,7 @@ GAME_NAMES =
 	Dijkstra
 	P_NP
 	GameState
+	Multithreading
 	;
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory

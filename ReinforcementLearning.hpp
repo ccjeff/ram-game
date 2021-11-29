@@ -4,7 +4,7 @@
 
 class ReinforcementLearning : public Items {
 public:
-  ReinforcementLearning(std::shared_ptr<Player> player, glm::vec2 pos, Sprite* sprite, std::shared_ptr<GameState> gs);
+  ReinforcementLearning(std::shared_ptr<Player> player, glm::vec2 pos, Sprite* sprite, GameState* gs);
   
   void on_kill() override;
 };

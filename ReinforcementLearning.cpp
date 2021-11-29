@@ -1,6 +1,6 @@
 #include "ReinforcementLearning.hpp"
 
-ReinforcementLearning::ReinforcementLearning(std::shared_ptr<Player> player, glm::vec2 pos, Sprite* sprite, std::shared_ptr<GameState> gs) 
+ReinforcementLearning::ReinforcementLearning(std::shared_ptr<Player> player, glm::vec2 pos, Sprite* sprite, GameState* gs) 
 	: Items(player, pos, sprite, gs) {};
 
 void ReinforcementLearning::on_kill() {
