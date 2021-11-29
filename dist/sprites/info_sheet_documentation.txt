@@ -1,0 +1,16 @@
+#Format of info sheet:
+First row has 
+sprite_size num_row num_col num_anims
+the number of pixels of a (square) sprite, number of rows of sprites, number of columns of sprites
+
+Each subsequent block of rows is the sprites of an animation. It will have
+sprite_name sprite_centerx sprite_centery sprite_x sprite_y num_sprites
+sprite1x sprite1y sprite1duration
+sprite2x sprite2y sprite2duration
+...
+
+sprite_name is the name of the animation.
+The sprite is centered at sprite_center with radius sprite_x, sprite_y, w.r.t. to a sprite_size by sprite_size square.
+num_sprites is the number of sprites in the animation and is the number of following rows.
+sprite1x, sprite1y is the x-y coordinates of the sprites on the sprite array, 0-indexed.
+sprite1duration is the duration, in seconds, of the frame in the animation.
