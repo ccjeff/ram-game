@@ -8,8 +8,12 @@
 
 //Enemies
 #include "Enemy.hpp"
-#include "BasicEnemy.hpp"
-#include "MeleeEnemy.hpp"
+#include "BasicEnemyRed.hpp"
+#include "BasicEnemyGreen.hpp"
+#include "BasicEnemyBlue.hpp"
+#include "MeleeEnemyRed.hpp"
+#include "MeleeEnemyGreen.hpp"
+#include "MeleeEnemyBlue.hpp"
 
 //Items
 #include "ReinforcementLearning.hpp"

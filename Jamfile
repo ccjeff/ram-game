@@ -143,8 +143,12 @@ GAME_NAMES =
 	Sprites
 	Player
 	Enemy
-	BasicEnemy
-	MeleeEnemy
+	BasicEnemyRed
+	BasicEnemyGreen
+	BasicEnemyBlue
+	MeleeEnemyRed
+	MeleeEnemyGreen
+	MeleeEnemyBlue
 	DrawLines
 	PathFont
 	PathFont-font

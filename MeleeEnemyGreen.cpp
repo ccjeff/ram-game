@@ -1,15 +1,13 @@
-#include "MeleeEnemy.hpp"
+#include "MeleeEnemyGreen.hpp"
 
 #include <iostream>
 
-using namespace std;
-
-void MeleeEnemy::update(float elapsed) {
+void MeleeEnemyGreen::update(float elapsed) {
 	// cout << time_step << endl;
 	time_step += elapsed;
 }
 
-void MeleeEnemy::move(float elapsed, const glm::vec2 &player_pos, Map &map) {
+void MeleeEnemyGreen::move(float elapsed, const glm::vec2 &player_pos, Map &map) {
 	glm::vec2 old_pos = this->position;
     glm::vec2 direction = glm::normalize(player_pos - this->position);
     this->set_vel(direction);
@@ -24,11 +22,11 @@ void MeleeEnemy::move(float elapsed, const glm::vec2 &player_pos, Map &map) {
             this->position = old_pos;
         }
     }
-	//std::cout << "BasicEnemy::move" << this->position.x << "&" << this->position.y << std::endl;
+	//std::cout << "BasicEnemyGreen::move" << this->position.x << "&" << this->position.y << std::endl;
 }
 
 
-Bullet* MeleeEnemy::do_attack(const glm::vec2 &player_pos) {
+Bullet* MeleeEnemyGreen::do_attack(const glm::vec2 &player_pos) {
 	if(time_step >= 2.0f && distance(player_pos) < 1.0f) {
 		Bullet* b = new Bullet(this->position, 
 			glm::normalize(player_pos - this->position + 1.0f)
@@ -39,4 +37,13 @@ Bullet* MeleeEnemy::do_attack(const glm::vec2 &player_pos) {
 	}
 	
 	return nullptr;
+}
+
+void MeleeEnemyGreen::on_hit(Bullet* b) {
+	if(b->get_rgb().find(RGB::Red) != b->get_rgb().end()) {
+		this->hp -= b->get_damage();
+	}
+	else {
+		this->hp -= 0.5f * b->get_damage();
+	}
 }
