@@ -33,7 +33,7 @@ SpriteMap* load_func(std::string png, std::string filename) {
 
     SpriteMap *smap = new SpriteMap();
     smap->tex = tex;
-    int sprite_size, num_row, num_col, num_anims;
+    size_t sprite_size, num_row, num_col, num_anims;
     data_in >> sprite_size >> num_row >> num_col >> num_anims;
     if (num_row * sprite_size != size.y || num_col * sprite_size != size.x) {
         std::cerr << "Issue with sprite layouts." << std::endl;
@@ -43,7 +43,7 @@ SpriteMap* load_func(std::string png, std::string filename) {
         std::cerr << "columns and rows have to be positive." << std::endl;
         assert(false);
     }
-    for(int i = 0; i < num_anims; i++) {
+    for(size_t i = 0; i < num_anims; i++) {
         std::string sprite_name;
         data_in >> sprite_name;
         smap->sprites[sprite_name] = Animation();
@@ -57,7 +57,7 @@ SpriteMap* load_func(std::string png, std::string filename) {
         data_in >> num_sprites;
         current_sprite.anim.reserve(num_sprites);
         current_sprite.durations.reserve(num_sprites);
-        for(int j = 0; j < num_sprites; j++) {
+        for(size_t j = 0; j < num_sprites; j++) {
             glm::vec2 sprite_location;
             data_in >> sprite_location.y >> sprite_location.x >> current_sprite.durations[j];
             assert(sprite_location.y <= num_row-1 && sprite_location.x <= num_col-1);
