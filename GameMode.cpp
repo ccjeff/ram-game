@@ -155,7 +155,8 @@ GameMode::GameMode() {
 	{
 		// gs->items_on_ground.emplace_back(new Dijkstra(gs->player, glm::vec2(gs->dg->player_start) * gs->dg->map.scalingFactor, &dijkstra_sprite));
 		// gs->items.emplace_back(new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
-		gs->items.emplace_back(new Multithreading(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
+		//gs->items.emplace_back(new Multithreading(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
+		gs->items.emplace_back(new SphereIntersection(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
 
 	}
 }
@@ -311,7 +312,7 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 		int deleted = 0;
 		for(size_t i = 0; i < gs->bullets.size(); i++) {
 			glm::vec2 old_pos = gs->bullets[i]->get_pos();
-			if (gs->bullets[i]->get_auto_aim() == false) {
+			if (gs->bullets[i]->get_auto_aim() == false || gs->bullets[i]->get_autoaim_target()->get_hp() <= 0) {
 				gs->bullets[i]->update_pos(elapsed * 500.0f);
 			} else {
 				glm::vec2 dir = glm::normalize(gs->bullets[i]->get_pos() - gs->bullets[i]->get_autoaim_target()->get_pos());
@@ -343,14 +344,14 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 					gs->bullets[i]->update_pos(elapsed * 500.0f);
 					continue;
 				}
+				
+				for(auto item : gs->items) {
+					item->on_bullet_destroyed(gs->bullets[i]);
+				}
 
 				deleted++;
 				delete gs->bullets[i];
 				gs->bullets.erase(gs->bullets.begin() + (i--));
-
-				for(auto item : gs->items) {
-					item->on_bullet_destroyed();
-				}
 
 				continue;
 			}
@@ -379,10 +380,6 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 			//An enemy was hit, destroy the bullet, check enemy hp, and continue
 			if(enemy_hit) {
-				deleted++;
-				delete gs->bullets[i];
-				gs->bullets.erase(gs->bullets.begin() + (i--));
-
 				int enemies_deleted = 0;
 				for(size_t i = 0; i < gs->enemies.size(); i++) {
 
@@ -413,8 +410,12 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				}
 
 				for(auto item : gs->items) {
-					item->on_bullet_destroyed();
+					item->on_bullet_destroyed(gs->bullets[i]);
 				}
+
+				deleted++;
+				delete gs->bullets[i];
+				gs->bullets.erase(gs->bullets.begin() + (i--));
 
 				continue;
 			}
@@ -422,14 +423,15 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 			if(dist_player_x > drawable_size.x
 				|| dist_player_y > drawable_size.y) {
 				//cout << "del " << i << " " << gs->bullets.size() - deleted << endl;
-				
+				for(auto item : gs->items) {
+					item->on_bullet_destroyed(gs->bullets[i]);
+				}
+
 				deleted++;
 				delete gs->bullets[i];
 				gs->bullets.erase(gs->bullets.begin() + (i--));
 
-				for(auto item : gs->items) {
-					item->on_bullet_destroyed();
-				}
+
 
 				continue;
 			}

@@ -15,9 +15,7 @@ public:
     virtual void update(float elapsed) {};
     virtual void move(float elapsed, const glm::vec2 &player_pos, Map &map) {};
     virtual Bullet* do_attack(const glm::vec2 &player_pos) { return nullptr; };
-	virtual void on_hit(float damage) {
-		this->hp -= damage;
-	}
+	virtual void on_hit(float damage);
 
     const glm::vec2& get_pos();
     const glm::vec2& get_vel();

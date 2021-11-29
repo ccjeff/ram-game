@@ -29,3 +29,7 @@ float Enemy::get_width() {
 Sprite* Enemy::get_sprite() {
 	return this->s;
 }
+
+void Enemy::on_hit(float dmg) {
+	this->hp -= dmg;
+}

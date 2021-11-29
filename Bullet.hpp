@@ -7,6 +7,7 @@ class Enemy;
 
 class Bullet {
 public:
+	~Bullet() {autoaim_target = nullptr;};
 	Bullet(glm::vec2 pos, glm::vec2 vel);
 	void update_pos(float elapsed);
 	

@@ -17,6 +17,7 @@
 #include "Dijkstra.hpp"
 #include "P_NP.hpp"
 #include "Multithreading.hpp"
+#include "SphereIntersection.hpp"
 
 #include "DungeonGenerator.hpp"
 

@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 
 #include <memory>
+#include <iostream>
 
 #include "Player.hpp"
 #include "Sprites.hpp"
@@ -17,7 +18,7 @@ public:
 	virtual void on_recv_damage() {};
 	virtual void on_dealt_damage() {};
 	virtual void on_kill() {};
-	virtual void on_bullet_destroyed() {};
+	virtual void on_bullet_destroyed(Bullet* b) {};
 	virtual void on_shoot(Bullet* b) {};
 
 	glm::vec2 get_pos();
