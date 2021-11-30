@@ -56,6 +56,8 @@ struct GameMode : Mode {
 		p_np_sprite,
 		door_locked_sprite,
 		door_unlocked_sprite;
+
+	std::vector<Sprite> floorTiles;
 	
 	// sound effects
 	std::shared_ptr<Sound::PlayingSample> bgm;

@@ -104,6 +104,18 @@ GameMode::GameMode() {
 	p_np_sprite = Sprite(*p_np, "sprite");
 	door_locked_sprite = Sprite(*door_locked, "sprite");
 	door_unlocked_sprite = Sprite(*door_unlocked, "sprite");
+
+	floorTiles.clear();
+	floorTiles.emplace_back(Sprite(*black, "sprite")); //0 - Empty wall sprite
+	floorTiles.emplace_back(Sprite(*green_tile, "sprite")); //1 - Floor sprite
+	floorTiles.emplace_back(Sprite(*door_unlocked, "sprite")); //2 - Open door
+	floorTiles.emplace_back(Sprite(*door_locked, "sprite")); //3 - Closed door
+	floorTiles.emplace_back(Sprite(*floor_decoration_1, "sprite")); //4 - Different floor
+	floorTiles.emplace_back(Sprite(*floor_decoration_2, "sprite")); //5 - Different floor
+	floorTiles.emplace_back(Sprite(*floor_decoration_3, "sprite")); //6 - Different floor
+	floorTiles.emplace_back(Sprite(*h_wall_decoration_1, "sprite")); //7 - Horizontal Wall Dec 1
+	floorTiles.emplace_back(Sprite(*h_wall_decoration_2, "sprite")); //8 - Horizontal Wall Dec 2
+	floorTiles.emplace_back(Sprite(*h_wall_decoration_3, "sprite")); //9 - Horizontal Wall Dec 3
 	
 	bgm = Sound::loop(*load_bgm, 0.5f, 0.0f);
 
@@ -655,14 +667,29 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 		door_unlocked_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
 		door_locked_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
 		glm::ivec2 tile_id = gs->dg->map.GetTile(gs->player->get_pos().x, gs->player->get_pos().y);
-
+		
 		for(int i = tile_id.x - 12; i <= tile_id.x + 12; i++){
 			for(int j = tile_id.y - 12; j <= tile_id.y + 12; j++){
 				floor_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
-
+				
 				glm::ivec2 cur_tile_id = gs->dg->map.GetTile(floor_sprite.transform.displacement.x, floor_sprite.transform.displacement.y);
-				if(cur_tile_id.x < 0 || cur_tile_id.y < 0)
+				if (cur_tile_id.x < 0 || cur_tile_id.y < 0)
+				{
 					blank_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+					continue;
+				}
+
+				int spriteID = gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y);
+				if (spriteID >= floorTiles.size() || spriteID == 0)
+				{
+					blank_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+					continue;
+				}
+
+				floorTiles[spriteID].transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
+				floorTiles[spriteID].transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
+				floorTiles[spriteID].draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				/*
 				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 0) //TODO: Change this when do sprites, this check is backwards but looks nice for the demo.
 					blank_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 2)
@@ -678,7 +705,7 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 				else
 				{
 					floor_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
-				}
+				}*/
 
 				// 				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 2)
 				// {
@@ -697,6 +724,7 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 				// }
 			}
 		}
+		
 	}
 	player_sprite.transform.size = glm::vec2(
 		gs->player->get_vel().x < 0 ? 

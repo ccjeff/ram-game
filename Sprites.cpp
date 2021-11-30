@@ -48,6 +48,12 @@ Load <SpriteMap> dijkstra(LoadTagDefault, [](){ return load_func("32dijkstra.png
 Load <SpriteMap> p_np(LoadTagDefault, [](){ return load_func("pnp.png"); });
 Load <SpriteMap> door_locked(LoadTagDefault, [](){ return load_func("door_locked.png"); });
 Load <SpriteMap> door_unlocked(LoadTagDefault, [](){ return load_func("door_unlocked.png"); });
+Load <SpriteMap> floor_decoration_1(LoadTagDefault, []() {return load_func("floor_decoration.png"); });
+Load <SpriteMap> floor_decoration_2(LoadTagDefault, []() {return load_func("floor_decoration2.png"); });
+Load <SpriteMap> floor_decoration_3(LoadTagDefault, []() {return load_func("floor_decoration3.png"); });
+Load <SpriteMap> h_wall_decoration_1(LoadTagDefault, []() {return load_func("h_wall_decoration1.png"); });
+Load <SpriteMap> h_wall_decoration_2(LoadTagDefault, []() {return load_func("h_wall_decoration2.png"); });
+Load <SpriteMap> h_wall_decoration_3(LoadTagDefault, []() {return load_func("h_wall_decoration3.png"); });
 
 TexRectangle::TexRectangle(float _x0, float _y0, float _x1, float _y1){
     x0 = _x0; y0 = _y0; x1 = _x1; y1 = _y1;
