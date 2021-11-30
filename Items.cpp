@@ -12,6 +12,10 @@ glm::vec2 Items::get_pos() {
 	return this->pos;
 }
 
+void Items::set_pos(glm::vec2 pos) {
+	this->pos = pos;
+}
+
 float Items::get_width() {
 	return this->width;
 }
