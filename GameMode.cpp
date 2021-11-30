@@ -107,9 +107,9 @@ GameMode::GameMode() {
 	dijkstra_sprite = Sprite(*item_sprites, "dijkstra");
 	p_np_sprite = Sprite(*item_sprites, "pnp");
 	rng_sprite = Sprite(*item_sprites, "rng");
-	rubber_ducky_sprite = Sprite(*item_sprites, "rubber_ducky");
+	rubber_ducky_sprite = Sprite(*item_sprites, "rubberducky");
 	debugger_sprite = Sprite(*item_sprites, "debugger");
-	thermal_paste_sprite = Sprite(*item_sprites, "thermal_paste");
+	thermal_paste_sprite = Sprite(*item_sprites, "thermalpaste");
 	door_locked_sprite = Sprite(*tile_sprites, "door_locked");
 	door_unlocked_sprite = Sprite(*tile_sprites, "door_unlocked");
 
