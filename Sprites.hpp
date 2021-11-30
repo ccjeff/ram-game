@@ -75,24 +75,3 @@ extern Load<SpriteMap> item_sprites;
 extern Load<SpriteMap> player_sprites;
 extern Load<SpriteMap> enemy_sprites;
 extern Load<SpriteMap> bullet_sprites;
-
-//OLD
-extern Load<SpriteMap> black;
-extern Load<SpriteMap> green_tile;
-extern Load<SpriteMap> green_smiley;
-extern Load<SpriteMap> red_smiley;
-extern Load<SpriteMap> melee_enemy;
-extern Load<SpriteMap> green_circle;
-extern Load<SpriteMap> red_circle;
-extern Load<SpriteMap> r_learning;
-extern Load<SpriteMap> ray_tracing;
-extern Load<SpriteMap> dijkstra;
-extern Load<SpriteMap> p_np;
-extern Load<SpriteMap> door_locked;
-extern Load<SpriteMap> door_unlocked;
-extern Load<SpriteMap> floor_decoration_1;
-extern Load<SpriteMap> floor_decoration_2;
-extern Load<SpriteMap> floor_decoration_3;
-extern Load<SpriteMap> h_wall_decoration_1;
-extern Load<SpriteMap> h_wall_decoration_2;
-extern Load<SpriteMap> h_wall_decoration_3;

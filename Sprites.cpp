@@ -36,7 +36,7 @@ SpriteMap* load_func(std::string png, std::string filename) {
     size_t sprite_size, num_row, num_col, num_anims;
     data_in >> sprite_size >> num_row >> num_col >> num_anims;
     if (num_row * sprite_size != size.y || num_col * sprite_size != size.x) {
-        std::cerr << "Issue with sprite layouts." << std::endl;
+        std::cerr << "Issue with sprite layouts. : " << filename << std::endl;
         assert(false);
     }
     if (num_row <= 0 || num_col <= 0){
@@ -77,26 +77,6 @@ Load <SpriteMap> item_sprites(LoadTagDefault, [](){ return load_func("items.png"
 Load <SpriteMap> player_sprites(LoadTagDefault, [](){ return load_func("player.png", "player.info"); });
 Load <SpriteMap> enemy_sprites(LoadTagDefault, [](){ return load_func("enemies_gray.png", "enemies.info"); });
 Load <SpriteMap> bullet_sprites(LoadTagDefault, [](){ return load_func("bullets.png", "bullets.info"); });
-//OLD
-Load <SpriteMap> green_tile(LoadTagDefault, [](){ return load_func("green_tile.png"); });
-Load <SpriteMap> black(LoadTagDefault, [](){ return load_func("black.png"); });
-Load <SpriteMap> green_circle(LoadTagDefault, [](){ return load_func("green_circle.png"); });
-Load <SpriteMap> red_circle(LoadTagDefault, [](){ return load_func("red_circle.png"); });
-Load <SpriteMap> green_smiley(LoadTagDefault, [](){ return load_func("green_smiley.png"); });
-Load <SpriteMap> red_smiley(LoadTagDefault, [](){ return load_func("red_smiley.png"); });
-Load <SpriteMap> melee_enemy(LoadTagDefault, [](){ return load_func("melee_enemy.png"); });
-Load <SpriteMap> r_learning(LoadTagDefault, [](){ return load_func("r_learning.png"); });
-Load <SpriteMap> ray_tracing(LoadTagDefault, [](){ return load_func("ray_tracing.png"); });
-Load <SpriteMap> dijkstra(LoadTagDefault, [](){ return load_func("32dijkstra.png"); });
-Load <SpriteMap> p_np(LoadTagDefault, [](){ return load_func("pnp.png"); });
-Load <SpriteMap> door_locked(LoadTagDefault, [](){ return load_func("door_locked.png"); });
-Load <SpriteMap> door_unlocked(LoadTagDefault, [](){ return load_func("door_unlocked.png"); });
-Load <SpriteMap> floor_decoration_1(LoadTagDefault, []() {return load_func("floor_decoration.png"); });
-Load <SpriteMap> floor_decoration_2(LoadTagDefault, []() {return load_func("floor_decoration2.png"); });
-Load <SpriteMap> floor_decoration_3(LoadTagDefault, []() {return load_func("floor_decoration3.png"); });
-Load <SpriteMap> h_wall_decoration_1(LoadTagDefault, []() {return load_func("h_wall_decoration1.png"); });
-Load <SpriteMap> h_wall_decoration_2(LoadTagDefault, []() {return load_func("h_wall_decoration2.png"); });
-Load <SpriteMap> h_wall_decoration_3(LoadTagDefault, []() {return load_func("h_wall_decoration3.png"); });
 
 TexRectangle::TexRectangle(float _x0, float _y0, float _x1, float _y1){
     x0 = _x0; y0 = _y0; x1 = _x1; y1 = _y1;
