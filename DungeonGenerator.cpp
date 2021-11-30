@@ -15,6 +15,9 @@ using namespace std;
 
 bool collisionMat[] = { true, false, false, true };
 bool bulletCollisionMat[] = { true, false, true, true };
+int floorDecorations[] = { 4, 5, 6 };
+int horizontalDecorations[] = { 7, 8, 9 };
+int verticalDecorations[] = { 11, 12, 13 };
 
 std::string prefabs[] = { "test1", "test2", "test3", "test4"};
 
@@ -39,7 +42,6 @@ size_t DungeonGenerator::index(size_t xIndex, size_t yIndex)
 
 bool DungeonGenerator::Generate(size_t numberOfRooms)
 {
-	printf("Started dungeon gen!\n");
 	rooms.clear();
 	for (size_t count = 0; count < numberOfRooms; count++)
 	{
@@ -81,8 +83,6 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 		}
 	}
 
-	printf("Placed rooms!\n");
-
 	for (Room r : rooms)
 	{
 		r.SetMap(&map);
@@ -90,7 +90,6 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 		map.rooms.push_back(r);
 	}
 
-	printf("Wrote rooms!");
 
 	ConnectRooms();
 
@@ -100,7 +99,6 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 		r.WriteDoors();
 	}
 
-	printf("Wrote doors!\n");
 
 	size_t playerRoom = rand() % rooms.size();
 	player_start = rooms[playerRoom].GetCenter();
@@ -115,6 +113,8 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 			monsterPositions.push_back(positions[i]);
 		}
 	}
+
+	AddDecorations();
 
 	PrintMap();
 
@@ -204,6 +204,81 @@ void DungeonGenerator::DrawCorridor(Room one, Room two)
 	}
 }
 
+void DungeonGenerator::AddDecorations()
+{
+	for (size_t index = 0; index < numberOfDecorations; index++)
+	{
+		switch (rand() % 3) {
+			case 0: //Add tile decorations
+				for (size_t attempt = 0; attempt < 100; attempt++)
+				{
+					size_t x = rand() % map.dimX;
+					size_t y = rand() % map.dimY;
+					if (map.ValueAt(x, y) != 1) continue;
+					map.SetAtNoCollision(x, y, floorDecorations[rand() % (sizeof(floorDecorations) / sizeof(int))]);
+					break;
+				}
+				break;
+			case 1: //Add long multi-tile
+				for (size_t attempt = 0; attempt < 100; attempt++)
+				{
+					size_t x = rand() % (map.dimX - 2);
+					size_t y = (rand() % (map.dimY - 2)) + 1;
+					bool success = true;
+					for (size_t i = 0; i < 3; i++)
+					{
+						if (map.ValueAt(x + i, y) != 0)
+						{
+							success = false;
+							break;
+						}
+						if (map.ValueAt(x + i, y - 1) != 1 && map.ValueAt(x + i, y + 1) != 1)
+						{
+							success = false;
+							break;
+						}
+					}
+					if (!success) continue;
+					map.SetAtNoCollision(x    , y, horizontalDecorations[0]);
+					map.SetAtNoCollision(x + 1, y, horizontalDecorations[1]);
+					map.SetAtNoCollision(x + 2, y, horizontalDecorations[2]);
+					break;
+				}
+				break;
+			case 2: //Add Tall multi-tile
+				
+				for (size_t attempt = 0; attempt < 100; attempt++)
+				{
+					size_t x = (rand() % (map.dimX - 2)) + 1;
+					size_t y = (rand() % (map.dimY - 2));
+					bool success = true;
+					for (size_t j = 0; j < 3; j++)
+					{
+						if (map.ValueAt(x, y + j) != 0)
+						{
+							success = false;
+							break;
+						}
+						if (map.ValueAt(x - 1, y + j) != 1 && map.ValueAt(x + 1, y + j) != 1)
+						{
+							success = false;
+							break;
+						}
+					}
+					if (!success) continue;
+					map.SetAtNoCollision(x, y    , verticalDecorations[0]);
+					map.SetAtNoCollision(x, y + 1, verticalDecorations[1]);
+					map.SetAtNoCollision(x, y + 2, verticalDecorations[2]);
+					break;
+				}
+				break;
+			default:
+				break;
+		}
+	}
+	
+}
+
 void DungeonGenerator::PrintMap()
 {
 	for (size_t y = 0; y < dimY; y++)
@@ -250,7 +325,7 @@ Map::Map(size_t x, size_t y)
 
 void Map::SetAt(size_t x, size_t y, int value)
 {
-	map[x][y] = value;
+	SetAtNoCollision(x, y, value);
 	SetCollisionAt(x, y, collisionMat[value]);
 	SetBulletCollisionAt(x, y, bulletCollisionMat[value]);
 }
@@ -263,6 +338,11 @@ void Map::SetCollisionAt(size_t x, size_t y, bool value)
 void Map::SetBulletCollisionAt(size_t x, size_t y, bool value)
 {
 	bulletCollision[x][y] = value;
+}
+
+void Map::SetAtNoCollision(size_t x, size_t y, int value)
+{
+	map[x][y] = value;
 }
 
 int Map::ValueAt(size_t x, size_t y)

@@ -64,6 +64,8 @@ struct GameMode : Mode {
 		rubber_ducky_sprite,
 		debugger_sprite,
 		thermal_paste_sprite;
+
+	std::vector<Sprite> floorTiles;
 	
 	// sound effects
 	std::shared_ptr<Sound::PlayingSample> bgm;

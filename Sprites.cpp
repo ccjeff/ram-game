@@ -36,7 +36,7 @@ SpriteMap* load_func(std::string png, std::string filename) {
     size_t sprite_size, num_row, num_col, num_anims;
     data_in >> sprite_size >> num_row >> num_col >> num_anims;
     if (num_row * sprite_size != size.y || num_col * sprite_size != size.x) {
-        std::cerr << "Issue with sprite layouts." << std::endl;
+        std::cerr << "Issue with sprite layouts. : " << filename << std::endl;
         assert(false);
     }
     if (num_row <= 0 || num_col <= 0){
@@ -71,6 +71,7 @@ SpriteMap* load_func(std::string png, std::string filename) {
     return smap;
 }
 
+//NEW
 Load <SpriteMap> tile_sprites(LoadTagDefault, [](){ return load_func("tiles.png", "tiles.info"); });
 Load <SpriteMap> item_sprites(LoadTagDefault, [](){ return load_func("items.png", "items.info"); });
 Load <SpriteMap> player_sprites(LoadTagDefault, [](){ return load_func("player.png", "player.info"); });
