@@ -411,19 +411,7 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 			//Enemy got hit
 			bool enemy_hit = false;
-			// if (gs->enemies.size() == 0) {
-			// 	// Player clears the current level
-			// 	// TODO: Add a win screen, change the map size
-			// 	this->gs->difficulty_level++;
-			// 	std::cout << "start generation again\n";
-			// 	gs->dg->Generate(20);
-			// 	gs->dg->map.SetScalingFactor(64.0f);
-			// 	glm::vec2 pos = gs->dg->map.GetWorldCoord(gs->dg->player_start);
-			// 	std::cout << "done\n";
-			// 	gs->player->set_pos(pos);
-			// 	gs->player->add_hp(5.0f);
-			// 	return;
-			// }
+
 			if (gs->enemies.size() == 0) {
 				//TODO: add win screen
 				std::cout << "start generation again\n";
@@ -798,7 +786,7 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 				}
 
 				int spriteID = gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y);
-				if (spriteID >= floorTiles.size() || spriteID == 0)
+				if (spriteID >= (int)floorTiles.size() || spriteID == 0)
 				{
 					draw_sprite(blank_sprite, tile_displacement, size_vec2, 0, glm::u8vec4(0, 0, 0, 255));
 					continue;
