@@ -22,6 +22,7 @@ public:
 	virtual void on_shoot(Bullet* b) {};
 
 	glm::vec2 get_pos();
+	void set_pos(glm::vec2 pos);
 	float get_width();
 	Sprite* get_sprite();
 

@@ -6,7 +6,7 @@ BasicEnemyBlue::BasicEnemyBlue(glm::vec2 position, glm::vec2 velocity, Sprite* s
 		: Enemy(position, velocity, s) {
 		this->time_step = float((rand() % 1000)) / 200.0f;
 		this->hp = 3.0f;
-		this->color = glm::u8vec4(100,255,100,255);
+		this->color = glm::u8vec4(0,100,200,255);
 }
 
 void BasicEnemyBlue::update(float elapsed) {

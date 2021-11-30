@@ -17,7 +17,6 @@ Load< Sound::Sample > load_bgm(LoadTagDefault, []() -> Sound::Sample const * {
 	return new Sound::Sample(data_path("bgm.opus"));
 });
 
-
 Load< Sound::Sample > load_shoot(LoadTagDefault, []() -> Sound::Sample const * {
 	return new Sound::Sample(data_path("gun_shot.wav"));
 });
@@ -107,6 +106,8 @@ GameMode::GameMode() {
 	ray_tracing_sprite = Sprite(*item_sprites, "ray_tracing");
 	dijkstra_sprite = Sprite(*item_sprites, "dijkstra");
 	p_np_sprite = Sprite(*item_sprites, "pnp");
+	multithreading_sprite = Sprite(*item_sprites, "multithreading");
+	sphere_intersection_sprite = Sprite(*item_sprites, "sphereintersection");
 	rng_sprite = Sprite(*item_sprites, "rng");
 	rubber_ducky_sprite = Sprite(*item_sprites, "rubberducky");
 	debugger_sprite = Sprite(*item_sprites, "debugger");
@@ -200,6 +201,21 @@ GameMode::GameMode() {
 				}
 			}
 		}
+
+		//Put all items into the item set
+		gs->item_set.emplace(new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite, gs));
+		gs->item_set.emplace(new ReinforcementLearning(gs->player, glm::vec2(0.0f, 0.0f), &r_learning_sprite, gs));
+		gs->item_set.emplace(new Dijkstra(gs->player, glm::vec2(0.0f, 0.0f), &dijkstra_sprite, gs));
+		gs->item_set.emplace(new P_NP(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
+		gs->item_set.emplace(new Multithreading(gs->player, glm::vec2(0.0f, 0.0f), &multithreading_sprite, gs));
+
+		gs->item_set.emplace(new SphereIntersection(gs->player, glm::vec2(0.0f, 0.0f), &sphere_intersection_sprite, gs));
+		gs->item_set.emplace(new RNG(gs->player, glm::vec2(0.0f, 0.0f), &rng_sprite, gs));
+		gs->item_set.emplace(new RubberDucky(gs->player, glm::vec2(0.0f, 0.0f), &rubber_ducky_sprite, gs));
+		gs->item_set.emplace(new Debugger(gs->player, glm::vec2(0.0f, 0.0f), &debugger_sprite, gs));
+		gs->item_set.emplace(new ThermalPaste(gs->player, glm::vec2(0.0f, 0.0f), &thermal_paste_sprite, gs));
+
+		gs->num_items = (int)gs->item_set.size();
 	}
 
 	//Add things for testing
@@ -499,17 +515,18 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 						}
 
 						//Drop item with rng
-						int drop = rand() % 10;
-						if(drop == 0) {
-							drop = rand() % 4;
-							if(drop == 1)
-								gs->items_on_ground.emplace_back(new ReinforcementLearning(gs->player, gs->enemies[i]->get_pos(), &r_learning_sprite, gs));
-							else if (drop == 2)
-								gs->items_on_ground.emplace_back(new RayTracing(gs->player, gs->enemies[i]->get_pos(), &ray_tracing_sprite, gs));
-							else if (drop == 3)
-								gs->items_on_ground.emplace_back(new P_NP(gs->player, gs->enemies[i]->get_pos(), &p_np_sprite, gs));
-							else 
-								gs->items_on_ground.emplace_back(new Dijkstra(gs->player, gs->enemies[i]->get_pos(), &dijkstra_sprite, gs));
+						int drop = rand() % (3 * (gs->num_items - (int(gs->item_set.size() - 1)) ));
+						cout << drop << endl;
+						if(gs->item_set.size() > 0 && drop == 0) {
+							drop = rand() % gs->item_set.size();
+
+							auto it = gs->item_set.begin();
+							for(int i = 0; i < drop; i++)	it++;
+
+							gs->items_on_ground.emplace_back(*it);
+							gs->items_on_ground.back()->set_pos(gs->enemies[i]->get_pos());
+							gs->item_set.erase(it);
+							cout << "dropped item from index " << drop << " " << gs->items_on_ground.size() << endl;
 						}
 
 						//Remove auto aim if this enemy dies or else bullets will be stuck in place
