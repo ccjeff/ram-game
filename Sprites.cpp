@@ -8,7 +8,7 @@
 #include <fstream>
 #include <string>
 
-SpriteMap* load_func(std::string png, std::string filename, GLint interpolation=GL_LINEAR) {
+SpriteMap* load_func(std::string png, std::string filename, GLint interpolation=GL_NEAREST) {
 	glm::uvec2 size;
     std::vector < glm::u8vec4 > data;
     std::ifstream data_in(data_path("sprites/" + filename));
@@ -78,7 +78,7 @@ SpriteMap* load_func(std::string png, std::string filename, GLint interpolation=
     return smap;
 }
 
-Load <SpriteMap> tile_sprites(LoadTagDefault, [](){ return load_func("tiles.png", "tiles.info", GL_NEAREST); });
+Load <SpriteMap> tile_sprites(LoadTagDefault, [](){ return load_func("tiles.png", "tiles.info"); });
 Load <SpriteMap> item_sprites(LoadTagDefault, [](){ return load_func("items.png", "items.info"); });
 Load <SpriteMap> player_sprites(LoadTagDefault, [](){ return load_func("player.png", "player.info"); });
 Load <SpriteMap> enemy_sprites(LoadTagDefault, [](){ return load_func("enemies_gray.png", "enemies.info"); });

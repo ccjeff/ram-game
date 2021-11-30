@@ -84,6 +84,7 @@ void Player::add_hp(float hp) {
 
 void Player::update_status(float elapsed, PlayerStatus new_status) {
     if(status == IDLE && new_status != IDLE || new_status == SHOOTING) anim_time_remaining = 0.f;
+    //if(did_shoot) anim_time_remaining = *(player_sprites->sprites.at("shoot").durations.rbegin());
     anim_time_remaining -= elapsed;
     static float run_duration = *(player_sprites->sprites.at("run").durations.rbegin());
     if(anim_time_remaining <= 0.f) {
@@ -103,13 +104,14 @@ void Player::update_status(float elapsed, PlayerStatus new_status) {
     }
 }
 
-void Player::draw(std::vector<Vertex> &vertices, glm::vec2 player_size) {
+void Player::draw(std::vector<Vertex> &vertices) {
     Animation anim;
     if(status == IDLE) {
         anim = player_sprites->sprites.at("idle");
     }
     if(status == RUNNING) {
         anim = player_sprites->sprites.at("run");
+        face_right = (velocity.x >= 0);
     }
     if (status == SHOOTING) {
         anim = player_sprites->sprites.at("shoot");
@@ -118,7 +120,7 @@ void Player::draw(std::vector<Vertex> &vertices, glm::vec2 player_size) {
     anim.draw(elapsed,
             position,
             position,
-            player_size,
+            glm::vec2(face_right ? width : -width, width),
             0.f,
             glm::u8vec4(255,255,255,255),
             vertices);

@@ -247,6 +247,7 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		
 		gs->bullets.emplace_back(b);
 		gs->player->did_shoot = true;
+		gs->player->face_right = (b->get_vel().x >= 0);
 
 		for(auto i : gs->items) {
 			i->on_shoot(b);
@@ -796,7 +797,7 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 				int spriteID = gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y);
 				if (spriteID >= (int)floorTiles.size() || spriteID == 0)
 				{
-					draw_sprite(blank_sprite, tile_displacement, size_vec2, 0, glm::u8vec4(0, 0, 0, 255));
+					draw_sprite(blank_sprite, tile_displacement, size_vec2, 0, bg_color);
 					continue;
 				}
 
@@ -827,7 +828,7 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 				gs->player->get_width(), gs->player->get_width()
 	);
 	// draw_sprite(player_sprite, gs->player->get_pos(), player_size, 0, glm::u8vec4(255,255,255,255));
-	gs->player->draw(vertices, player_size);
+	gs->player->draw(vertices);
 	player_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 
 	for(auto b : gs->bullets) {
