@@ -26,12 +26,20 @@ struct TexRectangle{
     float y1;
 };
 
+struct Vertex {
+    Vertex(glm::vec3 const &Position_, glm::u8vec4 const &Color_, glm::vec2 const &TexCoord_) :
+        Position(Position_), Color(Color_), TexCoord(TexCoord_) { }
+    glm::vec3 Position;
+    glm::u8vec4 Color;
+    glm::vec2 TexCoord;
+};
+
+static_assert(sizeof(Vertex) == 4*3 + 1*4 + 4*2, "Sprites::Vertex should be packed");
+
 struct Animation {
     std::vector<TexRectangle> anim;
     std::vector<float> durations;
     Transform transform;
-    glm::vec2 sprite_center;
-    glm::vec2 sprite_radius;
     size_t sprite_size;
     void draw(
         float elapsed,
@@ -42,16 +50,6 @@ struct Animation {
         glm::u8vec4 tint,
         std::vector<Vertex> &rect);
 };
-
-struct Vertex {
-    Vertex(glm::vec3 const &Position_, glm::u8vec4 const &Color_, glm::vec2 const &TexCoord_) :
-        Position(Position_), Color(Color_), TexCoord(TexCoord_) { }
-    glm::vec3 Position;
-    glm::u8vec4 Color;
-    glm::vec2 TexCoord;
-};
-
-static_assert(sizeof(Vertex) == 4*3 + 1*4 + 4*2, "Sprites::Vertex should be packed");
 
 struct SpriteMap {
     ~SpriteMap();
@@ -67,7 +65,7 @@ struct SpriteMap {
 };
 
 struct Sprite {
-    Sprite(const SpriteMap &s_map, const std::string &s_name);
+    Sprite(const SpriteMap &s_map, const std::string &s_name, size_t index=0);
     Sprite();
     ~Sprite();
     TexRectangle tex_coords;

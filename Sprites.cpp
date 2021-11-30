@@ -8,7 +8,7 @@
 #include <fstream>
 #include <string>
 
-SpriteMap* load_func(std::string png, std::string filename) {
+SpriteMap* load_func(std::string png, std::string filename, GLint interpolation=GL_LINEAR) {
 	glm::uvec2 size;
     std::vector < glm::u8vec4 > data;
     std::ifstream data_in(data_path("sprites/" + filename));
@@ -22,7 +22,7 @@ SpriteMap* load_func(std::string png, std::string filename) {
     //set filtering and wrapping parameters:
     //(it's a bit silly to mipmap a 1x1 texture, but I'm doing it because you may want to use this code to load different sizes of texture)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, interpolation);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -44,19 +44,26 @@ SpriteMap* load_func(std::string png, std::string filename) {
         assert(false);
     }
     for(size_t i = 0; i < num_anims; i++) {
+        glm::vec2 sprite_center(0.f);
+        glm::vec2 sprite_radius(0.f);
         std::string sprite_name;
         data_in >> sprite_name;
         smap->sprites[sprite_name] = Animation();
         Animation &current_sprite = smap->sprites[sprite_name];
         current_sprite.sprite_size = sprite_size;
-        data_in >> current_sprite.sprite_center.x
-            >> current_sprite.sprite_center.y
-            >> current_sprite.sprite_radius.x
-            >> current_sprite.sprite_radius.y;
+        data_in >> sprite_center.x
+            >> sprite_center.y
+            >> sprite_radius.x
+            >> sprite_radius.y;
+        float half_sprite = sprite_size / 2.f;
+        current_sprite.transform.translation = (1 / half_sprite) * sprite_center - glm::vec2(1.f);
+        current_sprite.transform.scale = glm::vec2(half_sprite / sprite_radius.x, half_sprite / sprite_radius.y);
+
+        //read in the sprites for the animation
         size_t num_sprites;
         data_in >> num_sprites;
-        current_sprite.anim.reserve(num_sprites);
-        current_sprite.durations.reserve(num_sprites);
+        current_sprite.anim.resize(num_sprites);
+        current_sprite.durations.resize(num_sprites);
         for(size_t j = 0; j < num_sprites; j++) {
             glm::vec2 sprite_location;
             data_in >> sprite_location.y >> sprite_location.x >> current_sprite.durations[j];
@@ -71,7 +78,7 @@ SpriteMap* load_func(std::string png, std::string filename) {
     return smap;
 }
 
-Load <SpriteMap> tile_sprites(LoadTagDefault, [](){ return load_func("tiles.png", "tiles.info"); });
+Load <SpriteMap> tile_sprites(LoadTagDefault, [](){ return load_func("tiles.png", "tiles.info", GL_NEAREST); });
 Load <SpriteMap> item_sprites(LoadTagDefault, [](){ return load_func("items.png", "items.info"); });
 Load <SpriteMap> player_sprites(LoadTagDefault, [](){ return load_func("player.png", "player.info"); });
 Load <SpriteMap> enemy_sprites(LoadTagDefault, [](){ return load_func("enemies.png", "enemies.info"); });
@@ -131,13 +138,10 @@ SpriteMap::~SpriteMap(){
 }
 
 
-Sprite::Sprite(const SpriteMap &s_map, const std::string &s_name){
-    this->tex = s_map.tex;
+Sprite::Sprite(const SpriteMap &s_map, const std::string &s_name, size_t index){
     const Animation &sprite_col = s_map.sprites.at(s_name);
-    this->tex_coords = sprite_col.anim[0];
-    float half_sprite = sprite_col.sprite_size / 2.f;
-    this->transform.translation = (1 / half_sprite) * sprite_col.sprite_center - glm::vec2(1.f);
-    this->transform.scale = glm::vec2(half_sprite / sprite_col.sprite_radius.x, half_sprite / sprite_col.sprite_radius.y);
+    this->tex_coords = sprite_col.anim[index];
+    this->transform = sprite_col.transform;
 }
 Sprite::Sprite(){}
 Sprite::~Sprite(){}
@@ -158,10 +162,9 @@ void Animation::draw(
 
     #define WORLD_TO_SCREEN 2.f
 
-    size_t idx = 0;
+    int idx = 0;
     for (; durations[idx] < elapsed; idx++);
-    idx--;
-    TexRectangle tex_coords = elapsed;
+    TexRectangle tex_coords = anim[idx];
 
     rect.emplace_back(glm::vec3(center + glm::rotate(tot_trans + glm::vec2(-radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, tint, glm::vec2(tex_coords.x0, tex_coords.y0));
     rect.emplace_back(glm::vec3(center + glm::rotate(tot_trans + glm::vec2(radius.x, -radius.y), rotation), 0.0f) * WORLD_TO_SCREEN, tint, glm::vec2(tex_coords.x1, tex_coords.y0));

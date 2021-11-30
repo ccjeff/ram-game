@@ -12,6 +12,7 @@
 #include <cmath>
 
 using namespace std;
+static constexpr float eps = 1.f;
 
 Load< Sound::Sample > load_bgm(LoadTagDefault, []() -> Sound::Sample const * {
 	return new Sound::Sample(data_path("bgm.opus"));
@@ -176,7 +177,7 @@ GameMode::~GameMode() {
 
 bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size) {
 	this->window_size = window_size;
-
+	gs->player->did_shoot = false;
 	if(evt.type == SDL_MOUSEBUTTONDOWN) {
 		if (shoot_cd < 0.2) return true;
 		int currentTile = gs->dg->map.ValueAtWorld(gs->player->get_pos().x, gs->player->get_pos().y);
@@ -195,6 +196,7 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		shoot_cd = 0.0f;
 		
 		gs->bullets.emplace_back(b);
+		gs->player->did_shoot = true;
 
 		for(auto i : gs->items) {
 			i->on_shoot(b);
@@ -445,6 +447,12 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 			}
 		}
 	}
+	if(gs->player->did_shoot)
+		gs->player->update_status(elapsed, Player::SHOOTING);
+	if(glm::length(player_vel) > eps)
+		gs->player->update_status(elapsed, Player::RUNNING);
+	else
+		gs->player->update_status(elapsed, Player::IDLE);
 	gs->player->set_vel(player_vel);
 	
 	//Enemy bullet updates
@@ -680,7 +688,7 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 
 				glm::ivec2 cur_tile_id = gs->dg->map.GetTile(tile_displacement.x, tile_displacement.y);
 				if(cur_tile_id.x < 0 || cur_tile_id.y < 0 || gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 0)
-					draw_sprite(blank_sprite, tile_displacement, size_vec2, 0, glm::u8vec4(0, 0, 0, 255));
+					draw_sprite(blank_sprite, tile_displacement, size_vec2, 0, bg_color);
 				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 2)
 				{
 					draw_sprite(door_unlocked_sprite, tile_displacement, size_vec2, 0, glm::u8vec4(255,255,255,255));
@@ -718,7 +726,8 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 				-1.0f * gs->player->get_width() : 
 				gs->player->get_width(), gs->player->get_width()
 	);
-	draw_sprite(player_sprite, gs->player->get_pos(), player_size, 0, glm::u8vec4(255,255,255,255));
+	// draw_sprite(player_sprite, gs->player->get_pos(), player_size, 0, glm::u8vec4(255,255,255,255));
+	gs->player->draw(vertices, player_size);
 	player_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 
 	for(auto b : gs->bullets) {
