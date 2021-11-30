@@ -1,6 +1,6 @@
-# (TODO: your game's title)
+# RAM
 
-Author: (TODO: your name)
+Author: Shane, Brad, Woody, Zhengjia
 
 Design: (TODO: In two sentences or fewer, describe what is new and interesting about your game.)
 
@@ -12,12 +12,28 @@ How To Play:
 
 (TODO: describe the controls and (if needed) goals/strategy.)
 
-Sources: (TODO: list a source URL for any assets you did not create yourself. Make sure you have a license for the asset.)
+Sources:
+
+- Sprites
 
 Tech Dungeon asset pack
 https://trevor-pupkin.itch.io/tech-dungeon-roguelite
 
 Outer Buddies asset pack
 https://trevor-pupkin.itch.io/outer-buddies
+
+Dijkstra image:
+https://cacm.acm.org/magazines/2010/8/96632-an-interview-with-edsger-w-dijkstra/fulltext
+
+- Music & Sounds
+
+BGM: Can't Stop My Feet
+https://www.chosic.com/free-music/all/
+
+Sound Effects For Walking:
+https://freesound.org/people/deleted_user_10023915/sounds/478049/
+
+Sound Effects For Shooting:
+https://freesound.org/people/Leszek_Szary/sounds/146730/
 
 This game was built with [NEST](NEST.md).

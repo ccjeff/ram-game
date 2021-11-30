@@ -36,6 +36,8 @@ public:
 	DungeonGenerator* dg;
 	Room* active_room = nullptr;
 
+	int difficulty_level = 1;
+
 	std::vector<Bullet*> bullets;
 
 	std::vector<Bullet*> enemy_bullets;
