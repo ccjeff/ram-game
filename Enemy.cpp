@@ -42,3 +42,15 @@ void Enemy::on_hit(Bullet* b) {
 void Enemy::set_boss() {
 	this->is_boss = true;
 }
+
+void Enemy::draw(glm::vec2 camera_center, glm::vec2 size, std::vector<Vertex> &vertices) {
+	if(moving) {
+		//TODO: fix elapsed calculations
+		float anim_duration = *(anim.durations.rbegin());
+		anim_elapsed -= floorf(anim_elapsed / anim_duration) * anim_duration;
+		anim.draw(anim_elapsed, camera_center, position, size, 0.f, color, vertices);
+	}
+	else {
+		s->draw(camera_center, position, size, 0, color, vertices);
+	}
+}
