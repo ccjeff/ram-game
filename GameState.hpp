@@ -23,6 +23,9 @@
 #include "Multithreading.hpp"
 #include "SphereIntersection.hpp"
 #include "RNG.hpp"
+#include "RubberDucky.hpp"
+#include "Debugger.hpp"
+#include "ThermalPaste.hpp"
 
 #include "DungeonGenerator.hpp"
 
@@ -35,6 +38,8 @@ public:
 
 	DungeonGenerator* dg;
 	Room* active_room = nullptr;
+
+	int difficulty_level = 1;
 
 	std::vector<Bullet*> bullets;
 

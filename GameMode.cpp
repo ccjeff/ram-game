@@ -107,6 +107,10 @@ GameMode::GameMode() {
 	ray_tracing_sprite = Sprite(*item_sprites, "ray_tracing");
 	dijkstra_sprite = Sprite(*item_sprites, "dijkstra");
 	p_np_sprite = Sprite(*item_sprites, "pnp");
+	rng_sprite = Sprite(*item_sprites, "rng");
+	rubber_ducky_sprite = Sprite(*item_sprites, "rubberducky");
+	debugger_sprite = Sprite(*item_sprites, "debugger");
+	thermal_paste_sprite = Sprite(*item_sprites, "thermalpaste");
 	door_locked_sprite = Sprite(*tile_sprites, "door_locked");
 	door_unlocked_sprite = Sprite(*tile_sprites, "door_unlocked");
     
@@ -202,9 +206,8 @@ GameMode::GameMode() {
 	{
 		// gs->items_on_ground.emplace_back(new Dijkstra(gs->player, glm::vec2(gs->dg->player_start) * gs->dg->map.scalingFactor, &dijkstra_sprite));
 		// gs->items.emplace_back(new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
-		gs->items.emplace_back(new Multithreading(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
-		gs->items.emplace_back(new Dijkstra(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
-
+		// gs->items.emplace_back(new Multithreading(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
+		// gs->items.emplace_back(new P_NP(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
 	}
 }
 

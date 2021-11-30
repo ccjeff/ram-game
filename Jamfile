@@ -162,6 +162,9 @@ GAME_NAMES =
 	Multithreading
 	SphereIntersection
 	RNG
+	RubberDucky
+	Debugger
+	ThermalPaste
 	;
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory

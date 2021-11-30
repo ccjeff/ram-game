@@ -40,7 +40,7 @@ Bullet* MeleeEnemyRed::do_attack(const glm::vec2 &player_pos) {
 }
 
 void MeleeEnemyRed::on_hit(Bullet* b) {
-	if(b->get_rgb().find(RGB::Red) != b->get_rgb().end()) {
+	if(b->get_rgb().find(RGB::Blue) != b->get_rgb().end()) {
 		this->hp -= b->get_damage();
 	}
 	else {
