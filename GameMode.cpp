@@ -758,7 +758,7 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	};
 
 	glm::vec2 camera_center = gs->player->get_pos();
-	auto draw_sprite = [&vertices, this, &camera_center](
+	auto draw_sprite = [&vertices, &camera_center](
 		Sprite &sprite,
 		glm::vec2 object_center,
 		glm::vec2 object_size,
