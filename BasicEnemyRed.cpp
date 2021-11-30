@@ -8,16 +8,20 @@ BasicEnemyRed::BasicEnemyRed(glm::vec2 position, glm::vec2 velocity, Sprite* s, 
 		this->time_step = float((rand() % 1000)) / 200.0f;
 		this->hp = 3.0f;
 		this->color = glm::u8vec4(255,100,100,255);
+		this->anim = enemy_sprites->sprites.at("run");
 }
 
 void BasicEnemyRed::update(float elapsed) {
 	// cout << time_step << endl;
 	time_step += elapsed;
+	anim_elapsed += elapsed;
 }
 
 void BasicEnemyRed::move(float elapsed, const glm::vec2 &player_pos, Map &map) {
+	moving=false;
 	glm::vec2 old_pos = this->position;
 	if (distance(player_pos) > 3.0f * this->get_width()) {
+		moving=true;
 		glm::vec2 direction = glm::normalize(player_pos - this->position);
 		this->set_vel(direction);
 		this->position += direction * speed_val * elapsed;

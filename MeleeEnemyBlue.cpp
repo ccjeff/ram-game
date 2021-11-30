@@ -8,11 +8,13 @@ MeleeEnemyBlue::MeleeEnemyBlue(glm::vec2 position, glm::vec2 velocity, Sprite* s
 		this->time_step = 5.0f;
 		this->hp = 3.0f;
 		this->color = glm::u8vec4(0,100,200,255);
+		this->anim = enemy_sprites->sprites.at("melee_run");
 };
 
 void MeleeEnemyBlue::update(float elapsed) {
 	// cout << time_step << endl;
 	time_step += elapsed;
+	anim_elapsed += elapsed;
 }
 
 void MeleeEnemyBlue::move(float elapsed, const glm::vec2 &player_pos, Map &map) {

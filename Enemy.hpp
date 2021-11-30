@@ -35,13 +35,17 @@ public:
 	float get_width();
 	Sprite* get_sprite();
     void set_boss();
+    void draw(glm::vec2 camera_center, glm::vec2 size, std::vector<Vertex> &vertices);
 
 protected:
 	glm::vec2 position; // should init to a location
     glm::vec2 velocity;
     glm::u8vec4 color = glm::u8vec4(255,255,255,255);
+    bool moving = true;
     float speed_val = 40.0f;
     Sprite* s;
+    float anim_elapsed = 0.f;
+    Animation anim;
 	GameState* gs;
 
 	//For determining enemy actions
