@@ -227,6 +227,7 @@ GameMode::GameMode() {
 		// gs->items.emplace_back(new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
 		// gs->items.emplace_back(new Multithreading(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
 		// gs->items.emplace_back(new P_NP(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
+		// gs->items.emplace_back(new SphereIntersection(gs->player, glm::vec2(0.f), &sphere_intersection_sprite,gs));
 	}
 }
 
@@ -539,6 +540,15 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 				continue;
 			}
+		}
+		//update explosion times
+		for (auto it = gs->explosions.begin(); it != gs->explosions.end();) {
+			static float explosion_time = *(bullet_sprites->sprites.at("aoe_bullet_hit").durations.rbegin());
+			it->elapsed += elapsed;
+			if(it->elapsed >= explosion_time) {
+				it = gs->explosions.erase(it);
+			}
+			else it++;
 		}
 	}
 	if(gs->player->did_shoot)
@@ -858,7 +868,11 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 				b->get_width(), b->get_width()
 		);
 		float rotation = b->get_vel() == glm::vec2(0.f) ? 0.f : atan2f(b->get_vel().y, b->get_vel().x);
-		draw_sprite(p_bullet, bullet_disp, bullet_size, rotation, glm::u8vec4(255,255,255,255));
+		draw_sprite(e_bullet, bullet_disp, bullet_size, rotation, glm::u8vec4(255,255,255,255));
+	}
+
+	for(BulletExplosion explosion : gs->explosions) {
+		explosion.draw(gs->player->get_pos(), vertices);
 	}
 	bullet_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	
@@ -891,15 +905,15 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	//---- actual drawing ----
 
 	// //use alpha blending:
-	// glEnable(GL_BLEND);
-	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// //don't use the depth test:
-	// glDisable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
 
 	// // //upload vertices to vertex_buffer:
-	// glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer); //set vertex_buffer as current
-	// glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STREAM_DRAW); //upload vertices array
-	// glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer); //set vertex_buffer as current
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STREAM_DRAW); //upload vertices array
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//set color_texture_program as current program:
 	glUseProgram(color_texture_program.program);
@@ -908,20 +922,20 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	glUniformMatrix4fv(color_texture_program.OBJECT_TO_CLIP_mat4, 1, GL_FALSE, glm::value_ptr(court_to_clip));
 
 	// //use the mapping vertex_buffer_for_color_texture_program to fetch vertex data:
-	// glBindVertexArray(vertex_buffer_for_color_texture_program);
+	glBindVertexArray(vertex_buffer_for_color_texture_program);
 
 	// //bind the solid white texture to location zero so things will be drawn just with their colors:
-	// glActiveTexture(GL_TEXTURE0);
-	// glBindTexture(GL_TEXTURE_2D, white_tex);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, white_tex);
 
 	// // //run the OpenGL pipeline:
-	// glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
+	glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
 
 	// //unbind the solid white texture:
-	// glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// //reset vertex array to none:
-	// glBindVertexArray(0);
+	glBindVertexArray(0);
 
 	//reset current program to none:
 	glUseProgram(0);

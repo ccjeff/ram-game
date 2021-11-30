@@ -43,6 +43,7 @@ public:
 	size_t difficulty_level = 1;
 
 	std::vector<Bullet*> bullets;
+	std::vector<BulletExplosion> explosions;
 
 	std::vector<Bullet*> enemy_bullets;
 	std::vector<Enemy*> enemies;
