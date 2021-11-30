@@ -58,8 +58,14 @@ struct GameMode : Mode {
 		ray_tracing_sprite,
 		dijkstra_sprite,
 		p_np_sprite,
+		rng_sprite,
 		door_locked_sprite,
-		door_unlocked_sprite;
+		door_unlocked_sprite,
+		rubber_ducky_sprite,
+		debugger_sprite,
+		thermal_paste_sprite;
+
+	std::vector<Sprite> floorTiles;
 	
 	// sound effects
 	std::shared_ptr<Sound::PlayingSample> bgm;

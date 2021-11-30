@@ -76,6 +76,7 @@ struct Map {
 	void SetAt(size_t x, size_t y, int value);
 	void SetCollisionAt(size_t x, size_t y, bool value);
 	void SetBulletCollisionAt(size_t x, size_t y, bool value);
+	void SetAtNoCollision(size_t x, size_t y, int value);
 
 	int ValueAt(size_t x, size_t y);
 
@@ -111,6 +112,8 @@ struct DungeonGenerator {
 
 	size_t attemptsPerRoom = 100;
 
+	size_t numberOfDecorations = 100;
+
 
 	DungeonGenerator(size_t x, size_t y);
 	~DungeonGenerator();
@@ -124,6 +127,8 @@ struct DungeonGenerator {
 	void DrawCorridor(Room one, Room two);
 
 	void ConnectRooms();
+
+	void AddDecorations();
 
 	bool CompareDistToStart(Room a, Room b);
 

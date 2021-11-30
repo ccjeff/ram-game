@@ -79,6 +79,7 @@ struct Sprite {
         std::vector<Vertex> &rect);
 };
 
+//NEW
 extern Load<SpriteMap> tile_sprites;
 extern Load<SpriteMap> item_sprites;
 extern Load<SpriteMap> player_sprites;

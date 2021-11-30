@@ -23,6 +23,9 @@
 #include "Multithreading.hpp"
 #include "SphereIntersection.hpp"
 #include "RNG.hpp"
+#include "RubberDucky.hpp"
+#include "Debugger.hpp"
+#include "ThermalPaste.hpp"
 
 #include "DungeonGenerator.hpp"
 
@@ -30,11 +33,13 @@ class Items;
 
 class GameState {
 public:
-	GameState();
+	GameState(size_t difficulty_level);
 	~GameState();
 
 	DungeonGenerator* dg;
 	Room* active_room = nullptr;
+
+	size_t difficulty_level = 1;
 
 	std::vector<Bullet*> bullets;
 

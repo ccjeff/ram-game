@@ -36,7 +36,7 @@ SpriteMap* load_func(std::string png, std::string filename, GLint interpolation=
     size_t sprite_size, num_row, num_col, num_anims;
     data_in >> sprite_size >> num_row >> num_col >> num_anims;
     if (num_row * sprite_size != size.y || num_col * sprite_size != size.x) {
-        std::cerr << "Issue with sprite layouts." << std::endl;
+        std::cerr << "Issue with sprite layouts. : " << filename << std::endl;
         assert(false);
     }
     if (num_row <= 0 || num_col <= 0){

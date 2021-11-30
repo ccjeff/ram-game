@@ -92,6 +92,7 @@ GameMode::GameMode() {
 		GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
 	}
 
+    //NEW
 	floor_sprite = Sprite(*tile_sprites, "floor_tile");
 	player_sprite = Sprite(*player_sprites, "idle");
 	basic_enemy_red_sprite = Sprite(*enemy_sprites, "idle");
@@ -107,8 +108,25 @@ GameMode::GameMode() {
 	ray_tracing_sprite = Sprite(*item_sprites, "ray_tracing");
 	dijkstra_sprite = Sprite(*item_sprites, "dijkstra");
 	p_np_sprite = Sprite(*item_sprites, "pnp");
+	rng_sprite = Sprite(*item_sprites, "rng");
+	rubber_ducky_sprite = Sprite(*item_sprites, "rubberducky");
+	debugger_sprite = Sprite(*item_sprites, "debugger");
+	thermal_paste_sprite = Sprite(*item_sprites, "thermalpaste");
 	door_locked_sprite = Sprite(*tile_sprites, "door_locked");
 	door_unlocked_sprite = Sprite(*tile_sprites, "door_unlocked");
+    
+
+	floorTiles.clear();
+	floorTiles.emplace_back(Sprite(*tile_sprites, "blank")); //0 - Empty wall sprite
+	floorTiles.emplace_back(Sprite(*tile_sprites, "floor_tile")); //1 - Floor sprite
+	floorTiles.emplace_back(Sprite(*tile_sprites, "door_unlocked")); //2 - Open door
+	floorTiles.emplace_back(Sprite(*tile_sprites, "door_locked")); //3 - Closed door
+	floorTiles.emplace_back(Sprite(*tile_sprites, "decoration_1")); //4 - Different floor
+	floorTiles.emplace_back(Sprite(*tile_sprites, "decoration_2")); //5 - Different floor
+	floorTiles.emplace_back(Sprite(*tile_sprites, "decoration_3")); //6 - Different floor
+	floorTiles.emplace_back(Sprite(*tile_sprites, "h_decoration_1")); //7 - Horizontal Wall Dec 1
+	floorTiles.emplace_back(Sprite(*tile_sprites, "h_decoration_2")); //8 - Horizontal Wall Dec 2
+	floorTiles.emplace_back(Sprite(*tile_sprites, "h_decoration_3")); //9 - Horizontal Wall Dec 3
 	
 	bgm = Sound::loop(*load_bgm, 0.5f, 0.0f);
 
@@ -142,7 +160,7 @@ GameMode::GameMode() {
 	
 	//Game initialization
 	{
-		gs = new GameState();
+		gs = new GameState(1);
 
 		for (glm::ivec2 pos : gs->dg->monsterPositions)
 		{
@@ -189,9 +207,8 @@ GameMode::GameMode() {
 	{
 		// gs->items_on_ground.emplace_back(new Dijkstra(gs->player, glm::vec2(gs->dg->player_start) * gs->dg->map.scalingFactor, &dijkstra_sprite));
 		// gs->items.emplace_back(new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
-		gs->items.emplace_back(new Multithreading(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
-		gs->items.emplace_back(new Dijkstra(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
-
+		// gs->items.emplace_back(new Multithreading(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
+		// gs->items.emplace_back(new P_NP(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
 	}
 }
 
@@ -396,6 +413,53 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 			//Enemy got hit
 			bool enemy_hit = false;
+
+			if (gs->enemies.size() == 0) {
+				//TODO: add win screen
+				std::cout << "start generation again\n";
+				GameState *prev = gs;
+				gs = new GameState(gs->difficulty_level + 1);
+				delete prev;
+				for (glm::ivec2 pos : gs->dg->monsterPositions)
+				{
+					int spawn = rand() % 2;
+
+					if(spawn == 0) {
+						spawn = rand() % 3;
+
+						switch(spawn) {
+							case 0:
+								gs->enemies.emplace_back(new BasicEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_red_sprite));
+								break;
+							case 1:
+								gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite));
+								break;
+							case 2:
+								gs->enemies.emplace_back(new BasicEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_blue_sprite));
+								break;
+							default:
+								gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite));
+						}
+					}
+					else {
+						spawn = rand() % 3;
+
+						switch(spawn) {
+							case 0:
+								gs->enemies.emplace_back(new MeleeEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_red_sprite));
+								break;
+							case 1:
+								gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite));
+								break;
+							case 2:
+								gs->enemies.emplace_back(new MeleeEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_blue_sprite));
+								break;
+							default:
+								gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite));
+						}
+					}
+				}
+			}
 			for(auto e : gs->enemies) {
 				float dist_x = abs(e->get_pos().x - pos.x);
 				float dist_y = abs(e->get_pos().y - pos.y);
@@ -709,31 +773,34 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 
 	{
 		const float FLOOR_TILE_SIZE = gs->dg->map.scalingFactor;
-		glm::vec2 size_vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
+		glm::vec2 size_vec2 = glm::vec2(FLOOR_TILE_SIZE+.1f, FLOOR_TILE_SIZE + .1f);
+		//glm::vec2 size_vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
 		// floor_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
 		// door_unlocked_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
 		// door_locked_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
 		glm::ivec2 tile_id = gs->dg->map.GetTile(gs->player->get_pos().x, gs->player->get_pos().y);
-
+		
 		for(int i = tile_id.x - 12; i <= tile_id.x + 12; i++){
 			for(int j = tile_id.y - 12; j <= tile_id.y + 12; j++){
-				glm::vec2 tile_displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
 
+                //NEW
+				glm::vec2 tile_displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
+				
 				glm::ivec2 cur_tile_id = gs->dg->map.GetTile(tile_displacement.x, tile_displacement.y);
-				if(cur_tile_id.x < 0 || cur_tile_id.y < 0 || gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 0)
-					draw_sprite(blank_sprite, tile_displacement, size_vec2, 0, bg_color);
-				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 2)
+				if (cur_tile_id.x < 0 || cur_tile_id.y < 0)
 				{
-					draw_sprite(door_unlocked_sprite, tile_displacement, size_vec2, 0, glm::u8vec4(255,255,255,255));
+					draw_sprite(blank_sprite, tile_displacement, size_vec2, 0, glm::u8vec4(0, 0, 0, 255));
+					continue;
 				}
-				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 3)
+
+				int spriteID = gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y);
+				if (spriteID >= (int)floorTiles.size() || spriteID == 0)
 				{
-					draw_sprite(door_locked_sprite, tile_displacement, size_vec2, 0, glm::u8vec4(255,255,255,255));
+					draw_sprite(blank_sprite, tile_displacement, size_vec2, 0, glm::u8vec4(0, 0, 0, 255));
+					continue;
 				}
-				else
-				{
-					draw_sprite(floor_sprite, tile_displacement, size_vec2, 0, glm::u8vec4(255,255,255,255));
-				}
+
+				draw_sprite(floorTiles[spriteID], tile_displacement, size_vec2, 0, glm::u8vec4(255, 255, 255, 255));
 
 				// 				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 2)
 				// {
