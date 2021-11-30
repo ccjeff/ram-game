@@ -83,7 +83,7 @@ void Player::add_hp(float hp) {
 }
 
 void Player::update_status(float elapsed, PlayerStatus new_status) {
-    if(status == IDLE && new_status != IDLE || new_status == SHOOTING) anim_time_remaining = 0.f;
+    if((status == IDLE && new_status != IDLE) || new_status == SHOOTING) anim_time_remaining = 0.f;
     anim_time_remaining -= elapsed;
     static float run_duration = *(player_sprites->sprites.at("run").durations.rbegin());
     if(anim_time_remaining <= 0.f) {
