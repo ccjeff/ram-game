@@ -39,6 +39,9 @@ public:
     float anim_time_remaining = 0;
     void draw(std::vector<Vertex> &vertices, glm::vec2 player_size);
     float dash_cd = 10.0f;
+    void draw(std::vector<Vertex> &vertices);
+
+    bool face_right = true;
     bool did_shoot = false;
 protected:
 	glm::vec2 position; // should init to a location

@@ -48,6 +48,9 @@ public:
 
 	std::shared_ptr<Player> player;
 
+	std::set<Items*> item_set;
+	int num_items;
+	
 	std::vector<Items*> items;
 	std::vector<Items*> items_on_ground;
 };

@@ -59,6 +59,8 @@ struct GameMode : Mode {
 		dijkstra_sprite,
 		p_np_sprite,
 		rng_sprite,
+		multithreading_sprite,
+		sphere_intersection_sprite,
 		door_locked_sprite,
 		door_unlocked_sprite,
 		rubber_ducky_sprite,
