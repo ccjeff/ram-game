@@ -926,14 +926,12 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	if(gs->active_room != nullptr)
 		for(auto e : gs->enemies) {
 			if (!gs->active_room->is_inside(e->get_pos())) continue;
-			glm::vec2 enemy_displ = e->get_pos();
 			glm::vec2 enemy_size = glm::vec2(
 				e->get_vel().x < 0 ? 
 					-1.0f * e->get_width() : 
 					e->get_width(), e->get_width()
 			);
 			e->draw(gs->player->get_pos(), enemy_size, vertices);
-			//draw_sprite(*e->get_sprite(), enemy_displ, enemy_size, 0, e->get_color());
 		}
 	enemy_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 
