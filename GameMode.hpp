@@ -41,12 +41,16 @@ struct GameMode : Mode {
 
 	glm::vec2 window_size;
 
-	std::shared_ptr<GameState> gs;
+	GameState* gs;
 
 	Sprite floor_sprite,
 		player_sprite,
-		basic_enemy_sprite,
-		melee_enemy_sprite,
+		basic_enemy_red_sprite,
+		basic_enemy_green_sprite,
+		basic_enemy_blue_sprite,
+		melee_enemy_red_sprite,
+		melee_enemy_green_sprite,
+		melee_enemy_blue_sprite,
 		p_bullet,
 		e_bullet,
 		blank_sprite,
@@ -67,15 +71,6 @@ struct GameMode : Mode {
 	float shoot_cd = 0.0f;
 	//----- opengl assets / helpers ------
 
-	//draw functions will work on vectors of vertices, defined as follows:
-	struct Vertex {
-		Vertex(glm::vec3 const &Position_, glm::u8vec4 const &Color_, glm::vec2 const &TexCoord_) :
-			Position(Position_), Color(Color_), TexCoord(TexCoord_) { }
-		glm::vec3 Position;
-		glm::u8vec4 Color;
-		glm::vec2 TexCoord;
-	};
-	static_assert(sizeof(Vertex) == 4*3 + 1*4 + 4*2, "GameMode::Vertex should be packed");
 
 	//Shader program that draws transformed, vertices tinted with vertex colors:
 	ColorTextureProgram color_texture_program;

@@ -1,0 +1,5 @@
+32 2 1 2
+player_bullet 16 16 3 3 1
+0 0 0.01
+enemy_bullet 16 16 3 3 1
+1 0 0.01

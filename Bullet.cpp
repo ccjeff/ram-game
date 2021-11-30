@@ -53,3 +53,7 @@ Enemy* Bullet::get_autoaim_target() {
 void Bullet::set_autoaim_target(Enemy* target) {
 	this->autoaim_target = target;
 }
+
+const std::set<RGB>& Bullet::get_rgb() {
+	return this->rgb;
+}

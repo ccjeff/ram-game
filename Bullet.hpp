@@ -2,8 +2,11 @@
 
 #include "GL.hpp"
 #include <glm/glm.hpp>
+#include <set>
 
 class Enemy;
+
+enum RGB {Red, Green, Blue};
 
 class Bullet {
 public:
@@ -23,6 +26,7 @@ public:
 	bool get_auto_aim();
 	Enemy* get_autoaim_target();
 	void set_autoaim_target(Enemy* target);
+	const std::set<RGB>& get_rgb(); 
 	
 protected:
 	glm::vec2 pos;
@@ -34,4 +38,6 @@ protected:
 	bool auto_aim = false;
 	float auto_aim_timer = 0.0f;
 	Enemy* autoaim_target = nullptr;
+
+	std::set<RGB> rgb;
 };

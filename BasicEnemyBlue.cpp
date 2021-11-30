@@ -1,15 +1,20 @@
-#include "BasicEnemy.hpp"
-
-#include <iostream>
+#include "BasicEnemyBlue.hpp"
 
 using namespace std;
 
-void BasicEnemy::update(float elapsed) {
+BasicEnemyBlue::BasicEnemyBlue(glm::vec2 position, glm::vec2 velocity, Sprite* s)
+		: Enemy(position, velocity, s) {
+		this->time_step = float((rand() % 1000)) / 200.0f;
+		this->hp = 3.0f;
+		this->color = glm::u8vec4(100,255,100,255);
+}
+
+void BasicEnemyBlue::update(float elapsed) {
 	// cout << time_step << endl;
 	time_step += elapsed;
 }
 
-void BasicEnemy::move(float elapsed, const glm::vec2 &player_pos, Map &map) {
+void BasicEnemyBlue::move(float elapsed, const glm::vec2 &player_pos, Map &map) {
 	glm::vec2 old_pos = this->position;
 	if (distance(player_pos) > 3.0f * this->get_width()) {
 		glm::vec2 direction = glm::normalize(player_pos - this->position);
@@ -26,11 +31,11 @@ void BasicEnemy::move(float elapsed, const glm::vec2 &player_pos, Map &map) {
 			}
 		}
 	}
-	//std::cout << "BasicEnemy::move" << this->position.x << "&" << this->position.y << std::endl;
+	//std::cout << "BasicEnemyBlue::move" << this->position.x << "&" << this->position.y << std::endl;
 }
 
 
-Bullet* BasicEnemy::do_attack(const glm::vec2 &player_pos) {
+Bullet* BasicEnemyBlue::do_attack(const glm::vec2 &player_pos) {
 	if(time_step > 5.0f) {
 		Bullet* b = new Bullet(this->position, 
 			glm::normalize(player_pos - this->position + 1.0f)
@@ -45,4 +50,13 @@ Bullet* BasicEnemy::do_attack(const glm::vec2 &player_pos) {
 	}
 	
 	return nullptr;
+}
+
+void BasicEnemyBlue::on_hit(Bullet* b) {
+	if(b->get_rgb().find(RGB::Blue) != b->get_rgb().end()) {
+		this->hp -= b->get_damage();
+	}
+	else {
+		this->hp -= 0.5f * b->get_damage();
+	}
 }

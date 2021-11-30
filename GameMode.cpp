@@ -91,6 +91,26 @@ GameMode::GameMode() {
 		GL_ERRORS(); //PARANOIA: print out any OpenGL errors that may have happened
 	}
 
+    //NEW
+	floor_sprite = Sprite(*tile_sprites, "floor_tile");
+	player_sprite = Sprite(*player_sprites, "idle");
+	basic_enemy_red_sprite = Sprite(*enemy_sprites, "idle");
+	basic_enemy_green_sprite = Sprite(*enemy_sprites, "idle");
+	basic_enemy_blue_sprite = Sprite(*enemy_sprites, "idle");
+	melee_enemy_red_sprite = Sprite(*enemy_sprites, "melee_enemy");
+	melee_enemy_green_sprite = Sprite(*enemy_sprites, "melee_enemy");
+	melee_enemy_blue_sprite = Sprite(*enemy_sprites, "melee_enemy");
+	p_bullet = Sprite(*bullet_sprites, "player_bullet");
+	e_bullet = Sprite(*bullet_sprites, "enemy_bullet");
+	blank_sprite = Sprite(*tile_sprites, "blank");
+	r_learning_sprite = Sprite(*item_sprites, "r_learning");
+	ray_tracing_sprite = Sprite(*item_sprites, "ray_tracing");
+	dijkstra_sprite = Sprite(*item_sprites, "dijkstra");
+	p_np_sprite = Sprite(*item_sprites, "pnp");
+	door_locked_sprite = Sprite(*tile_sprites, "door_locked");
+	door_unlocked_sprite = Sprite(*tile_sprites, "door_unlocked");
+    
+    //OLD
 	floor_sprite = Sprite(*green_tile, "sprite");
 	player_sprite = Sprite(*green_smiley, "sprite");
 	basic_enemy_sprite = Sprite(*red_smiley, "sprite");
@@ -149,16 +169,45 @@ GameMode::GameMode() {
 	
 	//Game initialization
 	{
-		gs = std::make_shared<GameState>();
+		gs = new GameState();
 
 		for (glm::ivec2 pos : gs->dg->monsterPositions)
 		{
 			int spawn = rand() % 2;
+
 			if(spawn == 0) {
-				gs->enemies.emplace_back(new BasicEnemy(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_sprite));
+				spawn = rand() % 3;
+
+				switch(spawn) {
+					case 0:
+						gs->enemies.emplace_back(new BasicEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_red_sprite));
+						break;
+					case 1:
+						gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite));
+						break;
+					case 2:
+						gs->enemies.emplace_back(new BasicEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_blue_sprite));
+						break;
+					default:
+						gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite));
+				}
 			}
 			else {
-				gs->enemies.emplace_back(new MeleeEnemy(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_sprite));
+				spawn = rand() % 3;
+
+				switch(spawn) {
+					case 0:
+						gs->enemies.emplace_back(new MeleeEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_red_sprite));
+						break;
+					case 1:
+						gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite));
+						break;
+					case 2:
+						gs->enemies.emplace_back(new MeleeEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_blue_sprite));
+						break;
+					default:
+						gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite));
+				}
 			}
 		}
 	}
@@ -167,7 +216,8 @@ GameMode::GameMode() {
 	{
 		// gs->items_on_ground.emplace_back(new Dijkstra(gs->player, glm::vec2(gs->dg->player_start) * gs->dg->map.scalingFactor, &dijkstra_sprite));
 		// gs->items.emplace_back(new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
-		gs->items.emplace_back(new P_NP(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite));
+		gs->items.emplace_back(new Multithreading(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
+		gs->items.emplace_back(new Dijkstra(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
 
 	}
 }
@@ -208,9 +258,8 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 		gs->bullets.emplace_back(b);
 
 		for(auto i : gs->items) {
-			i->on_shoot(b, gs->enemies);
+			i->on_shoot(b);
 		}
-		std::cout << "done item on_shoots" << std::endl;
 		return true;
 	} else {
 		if (evt.type == SDL_KEYDOWN) {
@@ -323,13 +372,10 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	{
 		int deleted = 0;
 		for(size_t i = 0; i < gs->bullets.size(); i++) {
-			std::cout << "in for bullets" << std::endl;
 			glm::vec2 old_pos = gs->bullets[i]->get_pos();
 			if (gs->bullets[i]->get_auto_aim() == false) {
-				std::cout << "Not player auto aiming bullet" << std::endl;
 				gs->bullets[i]->update_pos(elapsed * 500.0f);
 			} else {
-				std::cout << "player auto aiming bullet" << std::endl;
 				glm::vec2 dir = glm::normalize(gs->bullets[i]->get_pos() - gs->bullets[i]->get_autoaim_target()->get_pos());
 				gs->bullets[i]->set_vel(-dir);
 				gs->bullets[i]->update_pos(elapsed * 500.0f);
@@ -359,14 +405,14 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 					gs->bullets[i]->update_pos(elapsed * 500.0f);
 					continue;
 				}
+				
+				for(auto item : gs->items) {
+					item->on_bullet_destroyed(gs->bullets[i]);
+				}
 
 				deleted++;
 				delete gs->bullets[i];
 				gs->bullets.erase(gs->bullets.begin() + (i--));
-
-				for(auto item : gs->items) {
-					item->on_bullet_destroyed();
-				}
 
 				continue;
 			}
@@ -382,7 +428,7 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 				if(dist_x < e->get_width()/2.0f && dist_y < e->get_width()/2.0f) {
 					//std::cout << "Enemy was hit by a bullet" << std::endl;
-					e->on_hit(gs->bullets[i]->get_damage());
+					e->on_hit(gs->bullets[i]);
 					enemy_hit = true;
 
 					for(auto item : gs->items) {
@@ -395,10 +441,6 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 			//An enemy was hit, destroy the bullet, check enemy hp, and continue
 			if(enemy_hit) {
-				deleted++;
-				delete gs->bullets[i];
-				gs->bullets.erase(gs->bullets.begin() + (i--));
-
 				int enemies_deleted = 0;
 				for(size_t i = 0; i < gs->enemies.size(); i++) {
 
@@ -413,13 +455,21 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 						if(drop == 0) {
 							drop = rand() % 4;
 							if(drop == 1)
-								gs->items_on_ground.emplace_back(new ReinforcementLearning(gs->player, gs->enemies[i]->get_pos(), &r_learning_sprite));
+								gs->items_on_ground.emplace_back(new ReinforcementLearning(gs->player, gs->enemies[i]->get_pos(), &r_learning_sprite, gs));
 							else if (drop == 2)
-								gs->items_on_ground.emplace_back(new RayTracing(gs->player, gs->enemies[i]->get_pos(), &ray_tracing_sprite));
+								gs->items_on_ground.emplace_back(new RayTracing(gs->player, gs->enemies[i]->get_pos(), &ray_tracing_sprite, gs));
 							else if (drop == 3)
-								gs->items_on_ground.emplace_back(new P_NP(gs->player, gs->enemies[i]->get_pos(), &p_np_sprite));
+								gs->items_on_ground.emplace_back(new P_NP(gs->player, gs->enemies[i]->get_pos(), &p_np_sprite, gs));
 							else 
-								gs->items_on_ground.emplace_back(new Dijkstra(gs->player, gs->enemies[i]->get_pos(), &dijkstra_sprite));
+								gs->items_on_ground.emplace_back(new Dijkstra(gs->player, gs->enemies[i]->get_pos(), &dijkstra_sprite, gs));
+						}
+
+						//Remove auto aim if this enemy dies or else bullets will be stuck in place
+						for(auto b : gs->bullets) {
+							if(b->get_autoaim_target() == gs->enemies[i]) {
+								b->set_autoaim_target(nullptr);
+								b->set_auto_aim(false);
+							}
 						}
 
 						enemies_deleted++;
@@ -429,8 +479,12 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				}
 
 				for(auto item : gs->items) {
-					item->on_bullet_destroyed();
+					item->on_bullet_destroyed(gs->bullets[i]);
 				}
+
+				deleted++;
+				delete gs->bullets[i];
+				gs->bullets.erase(gs->bullets.begin() + (i--));
 
 				continue;
 			}
@@ -438,14 +492,15 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 			if(dist_player_x > drawable_size.x
 				|| dist_player_y > drawable_size.y) {
 				//cout << "del " << i << " " << gs->bullets.size() - deleted << endl;
-				
+				for(auto item : gs->items) {
+					item->on_bullet_destroyed(gs->bullets[i]);
+				}
+
 				deleted++;
 				delete gs->bullets[i];
 				gs->bullets.erase(gs->bullets.begin() + (i--));
 
-				for(auto item : gs->items) {
-					item->on_bullet_destroyed();
-				}
+
 
 				continue;
 			}
@@ -586,7 +641,7 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	//cout <<gs->player->get_pos().x << " " << gs->player->get_pos().y << endl;
 
 	gs->player->update(elapsed, gs->dg->map);
-	player_sprite.transform.displacement = gs->player->get_pos();
+	// player_sprite.transform.displacement = gs->player->get_pos();
 
 	for(auto item : gs->items) {
 		item->postupdate();
@@ -657,20 +712,57 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 		vertices.emplace_back(glm::vec3(center.x-radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
 	};
 
+	glm::vec2 camera_center = gs->player->get_pos();
+	auto draw_sprite = [this, &camera_center](
+		Sprite &sprite,
+		glm::vec2 object_center,
+		glm::vec2 object_size,
+		float rotation,
+		glm::u8vec4 tint = glm::u8vec4(255,255,255,255)
+	) {
+		sprite.draw(camera_center, object_center, object_size, rotation, tint, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+	};
+
 	//clear the color buffer:
 	glClearColor(bg_color.r / 255.0f, bg_color.g / 255.0f, bg_color.b / 255.0f, bg_color.a / 255.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	{
 		const float FLOOR_TILE_SIZE = gs->dg->map.scalingFactor;
-		floor_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
-		door_unlocked_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
-		door_locked_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
+		glm::vec2 size_vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
+		// floor_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
+		// door_unlocked_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
+		// door_locked_sprite.transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
 		glm::ivec2 tile_id = gs->dg->map.GetTile(gs->player->get_pos().x, gs->player->get_pos().y);
 		
 		for(int i = tile_id.x - 12; i <= tile_id.x + 12; i++){
 			for(int j = tile_id.y - 12; j <= tile_id.y + 12; j++){
-				floor_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
+
+                //OLD
+				glm::vec2 tile_displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
+
+				glm::ivec2 cur_tile_id = gs->dg->map.GetTile(tile_displacement.x, tile_displacement.y);
+				if(cur_tile_id.x < 0 || cur_tile_id.y < 0 || gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 0)
+					draw_sprite(blank_sprite, tile_displacement, size_vec2, 0, glm::u8vec4(0, 0, 0, 255));
+				
+				
+				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 0) //TODO: Change this when do sprites, this check is backwards but looks nice for the demo.
+					blank_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 2)
+				{
+					draw_sprite(door_unlocked_sprite, tile_displacement, size_vec2, 0, glm::u8vec4(255,255,255,255));
+				}
+				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 3)
+				{
+					draw_sprite(door_locked_sprite, tile_displacement, size_vec2, 0, glm::u8vec4(255,255,255,255));
+				}
+				else
+				{
+					floor_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+				}
+
+                //NEW
+                floor_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
 				
 				glm::ivec2 cur_tile_id = gs->dg->map.GetTile(floor_sprite.transform.displacement.x, floor_sprite.transform.displacement.y);
 				if (cur_tile_id.x < 0 || cur_tile_id.y < 0)
@@ -689,23 +781,6 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 				floorTiles[spriteID].transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
 				floorTiles[spriteID].transform.size = glm::vec2(FLOOR_TILE_SIZE, FLOOR_TILE_SIZE);
 				floorTiles[spriteID].draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
-				/*
-				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 0) //TODO: Change this when do sprites, this check is backwards but looks nice for the demo.
-					blank_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
-				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 2)
-				{
-					door_unlocked_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
-					door_unlocked_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
-				}
-				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 3)
-				{
-					door_locked_sprite.transform.displacement = glm::vec2(float(i) + 0.5f, float(j) + 0.5f) * FLOOR_TILE_SIZE;
-					door_locked_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
-				}
-				else
-				{
-					floor_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
-				}*/
 
 				// 				else if (gs->dg->map.ValueAt(cur_tile_id.x, cur_tile_id.y) == 2)
 				// {
@@ -726,50 +801,51 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 		}
 		
 	}
-	player_sprite.transform.size = glm::vec2(
+	glm::vec2 player_size = glm::vec2(
 		gs->player->get_vel().x < 0 ? 
 				-1.0f * gs->player->get_width() : 
 				gs->player->get_width(), gs->player->get_width()
 	);
-	player_sprite.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+	draw_sprite(player_sprite, gs->player->get_pos(), player_size, 0, glm::u8vec4(255,255,255,255));
 
 	for(auto b : gs->bullets) {
-		p_bullet.transform.displacement = b->get_pos();
-		p_bullet.transform.size = glm::vec2(
+		glm::vec2 bullet_disp = b->get_pos();
+		glm::vec2 bullet_size = glm::vec2(
 			b->get_vel().x < 0 ? 
 				-1.0f * b->get_width() : 
 				b->get_width(), b->get_width()
 		);
-		p_bullet.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		float rotation = b->get_vel() == glm::vec2(0.f) ? 0.f : atan2f(b->get_vel().y, b->get_vel().x);
+		draw_sprite(p_bullet, bullet_disp, bullet_size, rotation, glm::u8vec4(255,255,255,255));
 	}
 
 	for(auto b : gs->enemy_bullets) {
-		e_bullet.transform.displacement = b->get_pos();
-		e_bullet.transform.size = glm::vec2(
+		glm::vec2 bullet_disp = b->get_pos();
+		glm::vec2 bullet_size = glm::vec2(
 			b->get_vel().x < 0 ? 
 				-1.0f * b->get_width() : 
 				b->get_width(), b->get_width()
 		);
-		e_bullet.draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		float rotation = b->get_vel() == glm::vec2(0.f) ? 0.f : atan2f(b->get_vel().y, b->get_vel().x);
+		draw_sprite(p_bullet, bullet_disp, bullet_size, rotation, glm::u8vec4(255,255,255,255));
 	}
 	
 	if(gs->active_room != nullptr)
 		for(auto e : gs->enemies) {
 			if (!gs->active_room->is_inside(e->get_pos())) continue;
-			e->get_sprite()->transform.displacement = e->get_pos();
-			e->get_sprite()->transform.size = glm::vec2(
+			glm::vec2 enemy_displ = e->get_pos();
+			glm::vec2 enemy_size = glm::vec2(
 				e->get_vel().x < 0 ? 
 					-1.0f * e->get_width() : 
 					e->get_width(), e->get_width()
 			);
-			e->get_sprite()->draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+			draw_sprite(*e->get_sprite(), enemy_displ, enemy_size, 0, e->get_color());
 		}
 
 	for(auto i : gs->items_on_ground) {
-
-		i->get_sprite()->transform.displacement = i->get_pos();
-		i->get_sprite()->transform.size = glm::vec2(i->get_width(), i->get_width());
-		i->get_sprite()->draw(gs->player->get_pos(), color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		glm::vec2 item_displ = i->get_pos();
+		glm::vec2 item_size = glm::vec2(i->get_width(), i->get_width());
+		draw_sprite(*i->get_sprite(), item_displ, item_size, 0, glm::u8vec4(255,255,255,255));
 		//cout << "Drawn item on ground " << i->get_width() << " " << glm::to_string(i->get_pos()) << endl; 
 	}
 
@@ -780,16 +856,16 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	#undef HEX_TO_U8VEC4
 	//---- actual drawing ----
 
-	//use alpha blending:
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//don't use the depth test:
-	glDisable(GL_DEPTH_TEST);
+	// //use alpha blending:
+	// glEnable(GL_BLEND);
+	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	// //don't use the depth test:
+	// glDisable(GL_DEPTH_TEST);
 
-	// //upload vertices to vertex_buffer:
-	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer); //set vertex_buffer as current
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STREAM_DRAW); //upload vertices array
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	// // //upload vertices to vertex_buffer:
+	// glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer); //set vertex_buffer as current
+	// glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STREAM_DRAW); //upload vertices array
+	// glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//set color_texture_program as current program:
 	glUseProgram(color_texture_program.program);
@@ -797,21 +873,21 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	//upload OBJECT_TO_CLIP to the proper uniform location:
 	glUniformMatrix4fv(color_texture_program.OBJECT_TO_CLIP_mat4, 1, GL_FALSE, glm::value_ptr(court_to_clip));
 
-	//use the mapping vertex_buffer_for_color_texture_program to fetch vertex data:
-	glBindVertexArray(vertex_buffer_for_color_texture_program);
+	// //use the mapping vertex_buffer_for_color_texture_program to fetch vertex data:
+	// glBindVertexArray(vertex_buffer_for_color_texture_program);
 
-	//bind the solid white texture to location zero so things will be drawn just with their colors:
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, white_tex);
+	// //bind the solid white texture to location zero so things will be drawn just with their colors:
+	// glActiveTexture(GL_TEXTURE0);
+	// glBindTexture(GL_TEXTURE_2D, white_tex);
 
-	// //run the OpenGL pipeline:
-	glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
+	// // //run the OpenGL pipeline:
+	// glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
 
-	//unbind the solid white texture:
-	glBindTexture(GL_TEXTURE_2D, 0);
+	// //unbind the solid white texture:
+	// glBindTexture(GL_TEXTURE_2D, 0);
 
-	//reset vertex array to none:
-	glBindVertexArray(0);
+	// //reset vertex array to none:
+	// glBindVertexArray(0);
 
 	//reset current program to none:
 	glUseProgram(0);

@@ -143,8 +143,12 @@ GAME_NAMES =
 	Sprites
 	Player
 	Enemy
-	BasicEnemy
-	MeleeEnemy
+	BasicEnemyRed
+	BasicEnemyGreen
+	BasicEnemyBlue
+	MeleeEnemyRed
+	MeleeEnemyGreen
+	MeleeEnemyBlue
 	DrawLines
 	PathFont
 	PathFont-font
@@ -155,6 +159,9 @@ GAME_NAMES =
 	Dijkstra
 	P_NP
 	GameState
+	Multithreading
+	SphereIntersection
+	RNG
 	;
 
 LOCATE_TARGET = objs ; #put objects in 'objs' directory

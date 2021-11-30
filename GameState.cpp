@@ -1,4 +1,5 @@
 #include "GameState.hpp"
+#include "Items.hpp"
 
 GameState::GameState() {
 	// initializing player and dungeon
