@@ -32,6 +32,7 @@ public:
     float distance(const glm::vec2 &player_pos);
 	float get_width();
 	Sprite* get_sprite();
+    void set_boss();
 
 protected:
 	glm::vec2 position; // should init to a location
@@ -46,4 +47,5 @@ protected:
 	float hp;
 
 	float width = 32.0f;
+    bool is_boss = false;
 };

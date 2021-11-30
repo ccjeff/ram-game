@@ -33,7 +33,7 @@ class Items;
 
 class GameState {
 public:
-	GameState();
+	GameState(size_t difficulty_level);
 	~GameState();
 
 	DungeonGenerator* dg;

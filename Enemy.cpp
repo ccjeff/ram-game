@@ -37,3 +37,7 @@ Sprite* Enemy::get_sprite() {
 void Enemy::on_hit(Bullet* b) {
 	this->hp -= b->get_damage();
 }
+
+void Enemy::set_boss() {
+	this->is_boss = true;
+}
