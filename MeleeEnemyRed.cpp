@@ -1,9 +1,10 @@
 #include "MeleeEnemyRed.hpp"
+#include "GameState.hpp"
 
 #include <iostream>
 
-MeleeEnemyRed::MeleeEnemyRed(glm::vec2 position, glm::vec2 velocity, Sprite* s)
-		: Enemy(position, velocity, s) {
+MeleeEnemyRed::MeleeEnemyRed(glm::vec2 position, glm::vec2 velocity, Sprite* s, GameState* gs)
+		: Enemy(position, velocity, s, gs) {
 		this->time_step = 5.0f;
 		this->hp = 3.0f;
 		this->color = glm::u8vec4(255,100,100,255);
@@ -31,7 +32,6 @@ void MeleeEnemyRed::move(float elapsed, const glm::vec2 &player_pos, Map &map) {
     }
 	//std::cout << "BasicEnemyGreen::move" << this->position.x << "&" << this->position.y << std::endl;
 }
-
 
 Bullet* MeleeEnemyRed::do_attack(const glm::vec2 &player_pos) {
 	if(time_step >= 2.0f && distance(player_pos) < 1.0f) {

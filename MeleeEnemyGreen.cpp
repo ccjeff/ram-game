@@ -1,9 +1,10 @@
 #include "MeleeEnemyGreen.hpp"
+#include "GameState.hpp"
 
 #include <iostream>
 
-MeleeEnemyGreen::MeleeEnemyGreen(glm::vec2 position, glm::vec2 velocity, Sprite* s)
-		: Enemy(position, velocity, s) {
+MeleeEnemyGreen::MeleeEnemyGreen(glm::vec2 position, glm::vec2 velocity, Sprite* s, GameState* gs)
+		: Enemy(position, velocity, s, gs) {
 		this->time_step = 5.0f;
 		this->hp = 3.0f;
 		this->color = glm::u8vec4(100,200,100,255);

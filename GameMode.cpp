@@ -26,6 +26,47 @@ Load< Sound::Sample > load_walk(LoadTagDefault, []() -> Sound::Sample const * {
 	return new Sound::Sample(data_path("walk.wav"));
 });
 
+void GameMode::spawn_enemies() {
+	for (glm::ivec2 pos : gs->dg->monsterPositions) {
+		int spawn = rand() % 2;
+
+		if(spawn == 0) {
+			spawn = rand() % 3;
+
+			switch(spawn) {
+				case 0:
+					gs->enemies.emplace_back(new BasicEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_red_sprite, gs));
+					break;
+				case 1:
+					gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite, gs));
+					break;
+				case 2:
+					gs->enemies.emplace_back(new BasicEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_blue_sprite, gs));
+					break;
+				default:
+					gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite, gs));
+			}
+		}
+		else {
+			spawn = rand() % 3;
+
+			switch(spawn) {
+				case 0:
+					gs->enemies.emplace_back(new MeleeEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_red_sprite, gs));
+					break;
+				case 1:
+					gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite, gs));
+					break;
+				case 2:
+					gs->enemies.emplace_back(new MeleeEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_blue_sprite, gs));
+					break;
+				default:
+					gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite, gs));
+			}
+		}
+	}
+}
+
 GameMode::GameMode() {
 	// Room r1 = Room(0, 0, 12, 10);
 	// Room r2 = Room(15, 9, 1, 1);
@@ -120,8 +161,8 @@ GameMode::GameMode() {
 	ray_tracing_sprite_ui = Sprite(*ui_sprites, "ray_tracing");
 	dijkstra_sprite_ui = Sprite(*ui_sprites, "dijkstra");
 	p_np_sprite_ui = Sprite(*ui_sprites, "pnp");
-	//multithreading_sprite_ui = Sprite(*ui_sprites, "multithreading");
-	//sphere_intersection_sprite_ui = Sprite(*ui_sprites, "sphereintersection");
+	multithreading_sprite_ui = Sprite(*ui_sprites, "multithreading");
+	sphere_intersection_sprite_ui = Sprite(*ui_sprites, "sphereintersection");
 	rng_sprite_ui = Sprite(*ui_sprites, "rng");
 	rubber_ducky_sprite_ui = Sprite(*ui_sprites, "rubberducky");
 	debugger_sprite_ui = Sprite(*ui_sprites, "debugger");
@@ -173,46 +214,7 @@ GameMode::GameMode() {
 	//Game initialization
 	{
 		gs = new GameState(1);
-
-		for (glm::ivec2 pos : gs->dg->monsterPositions)
-		{
-			int spawn = rand() % 2;
-
-			if(spawn == 0) {
-				spawn = rand() % 3;
-
-				switch(spawn) {
-					case 0:
-						gs->enemies.emplace_back(new BasicEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_red_sprite));
-						break;
-					case 1:
-						gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite));
-						break;
-					case 2:
-						gs->enemies.emplace_back(new BasicEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_blue_sprite));
-						break;
-					default:
-						gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite));
-				}
-			}
-			else {
-				spawn = rand() % 3;
-
-				switch(spawn) {
-					case 0:
-						gs->enemies.emplace_back(new MeleeEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_red_sprite));
-						break;
-					case 1:
-						gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite));
-						break;
-					case 2:
-						gs->enemies.emplace_back(new MeleeEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_blue_sprite));
-						break;
-					default:
-						gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite));
-				}
-			}
-		}
+		spawn_enemies();
 
 		//Put all items into the item set
 		RayTracing *rt = new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite, gs);
@@ -232,11 +234,11 @@ GameMode::GameMode() {
 		gs->item_set.emplace(pnp);
 
 		Multithreading *multi_threading = new Multithreading(gs->player, glm::vec2(0.0f, 0.0f), &multithreading_sprite, gs);
-		multi_threading->set_ui_sprite(&p_np_sprite_ui); //TODO: Set this to the right thing
+		multi_threading->set_ui_sprite(&multithreading_sprite_ui);
 		gs->item_set.emplace(multi_threading);
 
 		SphereIntersection *sphere = new SphereIntersection(gs->player, glm::vec2(0.0f, 0.0f), &sphere_intersection_sprite, gs);
-		sphere->set_ui_sprite(&p_np_sprite_ui); //TODO: Set this to the right thing
+		sphere->set_ui_sprite(&sphere_intersection_sprite_ui); 
 		gs->item_set.emplace(sphere);
 
 		RNG *rng = new RNG(gs->player, glm::vec2(0.0f, 0.0f), &rng_sprite, gs);
@@ -264,6 +266,7 @@ GameMode::GameMode() {
 		// gs->items.emplace_back(new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite));
 		// gs->items.emplace_back(new Multithreading(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
 		// gs->items.emplace_back(new P_NP(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
+		// gs->items.emplace_back(new SphereIntersection(gs->player, glm::vec2(0.f), &sphere_intersection_sprite,gs));
 	}
 }
 
@@ -499,45 +502,7 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				GameState *prev = gs;
 				gs = new GameState(gs->difficulty_level + 1);
 				delete prev;
-				for (glm::ivec2 pos : gs->dg->monsterPositions)
-				{
-					int spawn = rand() % 2;
-
-					if(spawn == 0) {
-						spawn = rand() % 3;
-
-						switch(spawn) {
-							case 0:
-								gs->enemies.emplace_back(new BasicEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_red_sprite));
-								break;
-							case 1:
-								gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite));
-								break;
-							case 2:
-								gs->enemies.emplace_back(new BasicEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_blue_sprite));
-								break;
-							default:
-								gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite));
-						}
-					}
-					else {
-						spawn = rand() % 3;
-
-						switch(spawn) {
-							case 0:
-								gs->enemies.emplace_back(new MeleeEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_red_sprite));
-								break;
-							case 1:
-								gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite));
-								break;
-							case 2:
-								gs->enemies.emplace_back(new MeleeEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_blue_sprite));
-								break;
-							default:
-								gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite));
-						}
-					}
-				}
+				spawn_enemies();
 			}
 			for(auto e : gs->enemies) {
 				float dist_x = abs(e->get_pos().x - pos.x);
@@ -622,6 +587,15 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 				continue;
 			}
+		}
+		//update explosion times
+		for (auto it = gs->explosions.begin(); it != gs->explosions.end();) {
+			static float explosion_time = *(bullet_sprites->sprites.at("aoe_bullet_hit").durations.rbegin());
+			it->elapsed += elapsed;
+			if(it->elapsed >= explosion_time) {
+				it = gs->explosions.erase(it);
+			}
+			else it++;
 		}
 	}
 	if(gs->player->did_shoot)
@@ -710,7 +684,7 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	}
 
 	{ //Room locking updates
-		if (gs->active_room == NULL)
+		if (gs->active_room == nullptr)
 		{
 			for (size_t i = 0; i < gs->dg->rooms.size(); i++)
 			{
@@ -763,6 +737,18 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	}
 	
 	//cout <<gs->player->get_pos().x << " " << gs->player->get_pos().y << endl;
+
+	int enemies_in_room = 0;
+	for(auto e : gs->enemies) {
+		if(gs->active_room != nullptr && gs->active_room->is_inside(e->get_pos())) {
+			enemies_in_room = 1;
+			break;
+		}
+	}
+
+	if(enemies_in_room == 0) {
+		elapsed *= 2.0f;
+	}
 
 	gs->player->update(elapsed, gs->dg->map);
 	// player_sprite.transform.displacement = gs->player->get_pos();
@@ -929,7 +915,11 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 				b->get_width(), b->get_width()
 		);
 		float rotation = b->get_vel() == glm::vec2(0.f) ? 0.f : atan2f(b->get_vel().y, b->get_vel().x);
-		draw_sprite(p_bullet, bullet_disp, bullet_size, rotation, glm::u8vec4(255,255,255,255));
+		draw_sprite(e_bullet, bullet_disp, bullet_size, rotation, glm::u8vec4(255,255,255,255));
+	}
+
+	for(BulletExplosion explosion : gs->explosions) {
+		explosion.draw(gs->player->get_pos(), vertices);
 	}
 	bullet_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	
@@ -954,17 +944,13 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	}
 	item_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 
+
+	
+
 	int player_hp_bar = (int)gs->player->get_hp();
 	for (int i = 0; i < player_hp_bar; i++) {
 		draw_rectangle(glm::vec2(-(i) * 8.0f + 16.0f, -48.0f), glm::vec2(8.0f, 2.0f), HEX_TO_U8VEC4(0xde6564ff));
 	}
-
-	if (uiWindow != NULL)
-	{
-		printf("Item should be dispalyed!\n");
-		draw_sprite(*uiWindow, gs->player->get_pos(), glm::vec2(64.f, 64.f), 0, glm::u8vec4(255, 255, 255, 255));
-	}
-
 
 	#undef HEX_TO_U8VEC4
 
@@ -973,15 +959,15 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	//---- actual drawing ----
 
 	// //use alpha blending:
-	// glEnable(GL_BLEND);
-	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// //don't use the depth test:
-	// glDisable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
 
 	// // //upload vertices to vertex_buffer:
-	// glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer); //set vertex_buffer as current
-	// glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STREAM_DRAW); //upload vertices array
-	// glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer); //set vertex_buffer as current
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STREAM_DRAW); //upload vertices array
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//set color_texture_program as current program:
 	glUseProgram(color_texture_program.program);
@@ -990,23 +976,29 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	glUniformMatrix4fv(color_texture_program.OBJECT_TO_CLIP_mat4, 1, GL_FALSE, glm::value_ptr(court_to_clip));
 
 	// //use the mapping vertex_buffer_for_color_texture_program to fetch vertex data:
-	// glBindVertexArray(vertex_buffer_for_color_texture_program);
+	glBindVertexArray(vertex_buffer_for_color_texture_program);
 
 	// //bind the solid white texture to location zero so things will be drawn just with their colors:
-	// glActiveTexture(GL_TEXTURE0);
-	// glBindTexture(GL_TEXTURE_2D, white_tex);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, white_tex);
 
 	// // //run the OpenGL pipeline:
-	// glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
+	glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
 
 	// //unbind the solid white texture:
-	// glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// //reset vertex array to none:
-	// glBindVertexArray(0);
+	glBindVertexArray(0);
 
 	//reset current program to none:
 	glUseProgram(0);
+
+	if (uiWindow != NULL)
+	{
+		draw_sprite(*uiWindow, gs->player->get_pos() - glm::vec2(0.f, 150.f), glm::vec2(320.f, 320.f), 0, glm::u8vec4(255, 255, 255, 255));
+	}
+	ui_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	
 
 	GL_ERRORS(); //PARANOIA: print errors just in case we did something wrong.

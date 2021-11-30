@@ -1,5 +1,6 @@
 #include "GameState.hpp"
 #include "Items.hpp"
+#include "Enemy.hpp"
 
 GameState::GameState(size_t difficulty_level) {
 	// initializing player and dungeon
