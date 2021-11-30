@@ -23,6 +23,9 @@
 #include "Multithreading.hpp"
 #include "SphereIntersection.hpp"
 #include "RNG.hpp"
+#include "RubberDucky.hpp"
+#include "Debugger.hpp"
+#include "ThermalPaste.hpp"
 
 #include "DungeonGenerator.hpp"
 

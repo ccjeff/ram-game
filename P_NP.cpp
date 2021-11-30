@@ -4,5 +4,7 @@ P_NP::P_NP(std::shared_ptr<Player> player, glm::vec2 pos, Sprite* sprite, GameSt
     : Items(player, pos, sprite, gs) {};
 
 void P_NP::on_shoot(Bullet *b) {
-    b->set_damage(b->get_damage() + 1.0f);
+	b->get_rgb().emplace(RGB::Red);
+	b->get_rgb().emplace(RGB::Green);
+	b->get_rgb().emplace(RGB::Blue);
 }
