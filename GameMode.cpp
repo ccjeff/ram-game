@@ -822,11 +822,11 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 		}
 		tile_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	}
-	glm::vec2 player_size = glm::vec2(
-		gs->player->get_vel().x < 0 ? 
-				-1.0f * gs->player->get_width() : 
-				gs->player->get_width(), gs->player->get_width()
-	);
+	// glm::vec2 player_size = glm::vec2(
+	// 	gs->player->get_vel().x < 0 ? 
+	// 			-1.0f * gs->player->get_width() : 
+	// 			gs->player->get_width(), gs->player->get_width()
+	// );
 	// draw_sprite(player_sprite, gs->player->get_pos(), player_size, 0, glm::u8vec4(255,255,255,255));
 	gs->player->draw(vertices);
 	player_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
