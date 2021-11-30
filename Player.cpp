@@ -65,7 +65,6 @@ void Player::on_hit(float damage) {
 	this->hp -= damage;
 	if(hp <= 0) {
 		//TODO: pull this into a reset function
-
 		cout << "Player died" << endl;
 		this->position = glm::vec2(0, 0);
 		this->velocity = glm::vec2(0, 0);
