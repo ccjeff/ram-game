@@ -81,3 +81,46 @@ float Player::get_hp() {
 void Player::add_hp(float hp) {
 	this->hp += hp;
 }
+
+void Player::update_status(float elapsed, PlayerStatus new_status) {
+    if((status == IDLE && new_status != IDLE) || new_status == SHOOTING) anim_time_remaining = 0.f;
+    anim_time_remaining -= elapsed;
+    static float run_duration = *(player_sprites->sprites.at("run").durations.rbegin());
+    if(anim_time_remaining <= 0.f) {
+        float anim_duration = 0.f;
+        if(new_status == IDLE)
+            anim_duration = *(player_sprites->sprites.at("idle").durations.rbegin());
+        if(new_status == RUNNING)
+            anim_duration = *(player_sprites->sprites.at("run").durations.rbegin());
+        if(new_status == SHOOTING)
+            anim_duration = *(player_sprites->sprites.at("shoot").durations.rbegin());
+        anim_time_remaining += ceilf(-anim_time_remaining / anim_duration) * anim_duration;
+        status = new_status;
+    }
+    else if (status == RUNNING && anim_time_remaining <= run_duration / 2.f && new_status != RUNNING) {
+        anim_time_remaining -= run_duration / 2.f;
+        update_status(0.f, new_status);
+    }
+}
+
+void Player::draw(std::vector<Vertex> &vertices) {
+    Animation anim;
+    if(status == IDLE) {
+        anim = player_sprites->sprites.at("idle");
+    }
+    if(status == RUNNING) {
+        anim = player_sprites->sprites.at("run");
+        face_right = (velocity.x >= 0);
+    }
+    if (status == SHOOTING) {
+        anim = player_sprites->sprites.at("shoot");
+    }
+    float elapsed = *(anim.durations.rbegin()) - anim_time_remaining;
+    anim.draw(elapsed,
+            position,
+            position,
+            glm::vec2(face_right ? width : -width, width),
+            0.f,
+            glm::u8vec4(255,255,255,255),
+            vertices);
+}
