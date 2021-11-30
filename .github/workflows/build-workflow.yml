@@ -110,11 +110,6 @@ jobs:
           cd ..
           wget https://github.com/15-466/nest-libs/releases/download/${NEST_LIBS_VERSION}/nest-libs-macos-${NEST_LIBS_VERSION}.tar.gz -Onest-libs.tar.gz
           tar xfz nest-libs.tar.gz
-      - name: Set up Clang
-        uses: egor-tensin/setup-clang@v1
-        with:
-          version: 13.0.0
-          platform: x64
       - name: Build Code
         shell: bash
         run: |
