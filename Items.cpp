@@ -23,3 +23,13 @@ float Items::get_width() {
 Sprite* Items::get_sprite() {
 	return this->sprite;
 }
+
+void Items::set_ui_sprite(Sprite* sprite)
+{
+	ui_sprite = sprite;
+}
+
+Sprite* Items::get_ui_sprite()
+{
+	return ui_sprite;
+}
