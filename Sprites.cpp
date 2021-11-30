@@ -83,6 +83,7 @@ Load <SpriteMap> item_sprites(LoadTagDefault, [](){ return load_func("items.png"
 Load <SpriteMap> player_sprites(LoadTagDefault, [](){ return load_func("player.png", "player.info"); });
 Load <SpriteMap> enemy_sprites(LoadTagDefault, [](){ return load_func("enemies_gray.png", "enemies.info"); });
 Load <SpriteMap> bullet_sprites(LoadTagDefault, [](){ return load_func("bullets.png", "bullets.info"); });
+Load <SpriteMap> ui_sprites(LoadTagDefault, [](){ return load_func("ui.png", "ui.info"); });
 
 void SpriteMap::vbuffer_to_GL(
         std::vector<Vertex> &vertices,

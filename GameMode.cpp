@@ -115,6 +115,17 @@ GameMode::GameMode() {
 	thermal_paste_sprite = Sprite(*item_sprites, "thermalpaste");
 	door_locked_sprite = Sprite(*tile_sprites, "door_locked");
 	door_unlocked_sprite = Sprite(*tile_sprites, "door_unlocked");
+
+	r_learning_sprite_ui = Sprite(*ui_sprites, "r_learning");
+	ray_tracing_sprite_ui = Sprite(*ui_sprites, "ray_tracing");
+	dijkstra_sprite_ui = Sprite(*ui_sprites, "dijkstra");
+	p_np_sprite_ui = Sprite(*ui_sprites, "pnp");
+	//multithreading_sprite_ui = Sprite(*ui_sprites, "multithreading");
+	//sphere_intersection_sprite_ui = Sprite(*ui_sprites, "sphereintersection");
+	rng_sprite_ui = Sprite(*ui_sprites, "rng");
+	rubber_ducky_sprite_ui = Sprite(*ui_sprites, "rubberducky");
+	debugger_sprite_ui = Sprite(*ui_sprites, "debugger");
+	thermal_paste_sprite_ui = Sprite(*ui_sprites, "thermalpaste");
     
 
 	floorTiles.clear();
@@ -204,17 +215,45 @@ GameMode::GameMode() {
 		}
 
 		//Put all items into the item set
-		gs->item_set.emplace(new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite, gs));
-		gs->item_set.emplace(new ReinforcementLearning(gs->player, glm::vec2(0.0f, 0.0f), &r_learning_sprite, gs));
-		gs->item_set.emplace(new Dijkstra(gs->player, glm::vec2(0.0f, 0.0f), &dijkstra_sprite, gs));
-		gs->item_set.emplace(new P_NP(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
-		gs->item_set.emplace(new Multithreading(gs->player, glm::vec2(0.0f, 0.0f), &multithreading_sprite, gs));
+		RayTracing *rt = new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite, gs);
+		rt->set_ui_sprite(&ray_tracing_sprite_ui);
+		gs->item_set.emplace(rt);
 
-		gs->item_set.emplace(new SphereIntersection(gs->player, glm::vec2(0.0f, 0.0f), &sphere_intersection_sprite, gs));
-		gs->item_set.emplace(new RNG(gs->player, glm::vec2(0.0f, 0.0f), &rng_sprite, gs));
-		gs->item_set.emplace(new RubberDucky(gs->player, glm::vec2(0.0f, 0.0f), &rubber_ducky_sprite, gs));
-		gs->item_set.emplace(new Debugger(gs->player, glm::vec2(0.0f, 0.0f), &debugger_sprite, gs));
-		gs->item_set.emplace(new ThermalPaste(gs->player, glm::vec2(0.0f, 0.0f), &thermal_paste_sprite, gs));
+		ReinforcementLearning *rl = new ReinforcementLearning(gs->player, glm::vec2(0.0f, 0.0f), &r_learning_sprite, gs);
+		rl->set_ui_sprite(&r_learning_sprite_ui);
+		gs->item_set.emplace(rl);
+
+		Dijkstra *dijkstra = new Dijkstra(gs->player, glm::vec2(0.0f, 0.0f), &dijkstra_sprite, gs);
+		dijkstra->set_ui_sprite(&dijkstra_sprite_ui);
+		gs->item_set.emplace(dijkstra);
+
+		P_NP *pnp = new P_NP(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs);
+		pnp->set_ui_sprite(&p_np_sprite_ui);
+		gs->item_set.emplace(pnp);
+
+		Multithreading *multi_threading = new Multithreading(gs->player, glm::vec2(0.0f, 0.0f), &multithreading_sprite, gs);
+		multi_threading->set_ui_sprite(&p_np_sprite_ui); //TODO: Set this to the right thing
+		gs->item_set.emplace(multi_threading);
+
+		SphereIntersection *sphere = new SphereIntersection(gs->player, glm::vec2(0.0f, 0.0f), &sphere_intersection_sprite, gs);
+		sphere->set_ui_sprite(&p_np_sprite_ui); //TODO: Set this to the right thing
+		gs->item_set.emplace(sphere);
+
+		RNG *rng = new RNG(gs->player, glm::vec2(0.0f, 0.0f), &rng_sprite, gs);
+		rng->set_ui_sprite(&rng_sprite_ui);
+		gs->item_set.emplace(rng);
+
+		RubberDucky *ducky = new RubberDucky(gs->player, glm::vec2(0.0f, 0.0f), &rubber_ducky_sprite, gs);
+		ducky->set_ui_sprite(&rubber_ducky_sprite_ui);
+		gs->item_set.emplace(ducky);
+
+		Debugger *debugger = new Debugger(gs->player, glm::vec2(0.0f, 0.0f), &debugger_sprite, gs);
+		debugger->set_ui_sprite(&debugger_sprite_ui);
+		gs->item_set.emplace(debugger);
+
+		ThermalPaste *thermalpaste = new ThermalPaste(gs->player, glm::vec2(0.0f, 0.0f), &thermal_paste_sprite, gs);
+		thermalpaste->set_ui_sprite(&thermal_paste_sprite_ui);
+		gs->item_set.emplace(thermalpaste);
 
 		gs->num_items = (int)gs->item_set.size();
 	}
@@ -245,6 +284,13 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 	this->window_size = window_size;
 	gs->player->did_shoot = false;
 	if(evt.type == SDL_MOUSEBUTTONDOWN) {
+
+		//Hide UI window if shown
+		if (uiWindow != NULL)
+		{
+			uiWindow = NULL;
+		}
+
 		if (shoot_cd < 0.2) return true;
 		int currentTile = gs->dg->map.ValueAtWorld(gs->player->get_pos().x, gs->player->get_pos().y);
 		if (currentTile == doorNum || currentTile == closedNum) return true;
@@ -380,6 +426,7 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 
 			if(dist_x < gs->player->get_width() && dist_y < gs->player->get_width()) {
 				gs->items.emplace_back(gs->items_on_ground[i]);
+				uiWindow = gs->items_on_ground[i]->get_ui_sprite();
 
 				//DO NOT delete here because the ptr is reused
 				deleted++;
@@ -911,7 +958,18 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	for (int i = 0; i < player_hp_bar; i++) {
 		draw_rectangle(glm::vec2(-(i) * 8.0f + 16.0f, -48.0f), glm::vec2(8.0f, 2.0f), HEX_TO_U8VEC4(0xde6564ff));
 	}
+
+	if (uiWindow != NULL)
+	{
+		printf("Item should be dispalyed!\n");
+		draw_sprite(*uiWindow, gs->player->get_pos(), glm::vec2(64.f, 64.f), 0, glm::u8vec4(255, 255, 255, 255));
+	}
+
+
 	#undef HEX_TO_U8VEC4
+
+
+
 	//---- actual drawing ----
 
 	// //use alpha blending:

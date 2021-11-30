@@ -25,6 +25,8 @@ public:
 	void set_pos(glm::vec2 pos);
 	float get_width();
 	Sprite* get_sprite();
+	void set_ui_sprite(Sprite* sprite);
+	Sprite* get_ui_sprite();
 
 protected:
 	glm::vec2 pos;
@@ -32,4 +34,5 @@ protected:
 	std::shared_ptr<Player> player;
 	GameState* gs;
 	Sprite* sprite;
+	Sprite* ui_sprite;
 };

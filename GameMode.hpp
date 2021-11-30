@@ -41,6 +41,8 @@ struct GameMode : Mode {
 
 	glm::vec2 window_size;
 
+	Sprite* uiWindow = NULL;
+
 	GameState* gs;
 
 	Sprite floor_sprite,
@@ -66,6 +68,19 @@ struct GameMode : Mode {
 		rubber_ducky_sprite,
 		debugger_sprite,
 		thermal_paste_sprite;
+
+	Sprite r_learning_sprite_ui,
+		ray_tracing_sprite_ui,
+		dijkstra_sprite_ui,
+		p_np_sprite_ui,
+		rng_sprite_ui,
+		multithreading_sprite_ui,
+		sphere_intersection_sprite_ui,
+		door_locked_sprite_ui,
+		door_unlocked_sprite_ui,
+		rubber_ducky_sprite_ui,
+		debugger_sprite_ui,
+		thermal_paste_sprite_ui;
 
 	std::vector<Sprite> floorTiles;
 	

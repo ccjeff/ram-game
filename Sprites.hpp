@@ -85,3 +85,4 @@ extern Load<SpriteMap> item_sprites;
 extern Load<SpriteMap> player_sprites;
 extern Load<SpriteMap> enemy_sprites;
 extern Load<SpriteMap> bullet_sprites;
+extern Load<SpriteMap> ui_sprites;
