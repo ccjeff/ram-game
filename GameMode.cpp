@@ -120,8 +120,8 @@ GameMode::GameMode() {
 	ray_tracing_sprite_ui = Sprite(*ui_sprites, "ray_tracing");
 	dijkstra_sprite_ui = Sprite(*ui_sprites, "dijkstra");
 	p_np_sprite_ui = Sprite(*ui_sprites, "pnp");
-	//multithreading_sprite_ui = Sprite(*ui_sprites, "multithreading");
-	//sphere_intersection_sprite_ui = Sprite(*ui_sprites, "sphereintersection");
+	multithreading_sprite_ui = Sprite(*ui_sprites, "multithreading");
+	sphere_intersection_sprite_ui = Sprite(*ui_sprites, "sphereintersection");
 	rng_sprite_ui = Sprite(*ui_sprites, "rng");
 	rubber_ducky_sprite_ui = Sprite(*ui_sprites, "rubberducky");
 	debugger_sprite_ui = Sprite(*ui_sprites, "debugger");
@@ -232,11 +232,11 @@ GameMode::GameMode() {
 		gs->item_set.emplace(pnp);
 
 		Multithreading *multi_threading = new Multithreading(gs->player, glm::vec2(0.0f, 0.0f), &multithreading_sprite, gs);
-		multi_threading->set_ui_sprite(&p_np_sprite_ui); //TODO: Set this to the right thing
+		multi_threading->set_ui_sprite(&multithreading_sprite_ui);
 		gs->item_set.emplace(multi_threading);
 
 		SphereIntersection *sphere = new SphereIntersection(gs->player, glm::vec2(0.0f, 0.0f), &sphere_intersection_sprite, gs);
-		sphere->set_ui_sprite(&p_np_sprite_ui); //TODO: Set this to the right thing
+		sphere->set_ui_sprite(&sphere_intersection_sprite_ui); 
 		gs->item_set.emplace(sphere);
 
 		RNG *rng = new RNG(gs->player, glm::vec2(0.0f, 0.0f), &rng_sprite, gs);
@@ -954,17 +954,13 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	}
 	item_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 
+
+	
+
 	int player_hp_bar = (int)gs->player->get_hp();
 	for (int i = 0; i < player_hp_bar; i++) {
 		draw_rectangle(glm::vec2(-(i) * 8.0f + 16.0f, -48.0f), glm::vec2(8.0f, 2.0f), HEX_TO_U8VEC4(0xde6564ff));
 	}
-
-	if (uiWindow != NULL)
-	{
-		printf("Item should be dispalyed!\n");
-		draw_sprite(*uiWindow, gs->player->get_pos(), glm::vec2(64.f, 64.f), 0, glm::u8vec4(255, 255, 255, 255));
-	}
-
 
 	#undef HEX_TO_U8VEC4
 
@@ -973,15 +969,15 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	//---- actual drawing ----
 
 	// //use alpha blending:
-	// glEnable(GL_BLEND);
-	// glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	// //don't use the depth test:
-	// glDisable(GL_DEPTH_TEST);
+	 glEnable(GL_BLEND);
+	 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	 //don't use the depth test:
+	 glDisable(GL_DEPTH_TEST);
 
-	// // //upload vertices to vertex_buffer:
-	// glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer); //set vertex_buffer as current
-	// glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STREAM_DRAW); //upload vertices array
-	// glBindBuffer(GL_ARRAY_BUFFER, 0);
+	//upload vertices to vertex_buffer:
+	glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer); //set vertex_buffer as current
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STREAM_DRAW); //upload vertices array
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	//set color_texture_program as current program:
 	glUseProgram(color_texture_program.program);
@@ -990,23 +986,29 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	glUniformMatrix4fv(color_texture_program.OBJECT_TO_CLIP_mat4, 1, GL_FALSE, glm::value_ptr(court_to_clip));
 
 	// //use the mapping vertex_buffer_for_color_texture_program to fetch vertex data:
-	// glBindVertexArray(vertex_buffer_for_color_texture_program);
+	glBindVertexArray(vertex_buffer_for_color_texture_program);
 
 	// //bind the solid white texture to location zero so things will be drawn just with their colors:
-	// glActiveTexture(GL_TEXTURE0);
-	// glBindTexture(GL_TEXTURE_2D, white_tex);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, white_tex);
 
 	// // //run the OpenGL pipeline:
-	// glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
+	glDrawArrays(GL_TRIANGLES, 0, GLsizei(vertices.size()));
 
 	// //unbind the solid white texture:
-	// glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	// //reset vertex array to none:
-	// glBindVertexArray(0);
+	glBindVertexArray(0);
 
 	//reset current program to none:
 	glUseProgram(0);
+
+	if (uiWindow != NULL)
+	{
+		draw_sprite(*uiWindow, gs->player->get_pos() - glm::vec2(0.f, 150.f), glm::vec2(320.f, 320.f), 0, glm::u8vec4(255, 255, 255, 255));
+	}
+	ui_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	
 
 	GL_ERRORS(); //PARANOIA: print errors just in case we did something wrong.
