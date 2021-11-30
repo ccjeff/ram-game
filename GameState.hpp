@@ -7,7 +7,6 @@
 #include "Player.hpp"
 
 //Enemies
-#include "Enemy.hpp"
 #include "BasicEnemyRed.hpp"
 #include "BasicEnemyGreen.hpp"
 #include "BasicEnemyBlue.hpp"
@@ -31,6 +30,8 @@
 
 class Items;
 
+class Enemy;
+
 class GameState {
 public:
 	GameState(size_t difficulty_level);
@@ -42,6 +43,7 @@ public:
 	size_t difficulty_level = 1;
 
 	std::vector<Bullet*> bullets;
+	std::vector<BulletExplosion> explosions;
 
 	std::vector<Bullet*> enemy_bullets;
 	std::vector<Enemy*> enemies;
@@ -50,7 +52,7 @@ public:
 
 	std::set<Items*> item_set;
 	int num_items;
-	
+
 	std::vector<Items*> items;
 	std::vector<Items*> items_on_ground;
 };

@@ -1,9 +1,10 @@
 #include "BasicEnemyRed.hpp"
+#include "GameState.hpp"
 
 using namespace std;
 
-BasicEnemyRed::BasicEnemyRed(glm::vec2 position, glm::vec2 velocity, Sprite* s)
-		: Enemy(position, velocity, s) {
+BasicEnemyRed::BasicEnemyRed(glm::vec2 position, glm::vec2 velocity, Sprite* s, GameState* gs)
+		: Enemy(position, velocity, s, gs) {
 		this->time_step = float((rand() % 1000)) / 200.0f;
 		this->hp = 3.0f;
 		this->color = glm::u8vec4(255,100,100,255);
@@ -33,7 +34,6 @@ void BasicEnemyRed::move(float elapsed, const glm::vec2 &player_pos, Map &map) {
 	}
 	//std::cout << "BasicEnemyRed::move" << this->position.x << "&" << this->position.y << std::endl;
 }
-
 
 Bullet* BasicEnemyRed::do_attack(const glm::vec2 &player_pos) {
 	if(time_step > 5.0f) {
