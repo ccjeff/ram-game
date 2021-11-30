@@ -69,6 +69,7 @@ struct Sprite {
         GLuint vertex_buffer);
 };
 
+//NEW
 extern Load<SpriteMap> tile_sprites;
 extern Load<SpriteMap> item_sprites;
 extern Load<SpriteMap> player_sprites;
