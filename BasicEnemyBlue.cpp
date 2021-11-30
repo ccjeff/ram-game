@@ -1,9 +1,10 @@
 #include "BasicEnemyBlue.hpp"
+#include "GameState.hpp"
 
 using namespace std;
 
-BasicEnemyBlue::BasicEnemyBlue(glm::vec2 position, glm::vec2 velocity, Sprite* s)
-		: Enemy(position, velocity, s) {
+BasicEnemyBlue::BasicEnemyBlue(glm::vec2 position, glm::vec2 velocity, Sprite* s, GameState* gs)
+		: Enemy(position, velocity, s, gs) {
 		this->time_step = float((rand() % 1000)) / 200.0f;
 		this->hp = 3.0f;
 		this->color = glm::u8vec4(0,100,200,255);

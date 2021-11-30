@@ -7,12 +7,14 @@
 
 #include <iostream>
 
+class GameState;
+
 class Enemy {
 public:
     virtual ~Enemy() = default;
 
-    Enemy(glm::vec2 position, glm::vec2 velocity, Sprite *s)
-		: position(position), velocity(velocity), s(s){};
+    Enemy(glm::vec2 position, glm::vec2 velocity, Sprite *s, GameState* gs)
+		: position(position), velocity(velocity), s(s), gs(gs) {};
 
     virtual void update(float elapsed) {};
     virtual void move(float elapsed, const glm::vec2 &player_pos, Map &map) {};
@@ -40,6 +42,7 @@ protected:
     glm::u8vec4 color = glm::u8vec4(255,255,255,255);
     float speed_val = 40.0f;
     Sprite* s;
+	GameState* gs;
 
 	//For determining enemy actions
 	float time_step;

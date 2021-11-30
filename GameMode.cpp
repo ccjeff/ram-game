@@ -26,6 +26,47 @@ Load< Sound::Sample > load_walk(LoadTagDefault, []() -> Sound::Sample const * {
 	return new Sound::Sample(data_path("walk.wav"));
 });
 
+void GameMode::spawn_enemies() {
+	for (glm::ivec2 pos : gs->dg->monsterPositions) {
+		int spawn = rand() % 2;
+
+		if(spawn == 0) {
+			spawn = rand() % 3;
+
+			switch(spawn) {
+				case 0:
+					gs->enemies.emplace_back(new BasicEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_red_sprite, gs));
+					break;
+				case 1:
+					gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite, gs));
+					break;
+				case 2:
+					gs->enemies.emplace_back(new BasicEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_blue_sprite, gs));
+					break;
+				default:
+					gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite, gs));
+			}
+		}
+		else {
+			spawn = rand() % 3;
+
+			switch(spawn) {
+				case 0:
+					gs->enemies.emplace_back(new MeleeEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_red_sprite, gs));
+					break;
+				case 1:
+					gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite, gs));
+					break;
+				case 2:
+					gs->enemies.emplace_back(new MeleeEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_blue_sprite, gs));
+					break;
+				default:
+					gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite, gs));
+			}
+		}
+	}
+}
+
 GameMode::GameMode() {
 	// Room r1 = Room(0, 0, 12, 10);
 	// Room r2 = Room(15, 9, 1, 1);
@@ -162,46 +203,7 @@ GameMode::GameMode() {
 	//Game initialization
 	{
 		gs = new GameState(1);
-
-		for (glm::ivec2 pos : gs->dg->monsterPositions)
-		{
-			int spawn = rand() % 2;
-
-			if(spawn == 0) {
-				spawn = rand() % 3;
-
-				switch(spawn) {
-					case 0:
-						gs->enemies.emplace_back(new BasicEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_red_sprite));
-						break;
-					case 1:
-						gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite));
-						break;
-					case 2:
-						gs->enemies.emplace_back(new BasicEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_blue_sprite));
-						break;
-					default:
-						gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite));
-				}
-			}
-			else {
-				spawn = rand() % 3;
-
-				switch(spawn) {
-					case 0:
-						gs->enemies.emplace_back(new MeleeEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_red_sprite));
-						break;
-					case 1:
-						gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite));
-						break;
-					case 2:
-						gs->enemies.emplace_back(new MeleeEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_blue_sprite));
-						break;
-					default:
-						gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite));
-				}
-			}
-		}
+		spawn_enemies();
 
 		//Put all items into the item set
 		gs->item_set.emplace(new RayTracing(gs->player, glm::vec2(0.0f, 0.0f), &ray_tracing_sprite, gs));
@@ -437,45 +439,7 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 				GameState *prev = gs;
 				gs = new GameState(gs->difficulty_level + 1);
 				delete prev;
-				for (glm::ivec2 pos : gs->dg->monsterPositions)
-				{
-					int spawn = rand() % 2;
-
-					if(spawn == 0) {
-						spawn = rand() % 3;
-
-						switch(spawn) {
-							case 0:
-								gs->enemies.emplace_back(new BasicEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_red_sprite));
-								break;
-							case 1:
-								gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite));
-								break;
-							case 2:
-								gs->enemies.emplace_back(new BasicEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_blue_sprite));
-								break;
-							default:
-								gs->enemies.emplace_back(new BasicEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &basic_enemy_green_sprite));
-						}
-					}
-					else {
-						spawn = rand() % 3;
-
-						switch(spawn) {
-							case 0:
-								gs->enemies.emplace_back(new MeleeEnemyRed(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_red_sprite));
-								break;
-							case 1:
-								gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite));
-								break;
-							case 2:
-								gs->enemies.emplace_back(new MeleeEnemyBlue(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_blue_sprite));
-								break;
-							default:
-								gs->enemies.emplace_back(new MeleeEnemyGreen(gs->dg->map.GetWorldCoord(pos), glm::vec2(0.0f, 0.0f), &melee_enemy_green_sprite));
-						}
-					}
-				}
+				spawn_enemies();
 			}
 			for(auto e : gs->enemies) {
 				float dist_x = abs(e->get_pos().x - pos.x);
@@ -648,7 +612,7 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	}
 
 	{ //Room locking updates
-		if (gs->active_room == NULL)
+		if (gs->active_room == nullptr)
 		{
 			for (size_t i = 0; i < gs->dg->rooms.size(); i++)
 			{
@@ -701,6 +665,18 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	}
 	
 	//cout <<gs->player->get_pos().x << " " << gs->player->get_pos().y << endl;
+
+	int enemies_in_room = 0;
+	for(auto e : gs->enemies) {
+		if(gs->active_room != nullptr && gs->active_room->is_inside(e->get_pos())) {
+			enemies_in_room = 1;
+			break;
+		}
+	}
+
+	if(enemies_in_room == 0) {
+		elapsed *= 2.0f;
+	}
 
 	gs->player->update(elapsed, gs->dg->map);
 	// player_sprite.transform.displacement = gs->player->get_pos();
