@@ -110,6 +110,7 @@ jobs:
           cd ..
           wget https://github.com/15-466/nest-libs/releases/download/${NEST_LIBS_VERSION}/nest-libs-macos-${NEST_LIBS_VERSION}.tar.gz -Onest-libs.tar.gz
           tar xfz nest-libs.tar.gz
+          $(brew --prefix llvm)/bin/clang
       - name: Build Code
         shell: bash
         run: |
