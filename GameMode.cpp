@@ -270,6 +270,10 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				down.downs += 1;
 				down.pressed = true;
 				return true;
+			} else if (evt.key.keysym.sym == SDLK_SPACE) {
+				space.downs += 1;
+				space.pressed = true;
+				return true;
 			}
 		} else if (evt.type == SDL_KEYUP) {
 			if (evt.key.keysym.sym == SDLK_a) {
@@ -283,6 +287,9 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				return true;
 			} else if (evt.key.keysym.sym == SDLK_s) {
 				down.pressed = false;
+				return true;
+			} else if (evt.key.keysym.sym == SDLK_SPACE) {
+				space.pressed = false;
 				return true;
 			}
 		}
@@ -338,7 +345,15 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 		player_vel.y += PLAYER_SPEED;
 		player_vel.y = std::min(player_vel.y, PLAYER_MAX_SPEED);
 	}
-
+	if (space.pressed) {
+		if (gs->player->dash_cd >= 10.0f) {
+			std::cout << "dashed\n";
+			gs->player->update(elapsed * 10, gs->dg->map);
+			gs->player->dash_cd = 0.0f;
+			return;
+		}
+	}
+	gs->player->dash_cd += elapsed;
 	//Item pickups
 	{
 		int deleted = 0;
