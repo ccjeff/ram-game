@@ -365,334 +365,359 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 }
 
 void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
-	for(auto item : gs->items) {
-		item->preupdate();
-	}
 
-	shoot_cd += elapsed;
-	glm::vec2 player_vel = gs->player->get_vel();
-	if (left.pressed && !right.pressed) {
-		if (walk_sound_cd >= 0.25f) {
-			walk_sound = Sound::play(*load_walk, 0.25f, 0.0f);
-			walk_sound_cd = 0.0f;
-		}
-		walk_sound_cd += elapsed;
-		player_vel.x -= PLAYER_SPEED;
-		player_vel.x = std::max(player_vel.x, -PLAYER_MAX_SPEED);
-	}
-	if (!left.pressed && right.pressed) {
-		if (walk_sound_cd >= 0.25f) {
-			walk_sound = Sound::play(*load_walk, 0.25f, 0.0f);
-			walk_sound_cd = 0.0f;
-		}
-		walk_sound_cd += elapsed;
-		player_vel.x += PLAYER_SPEED;
-		player_vel.x = std::min(player_vel.x, PLAYER_MAX_SPEED);
-	}
-	if (down.pressed && !up.pressed) {
-		if (walk_sound_cd >= 0.25f && !left.pressed && !right.pressed) {
-			walk_sound = Sound::play(*load_walk, 0.25f, 0.0f);
-			walk_sound_cd = 0.0f;
-		}
-		if (!left.pressed && !right.pressed) {
-			walk_sound_cd += elapsed;
-		}
-		player_vel.y -= PLAYER_SPEED;
-		player_vel.y = std::max(player_vel.y, -PLAYER_MAX_SPEED);
-	}
-	if (!down.pressed && up.pressed) {
-		if (walk_sound_cd >= 0.25f && !left.pressed && !right.pressed) {
-			walk_sound = Sound::play(*load_walk, 0.25f, 0.0f);
-			walk_sound_cd = 0.0f;
-		}
-		if (!left.pressed && !right.pressed) {
-			walk_sound_cd += elapsed;
-		}
-		player_vel.y += PLAYER_SPEED;
-		player_vel.y = std::min(player_vel.y, PLAYER_MAX_SPEED);
-	}
-	if (space.pressed) {
-		if (gs->player->dash_cd >= 10.0f) {
-			std::cout << "dashed\n";
-			gs->player->update(elapsed * 10, gs->dg->map);
-			gs->player->dash_cd = 0.0f;
-			return;
-		}
-	}
-	gs->player->dash_cd += elapsed;
-	//Item pickups
+	if (uiWindow == NULL)
 	{
-		int deleted = 0;
-		for(size_t i = 0; i < gs->items_on_ground.size(); i++) {
-			float dist_x = abs(gs->items_on_ground[i]->get_pos().x - gs->player->get_pos().x);
-			float dist_y = abs(gs->items_on_ground[i]->get_pos().y - gs->player->get_pos().y);
 
-			if(dist_x < gs->player->get_width() && dist_y < gs->player->get_width()) {
-				gs->items.emplace_back(gs->items_on_ground[i]);
-				uiWindow = gs->items_on_ground[i]->get_ui_sprite();
-
-				//DO NOT delete here because the ptr is reused
-				deleted++;
-				gs->items_on_ground.erase(gs->items_on_ground.begin() + (i--));
-
-				continue;
-			}
-			
+		for (auto item : gs->items) {
+			item->preupdate();
 		}
-	}
 
-	//gs->player bullet updates
-	{
-		int deleted = 0;
-		for(size_t i = 0; i < gs->bullets.size(); i++) {
-			glm::vec2 old_pos = gs->bullets[i]->get_pos();
-			if (gs->bullets[i]->get_auto_aim() == false) {
-				gs->bullets[i]->update_pos(elapsed * 500.0f);
-			} else {
-				glm::vec2 dir = glm::normalize(gs->bullets[i]->get_pos() - gs->bullets[i]->get_autoaim_target()->get_pos());
-				gs->bullets[i]->set_vel(-dir);
-				gs->bullets[i]->update_pos(elapsed * 500.0f);
+		shoot_cd += elapsed;
+		glm::vec2 player_vel = gs->player->get_vel();
+		if (left.pressed && !right.pressed) {
+			if (walk_sound_cd >= 0.25f) {
+				walk_sound = Sound::play(*load_walk, 0.25f, 0.0f);
+				walk_sound_cd = 0.0f;
 			}
+			walk_sound_cd += elapsed;
+			player_vel.x -= PLAYER_SPEED;
+			player_vel.x = std::max(player_vel.x, -PLAYER_MAX_SPEED);
+		}
+		if (!left.pressed && right.pressed) {
+			if (walk_sound_cd >= 0.25f) {
+				walk_sound = Sound::play(*load_walk, 0.25f, 0.0f);
+				walk_sound_cd = 0.0f;
+			}
+			walk_sound_cd += elapsed;
+			player_vel.x += PLAYER_SPEED;
+			player_vel.x = std::min(player_vel.x, PLAYER_MAX_SPEED);
+		}
+		if (down.pressed && !up.pressed) {
+			if (walk_sound_cd >= 0.25f && !left.pressed && !right.pressed) {
+				walk_sound = Sound::play(*load_walk, 0.25f, 0.0f);
+				walk_sound_cd = 0.0f;
+			}
+			if (!left.pressed && !right.pressed) {
+				walk_sound_cd += elapsed;
+			}
+			player_vel.y -= PLAYER_SPEED;
+			player_vel.y = std::max(player_vel.y, -PLAYER_MAX_SPEED);
+		}
+		if (!down.pressed && up.pressed) {
+			if (walk_sound_cd >= 0.25f && !left.pressed && !right.pressed) {
+				walk_sound = Sound::play(*load_walk, 0.25f, 0.0f);
+				walk_sound_cd = 0.0f;
+			}
+			if (!left.pressed && !right.pressed) {
+				walk_sound_cd += elapsed;
+			}
+			player_vel.y += PLAYER_SPEED;
+			player_vel.y = std::min(player_vel.y, PLAYER_MAX_SPEED);
+		}
+		if (space.pressed) {
+			if (gs->player->dash_cd >= 10.0f) {
+				std::cout << "dashed\n";
+				gs->player->update(elapsed * 10, gs->dg->map);
+				gs->player->dash_cd = 0.0f;
+				return;
+			}
+		}
+		gs->player->dash_cd += elapsed;
+		//Item pickups
+		{
+			int deleted = 0;
+			for (size_t i = 0; i < gs->items_on_ground.size(); i++) {
+				float dist_x = abs(gs->items_on_ground[i]->get_pos().x - gs->player->get_pos().x);
+				float dist_y = abs(gs->items_on_ground[i]->get_pos().y - gs->player->get_pos().y);
 
-			glm::vec2 pos = gs->bullets[i]->get_pos();
-			
-			if (gs->dg->map.BulletCollides(pos.x, pos.y)
-				|| gs->dg->map.BulletCollides(old_pos.x, pos.y)
-				|| gs->dg->map.BulletCollides(pos.x, old_pos.y)) {
+				if (dist_x < gs->player->get_width() && dist_y < gs->player->get_width()) {
+					gs->items.emplace_back(gs->items_on_ground[i]);
+					uiWindow = gs->items_on_ground[i]->get_ui_sprite();
 
-				//Bounce the bullet if there are bounces left
-				if(gs->bullets[i]->get_bounces() >= 1) {
-					glm::vec2 tile_pos = pos / gs->dg->map.scalingFactor;
-					float diffx = tile_pos.x - floor(tile_pos.x);
-					float diffy = tile_pos.y - floor(tile_pos.y);
-					float absdiffx = min(diffx, 1.f - diffx);
-					float absdiffy = min(diffy, 1.f - diffy);
-					glm::vec2 bvel = gs->bullets[i]->get_vel();
-					if(absdiffx < absdiffy) {// bounce bullet with x
-						gs->bullets[i]->set_vel(glm::vec2(-bvel.x, bvel.y));
-					}
-					else {//bounce bullet with y
-						gs->bullets[i]->set_vel(glm::vec2(bvel.x, -bvel.y));
-					}
-					gs->bullets[i]->set_bounces(gs->bullets[i]->get_bounces() - 1);
-					gs->bullets[i]->update_pos(elapsed * 500.0f);
+					//DO NOT delete here because the ptr is reused
+					deleted++;
+					gs->items_on_ground.erase(gs->items_on_ground.begin() + (i--));
+
 					continue;
 				}
-				
-				for(auto item : gs->items) {
-					item->on_bullet_destroyed(gs->bullets[i]);
+
+			}
+		}
+
+		//gs->player bullet updates
+		{
+			int deleted = 0;
+			for (size_t i = 0; i < gs->bullets.size(); i++) {
+				glm::vec2 old_pos = gs->bullets[i]->get_pos();
+				if (gs->bullets[i]->get_auto_aim() == false) {
+					gs->bullets[i]->update_pos(elapsed * 500.0f);
+				}
+				else {
+					glm::vec2 dir = glm::normalize(gs->bullets[i]->get_pos() - gs->bullets[i]->get_autoaim_target()->get_pos());
+					gs->bullets[i]->set_vel(-dir);
+					gs->bullets[i]->update_pos(elapsed * 500.0f);
 				}
 
-				deleted++;
-				delete gs->bullets[i];
-				gs->bullets.erase(gs->bullets.begin() + (i--));
+				glm::vec2 pos = gs->bullets[i]->get_pos();
 
-				continue;
-			}
+				if (gs->dg->map.BulletCollides(pos.x, pos.y)
+					|| gs->dg->map.BulletCollides(old_pos.x, pos.y)
+					|| gs->dg->map.BulletCollides(pos.x, old_pos.y)) {
 
-			float dist_player_x = abs(gs->player->get_pos().x - pos.x);
-			float dist_player_y = abs(gs->player->get_pos().y - pos.y);
-
-			//Enemy got hit
-			bool enemy_hit = false;
-
-			if (gs->enemies.size() == 0) {
-				//TODO: add win screen
-				std::cout << "start generation again\n";
-				GameState *prev = gs;
-				gs = new GameState(gs->difficulty_level + 1);
-				delete prev;
-				spawn_enemies();
-			}
-			for(auto e : gs->enemies) {
-				float dist_x = abs(e->get_pos().x - pos.x);
-				float dist_y = abs(e->get_pos().y - pos.y);
-
-				if(dist_x < e->get_width()/2.0f && dist_y < e->get_width()/2.0f) {
-					//std::cout << "Enemy was hit by a bullet" << std::endl;
-					e->on_hit(gs->bullets[i]);
-					enemy_hit = true;
-
-					for(auto item : gs->items) {
-						item->on_dealt_damage();
+					//Bounce the bullet if there are bounces left
+					if (gs->bullets[i]->get_bounces() >= 1) {
+						glm::vec2 tile_pos = pos / gs->dg->map.scalingFactor;
+						float diffx = tile_pos.x - floor(tile_pos.x);
+						float diffy = tile_pos.y - floor(tile_pos.y);
+						float absdiffx = min(diffx, 1.f - diffx);
+						float absdiffy = min(diffy, 1.f - diffy);
+						glm::vec2 bvel = gs->bullets[i]->get_vel();
+						if (absdiffx < absdiffy) {// bounce bullet with x
+							gs->bullets[i]->set_vel(glm::vec2(-bvel.x, bvel.y));
+						}
+						else {//bounce bullet with y
+							gs->bullets[i]->set_vel(glm::vec2(bvel.x, -bvel.y));
+						}
+						gs->bullets[i]->set_bounces(gs->bullets[i]->get_bounces() - 1);
+						gs->bullets[i]->update_pos(elapsed * 500.0f);
+						continue;
 					}
 
-					break;
+					for (auto item : gs->items) {
+						item->on_bullet_destroyed(gs->bullets[i]);
+					}
+
+					deleted++;
+					delete gs->bullets[i];
+					gs->bullets.erase(gs->bullets.begin() + (i--));
+
+					continue;
+				}
+
+				float dist_player_x = abs(gs->player->get_pos().x - pos.x);
+				float dist_player_y = abs(gs->player->get_pos().y - pos.y);
+
+				//Enemy got hit
+				bool enemy_hit = false;
+
+				if (gs->enemies.size() == 0) {
+					//TODO: add win screen
+					std::cout << "start generation again\n";
+					GameState* prev = gs;
+					gs = new GameState(gs->difficulty_level + 1);
+					delete prev;
+					spawn_enemies();
+				}
+				for (auto e : gs->enemies) {
+					float dist_x = abs(e->get_pos().x - pos.x);
+					float dist_y = abs(e->get_pos().y - pos.y);
+
+					if (dist_x < e->get_width() / 2.0f && dist_y < e->get_width() / 2.0f) {
+						//std::cout << "Enemy was hit by a bullet" << std::endl;
+						e->on_hit(gs->bullets[i]);
+						enemy_hit = true;
+
+						for (auto item : gs->items) {
+							item->on_dealt_damage();
+						}
+
+						break;
+					}
+				}
+
+				//An enemy was hit, destroy the bullet, check enemy hp, and continue
+				if (enemy_hit) {
+					int enemies_deleted = 0;
+					for (size_t i = 0; i < gs->enemies.size(); i++) {
+
+						//If enemy died
+						if (gs->enemies[i]->get_hp() <= 0.0f) {
+							for (auto item : gs->items) {
+								item->on_kill();
+							}
+
+							//Drop item with rng
+							int drop = rand() % (3 * (gs->num_items - (int(gs->item_set.size() - 1))));
+							cout << drop << endl;
+							if (gs->item_set.size() > 0 && drop == 0) {
+								drop = rand() % gs->item_set.size();
+
+								auto it = gs->item_set.begin();
+								for (int i = 0; i < drop; i++)	it++;
+
+								gs->items_on_ground.emplace_back(*it);
+								gs->items_on_ground.back()->set_pos(gs->enemies[i]->get_pos());
+								gs->item_set.erase(it);
+								cout << "dropped item from index " << drop << " " << gs->items_on_ground.size() << endl;
+							}
+
+							//Remove auto aim if this enemy dies or else bullets will be stuck in place
+							for (auto b : gs->bullets) {
+								if (b->get_autoaim_target() == gs->enemies[i]) {
+									b->set_autoaim_target(nullptr);
+									b->set_auto_aim(false);
+								}
+							}
+
+							enemies_deleted++;
+							delete gs->enemies[i];
+							gs->enemies.erase(gs->enemies.begin() + (i--));
+						}
+					}
+
+					for (auto item : gs->items) {
+						item->on_bullet_destroyed(gs->bullets[i]);
+					}
+
+					deleted++;
+					delete gs->bullets[i];
+					gs->bullets.erase(gs->bullets.begin() + (i--));
+
+					continue;
+				}
+
+				if (dist_player_x > drawable_size.x
+					|| dist_player_y > drawable_size.y) {
+					//cout << "del " << i << " " << gs->bullets.size() - deleted << endl;
+					for (auto item : gs->items) {
+						item->on_bullet_destroyed(gs->bullets[i]);
+					}
+
+					deleted++;
+					delete gs->bullets[i];
+					gs->bullets.erase(gs->bullets.begin() + (i--));
+
+
+
+					continue;
 				}
 			}
+			//update explosion times
+			for (auto it = gs->explosions.begin(); it != gs->explosions.end();) {
+				static float explosion_time = *(bullet_sprites->sprites.at("aoe_bullet_hit").durations.rbegin());
+				it->elapsed += elapsed;
+				if (it->elapsed >= explosion_time) {
+					it = gs->explosions.erase(it);
+				}
+				else it++;
+			}
+		}
+		if (gs->player->did_shoot)
+			gs->player->update_status(elapsed, Player::SHOOTING);
+		if (glm::length(player_vel) > eps)
+			gs->player->update_status(elapsed, Player::RUNNING);
+		else
+			gs->player->update_status(elapsed, Player::IDLE);
+		gs->player->set_vel(player_vel);
 
-			//An enemy was hit, destroy the bullet, check enemy hp, and continue
-			if(enemy_hit) {
-				int enemies_deleted = 0;
-				for(size_t i = 0; i < gs->enemies.size(); i++) {
+		//Enemy bullet updates
+		{
+			int deleted = 0;
+			for (size_t i = 0; i < gs->enemy_bullets.size(); i++) {
+				glm::vec2 old_pos = gs->enemy_bullets[i]->get_pos();
+				gs->enemy_bullets[i]->update_pos(elapsed * 500.0f);
+				glm::vec2 pos = gs->enemy_bullets[i]->get_pos();
 
-					//If enemy died
-					if(gs->enemies[i]->get_hp() <= 0.0f) {
-						for(auto item : gs->items) {
-							item->on_kill();
+				if (gs->dg->map.BulletCollides(pos.x, pos.y)
+					|| gs->dg->map.BulletCollides(old_pos.x, pos.y)
+					|| gs->dg->map.BulletCollides(pos.x, old_pos.y)) {
+					deleted++;
+					delete gs->enemy_bullets[i];
+					gs->enemy_bullets.erase(gs->enemy_bullets.begin() + (i--));
+					continue;
+				}
+
+				//cout << pos.x << " " << pos.y << endl;
+
+				float dist_x = abs(gs->player->get_pos().x - pos.x);
+				float dist_y = abs(gs->player->get_pos().y - pos.y);
+
+				//gs->player got hit
+				if (dist_x < gs->player->get_width() / 2.0f && dist_y < gs->player->get_width() / 2.0f) {
+					gs->player->on_hit(gs->enemy_bullets[i]->get_damage());
+
+					deleted++;
+					delete gs->enemy_bullets[i];
+					gs->enemy_bullets.erase(gs->enemy_bullets.begin() + (i--));
+
+					//gs->player death
+					//TODO: pull this out to a method and add other fancy stuff like remove gs->items
+					if (gs->player->get_hp() <= 0) {
+						glm::vec2 pos = gs->dg->map.GetWorldCoord(gs->dg->player_start);
+						gs->player->set_pos(pos);
+						gs->player->add_hp(5.0f);
+						if (gs->active_room != nullptr) {
+							gs->active_room->UnlockRoom();
 						}
+						return;
+					}
 
-						//Drop item with rng
-						int drop = rand() % (3 * (gs->num_items - (int(gs->item_set.size() - 1)) ));
-						cout << drop << endl;
-						if(gs->item_set.size() > 0 && drop == 0) {
-							drop = rand() % gs->item_set.size();
+					for (auto item : gs->items) {
+						item->on_recv_damage();
+					}
 
-							auto it = gs->item_set.begin();
-							for(int i = 0; i < drop; i++)	it++;
+					continue;
+				}
 
-							gs->items_on_ground.emplace_back(*it);
-							gs->items_on_ground.back()->set_pos(gs->enemies[i]->get_pos());
-							gs->item_set.erase(it);
-							cout << "dropped item from index " << drop << " " << gs->items_on_ground.size() << endl;
-						}
+				if (dist_x > drawable_size.x
+					|| dist_y > drawable_size.y) {
+					//cout << "del " << i << " " << gs->bullets.size() - deleted << endl;
 
-						//Remove auto aim if this enemy dies or else bullets will be stuck in place
-						for(auto b : gs->bullets) {
-							if(b->get_autoaim_target() == gs->enemies[i]) {
-								b->set_autoaim_target(nullptr);
-								b->set_auto_aim(false);
+					deleted++;
+					delete gs->enemy_bullets[i];
+					gs->enemy_bullets.erase(gs->enemy_bullets.begin() + (i--));
+
+					continue;
+				}
+			}
+		}
+
+		//Ask gs->enemies to attack after to give players more advantage
+		for (auto e : gs->enemies) {
+			if (gs->active_room != NULL)
+			{
+				if (!gs->active_room->is_inside(e->get_pos())) continue;
+				e->update(elapsed);
+				e->move(elapsed, gs->player->get_pos(), gs->dg->map);
+				Bullet* b = e->do_attack(gs->player->get_pos());
+				if (b != nullptr) {
+					//cout << "enemy attack D: " << endl;
+					gs->enemy_bullets.emplace_back(b);
+				}
+			}
+		}
+
+		{ //Room locking updates
+			if (gs->active_room == nullptr)
+			{
+				for (size_t i = 0; i < gs->dg->rooms.size(); i++)
+				{
+					if (gs->dg->rooms[i].is_inside(gs->player->get_pos()))
+					{
+						gs->active_room = &gs->dg->rooms[i];
+						gs->active_room->SetMap(&gs->dg->map);
+						gs->active_room->LockRoom();
+						bool valid = true;
+						for (auto e : gs->enemies) {
+							if (gs->active_room->is_inside(e->get_pos()))
+							{
+								valid = false;
+								break;
 							}
 						}
-
-						enemies_deleted++;
-						delete gs->enemies[i];
-						gs->enemies.erase(gs->enemies.begin() + (i--));
+						if (valid)
+						{
+							gs->active_room->UnlockRoom();
+						}
+						break;
 					}
 				}
-
-				for(auto item : gs->items) {
-					item->on_bullet_destroyed(gs->bullets[i]);
-				}
-
-				deleted++;
-				delete gs->bullets[i];
-				gs->bullets.erase(gs->bullets.begin() + (i--));
-
-				continue;
 			}
-			
-			if(dist_player_x > drawable_size.x
-				|| dist_player_y > drawable_size.y) {
-				//cout << "del " << i << " " << gs->bullets.size() - deleted << endl;
-				for(auto item : gs->items) {
-					item->on_bullet_destroyed(gs->bullets[i]);
-				}
-
-				deleted++;
-				delete gs->bullets[i];
-				gs->bullets.erase(gs->bullets.begin() + (i--));
-
-
-
-				continue;
-			}
-		}
-		//update explosion times
-		for (auto it = gs->explosions.begin(); it != gs->explosions.end();) {
-			static float explosion_time = *(bullet_sprites->sprites.at("aoe_bullet_hit").durations.rbegin());
-			it->elapsed += elapsed;
-			if(it->elapsed >= explosion_time) {
-				it = gs->explosions.erase(it);
-			}
-			else it++;
-		}
-	}
-	if(gs->player->did_shoot)
-		gs->player->update_status(elapsed, Player::SHOOTING);
-	if(glm::length(player_vel) > eps)
-		gs->player->update_status(elapsed, Player::RUNNING);
-	else
-		gs->player->update_status(elapsed, Player::IDLE);
-	gs->player->set_vel(player_vel);
-	
-	//Enemy bullet updates
-	{
-		int deleted = 0;
-		for(size_t i = 0; i < gs->enemy_bullets.size(); i++) {
-			glm::vec2 old_pos = gs->enemy_bullets[i]->get_pos();
-			gs->enemy_bullets[i]->update_pos(elapsed * 500.0f);
-			glm::vec2 pos = gs->enemy_bullets[i]->get_pos();
-
-			if (gs->dg->map.BulletCollides(pos.x, pos.y)
-				|| gs->dg->map.BulletCollides(old_pos.x, pos.y)
-				|| gs->dg->map.BulletCollides(pos.x, old_pos.y)) {
-				deleted++;
-				delete gs->enemy_bullets[i];
-				gs->enemy_bullets.erase(gs->enemy_bullets.begin() + (i--));
-				continue;
-			}
-			
-			//cout << pos.x << " " << pos.y << endl;
-
-			float dist_x = abs(gs->player->get_pos().x - pos.x);
-			float dist_y = abs(gs->player->get_pos().y - pos.y);
-
-			//gs->player got hit
-			if(dist_x < gs->player->get_width()/2.0f && dist_y < gs->player->get_width()/2.0f) {
-				gs->player->on_hit(gs->enemy_bullets[i]->get_damage());
-
-				deleted++;
-				delete gs->enemy_bullets[i];
-				gs->enemy_bullets.erase(gs->enemy_bullets.begin() + (i--));
-
-				//gs->player death
-				//TODO: pull this out to a method and add other fancy stuff like remove gs->items
-				if(gs->player->get_hp() <= 0) {
-					glm::vec2 pos = gs->dg->map.GetWorldCoord(gs->dg->player_start);
-					gs->player->set_pos(pos);
-					gs->player->add_hp(5.0f);
-					if(gs->active_room != nullptr){
-						gs->active_room->UnlockRoom();
-					}
-					return;
-				}
-
-				for(auto item : gs->items) {
-					item->on_recv_damage();
-				}
-
-				continue;
-			}
-			
-			if(dist_x > drawable_size.x
-				|| dist_y > drawable_size.y) {
-				//cout << "del " << i << " " << gs->bullets.size() - deleted << endl;
-				
-				deleted++;
-				delete gs->enemy_bullets[i];
-				gs->enemy_bullets.erase(gs->enemy_bullets.begin() + (i--));
-
-				continue;
-			}
-		}
-	}
-
-	//Ask gs->enemies to attack after to give players more advantage
-	for(auto e : gs->enemies) {
-		if (gs->active_room != NULL)
-		{
-			if (!gs->active_room->is_inside(e->get_pos())) continue;
-			e->update(elapsed);
-			e->move(elapsed, gs->player->get_pos(), gs->dg->map);
-			Bullet* b = e->do_attack(gs->player->get_pos());
-			if (b != nullptr) {
-				//cout << "enemy attack D: " << endl;
-				gs->enemy_bullets.emplace_back(b);
-			}
-		}
-	}
-
-	{ //Room locking updates
-		if (gs->active_room == nullptr)
-		{
-			for (size_t i = 0; i < gs->dg->rooms.size(); i++)
+			else
 			{
-				if (gs->dg->rooms[i].is_inside(gs->player->get_pos()))
+				if (gs->active_room->locked)
 				{
-					gs->active_room = &gs->dg->rooms[i];
-					gs->active_room->SetMap(&gs->dg->map);
-					gs->active_room->LockRoom();
 					bool valid = true;
 					for (auto e : gs->enemies) {
 						if (gs->active_room->is_inside(e->get_pos()))
@@ -705,59 +730,40 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 					{
 						gs->active_room->UnlockRoom();
 					}
-					break;
 				}
-			}
-		}
-		else
-		{
-			if (gs->active_room->locked)
-			{
-				bool valid = true;
-				for (auto e : gs->enemies) {
-					if (gs->active_room->is_inside(e->get_pos()))
+				else
+				{
+					if (!gs->active_room->is_inside(gs->player->get_pos()))
 					{
-						valid = false;
-						break;
+						gs->active_room = NULL;
 					}
 				}
-				if (valid)
-				{
-					gs->active_room->UnlockRoom();
-				}
-			}
-			else
-			{
-				if (!gs->active_room->is_inside(gs->player->get_pos()))
-				{			
-					gs->active_room = NULL;
-				}
 			}
 		}
-	}
-	
-	//cout <<gs->player->get_pos().x << " " << gs->player->get_pos().y << endl;
 
-	int enemies_in_room = 0;
-	for(auto e : gs->enemies) {
-		if(gs->active_room != nullptr && gs->active_room->is_inside(e->get_pos())) {
-			enemies_in_room = 1;
-			break;
+		//cout <<gs->player->get_pos().x << " " << gs->player->get_pos().y << endl;
+
+		int enemies_in_room = 0;
+		for (auto e : gs->enemies) {
+			if (gs->active_room != nullptr && gs->active_room->is_inside(e->get_pos())) {
+				enemies_in_room = 1;
+				break;
+			}
 		}
+
+		if (enemies_in_room == 0) {
+			elapsed *= 2.0f;
+		}
+
+		gs->player->update(elapsed, gs->dg->map);
+		// player_sprite.transform.displacement = gs->player->get_pos();
+
+		for (auto item : gs->items) {
+			item->postupdate();
+		}
+
+		//cout << gs->player->get_hp() << endl;
 	}
-
-	if(enemies_in_room == 0) {
-		elapsed *= 2.0f;
-	}
-
-	gs->player->update(elapsed, gs->dg->map);
-	// player_sprite.transform.displacement = gs->player->get_pos();
-
-	for(auto item : gs->items) {
-		item->postupdate();
-	}
-
-	//cout << gs->player->get_hp() << endl;
 }
 
 void GameMode::draw(glm::uvec2 const &drawable_size) {
@@ -997,6 +1003,7 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	{
 		draw_sprite(*uiWindow, gs->player->get_pos() - glm::vec2(0.f, 150.f), glm::vec2(320.f, 320.f), 0, glm::u8vec4(255, 255, 255, 255));
 	}
+
 	ui_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	
 
