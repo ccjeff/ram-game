@@ -996,6 +996,14 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	} else {
 		score_separate_digits = {(player_score / 100) % 10, (player_score / 10) % 10, player_score % 10};
 	}
+
+	if (uiWindow != NULL)
+	{
+		vertices.clear();
+		draw_sprite(*uiWindow, gs->player->get_pos() - glm::vec2(0.f, 150.f), glm::vec2(320.f, 320.f), 0, glm::u8vec4(255, 255, 255, 255));
+	}
+
+	ui_sprites->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
 	
 
 	if(isMainMenu){
