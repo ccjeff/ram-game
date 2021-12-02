@@ -125,6 +125,7 @@ if $(OS) = NT { #Windows
 #Store the names of all the .cpp files to build into a variable:
 GAME_NAMES =
 	GameMode
+	GP21IntroMode
 	main
 	data_path
 	load_save_png
