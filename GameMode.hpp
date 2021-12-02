@@ -86,7 +86,8 @@ struct GameMode : Mode {
 		door_unlocked_sprite_ui,
 		rubber_ducky_sprite_ui,
 		debugger_sprite_ui,
-		thermal_paste_sprite_ui;
+		thermal_paste_sprite_ui,
+		pause_sprite_ui;
 
 	std::vector<Sprite> floorTiles;
 	
@@ -96,6 +97,7 @@ struct GameMode : Mode {
 	std::shared_ptr<Sound::PlayingSample> walk_sound;
 	float walk_sound_cd = 0.0f;
 	float shoot_cd = 0.0f;
+	uint32_t player_score = 0;
 	//----- opengl assets / helpers ------
 
 

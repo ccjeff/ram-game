@@ -10,6 +10,7 @@
 #include <random>
 #include "DungeonGenerator.hpp"
 #include <cmath>
+#include <array>
 
 using namespace std;
 static constexpr float eps = 1.f;
@@ -169,6 +170,7 @@ GameMode::GameMode() {
 	thermal_paste_sprite_ui = Sprite(*ui_sprites, "thermalpaste");
 	main_menu_sprite = Sprite();
 	main_menu_sprite.tex_coords=TexRectangle(0.f,0.f,1.f,1.f);
+	pause_sprite_ui = Sprite(*ui_sprites, "pausescreen");
     
 
 	floorTiles.clear();
@@ -271,6 +273,8 @@ GameMode::GameMode() {
 		// gs->items.emplace_back(new P_NP(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
 		// gs->items.emplace_back(new SphereIntersection(gs->player, glm::vec2(0.f), &sphere_intersection_sprite,gs));
 	}
+
+	uiWindow = &pause_sprite_ui;
 }
 
 GameMode::~GameMode() {
@@ -351,6 +355,16 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				space.pressed = true;
 				return true;
 			}
+			else if (evt.key.keysym.sym == SDLK_ESCAPE) {
+				if (uiWindow == NULL)
+				{
+					uiWindow = &pause_sprite_ui;
+				}
+				else
+				{
+					uiWindow = NULL;
+				}
+			}
 		} else if (evt.type == SDL_KEYUP) {
 			if (evt.key.keysym.sym == SDLK_a) {
 				left.pressed = false;
@@ -384,6 +398,14 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	}
 	if (uiWindow == NULL && !isMainMenu)
 	{
+
+		//Odd fix that might work
+		/*if (gs->active_room != NULL) gs->active_room->SetMap(&gs->dg->map);
+		for (size_t i = 0; i < gs->dg->rooms.size(); i++)
+		{
+			gs->dg->rooms[i].SetMap(&gs->dg->map);
+		}*/
+
 
 		for (auto item : gs->items) {
 			item->preupdate();
@@ -552,7 +574,7 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 							for (auto item : gs->items) {
 								item->on_kill();
 							}
-
+							player_score += 1;
 							//Drop item with rng
 							int drop = rand() % (3 * (gs->num_items - (int(gs->item_set.size() - 1))));
 							cout << drop << endl;
@@ -967,6 +989,15 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 
 	#undef HEX_TO_U8VEC4
 
+	//seperate score digits reference: https://github.com/xuxiaoqiao/15-466-f20-base1/blob/HEAD/PlayMode.cpp used with modifications
+	std::array<uint32_t, 3> score_separate_digits;
+	if (player_score >= 1000) {
+		score_separate_digits = {9, 9, 9};
+	} else {
+		score_separate_digits = {(player_score / 100) % 10, (player_score / 10) % 10, player_score % 10};
+	}
+	
+
 	if(isMainMenu){
 		vertices.clear();
 		float mm_camera_scaling = fmaxf(drawable_size.x/640.f, drawable_size.y/480.f) / camera_scaling;
@@ -982,7 +1013,6 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 		if (MM_transition_elapsed >= 0.5)
 			draw_rectangle(-bar_centers, glm::vec2(640.f * 2.f * bar_length, 12.f) * mm_camera_scaling, glm::u8vec4(255,255,255,255));
 	}
-
 	//---- actual drawing ----
 
 	// //use alpha blending:
