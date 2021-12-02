@@ -43,6 +43,7 @@ SpriteMap* load_func(std::string png, std::string filename, GLint interpolation=
         std::cerr << "columns and rows have to be positive." << std::endl;
         assert(false);
     }
+    constexpr float tex_eps = 0.01f;
     for(size_t i = 0; i < num_anims; i++) {
         glm::vec2 sprite_center(0.f);
         glm::vec2 sprite_radius(0.f);
@@ -71,7 +72,7 @@ SpriteMap* load_func(std::string png, std::string filename, GLint interpolation=
             assert(sprite_location.x >= 0 && sprite_location.y >= 0);
             if (j != 0) 
                 current_sprite.durations[j] += current_sprite.durations[j-1];
-            current_sprite.anim[j] = TexRectangle(sprite_location.x / num_col, sprite_location.y / num_row, (sprite_location.x + 1) / num_col, (sprite_location.y + 1) / num_row);
+            current_sprite.anim[j] = TexRectangle((sprite_location.x + tex_eps) / num_col, (sprite_location.y + tex_eps) / num_row, (sprite_location.x + 1 - tex_eps) / num_col, (sprite_location.y + 1 - tex_eps) / num_row);
         }
     }
     data_in.close();

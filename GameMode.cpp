@@ -912,22 +912,14 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 
 	for(auto b : gs->bullets) {
 		glm::vec2 bullet_disp = b->get_pos();
-		glm::vec2 bullet_size = glm::vec2(
-			b->get_vel().x < 0 ? 
-				-1.0f * b->get_width() : 
-				b->get_width(), b->get_width()
-		);
+		glm::vec2 bullet_size = glm::vec2(b->get_width());
 		float rotation = b->get_vel() == glm::vec2(0.f) ? 0.f : atan2f(b->get_vel().y, b->get_vel().x);
 		draw_sprite(p_bullet, bullet_disp, bullet_size, rotation, glm::u8vec4(255,255,255,255));
 	}
 
 	for(auto b : gs->enemy_bullets) {
 		glm::vec2 bullet_disp = b->get_pos();
-		glm::vec2 bullet_size = glm::vec2(
-			b->get_vel().x < 0 ? 
-				-1.0f * b->get_width() : 
-				b->get_width(), b->get_width()
-		);
+		glm::vec2 bullet_size = glm::vec2(b->get_width());
 		float rotation = b->get_vel() == glm::vec2(0.f) ? 0.f : atan2f(b->get_vel().y, b->get_vel().x);
 		draw_sprite(e_bullet, bullet_disp, bullet_size, rotation, glm::u8vec4(255,255,255,255));
 	}
