@@ -3,6 +3,7 @@
 #include "DungeonGenerator.hpp"
 #include <algorithm>
 #include <iostream>
+#include <fstream>
 
 
 /*extern "C" {
@@ -564,41 +565,23 @@ void Room::UnlockRoom()
 //------------------Room template code-------------------------
 RoomTemplate::RoomTemplate(std::string path)
 {
-	std::string filepath = data_path("prefabs/" + path + ".txt");
-	FILE* input = fopen(filepath.c_str(), "r");
-	if (input != NULL)
-	{
-		if (fscanf(input, "%zu %zu\n", &this->width, &this->height) < 0) {
-			std::cout << "Error reading room template file: " << filepath << std::endl;
-			return;
-		}
-		layout = std::vector<std::vector<int>>(width, std::vector<int>(height, -1));
 
-		char val;
-		for (size_t y = 0; y < height; y++)
+	std::ifstream input(data_path("prefabs/" + path + ".txt"));
+
+	input >> this->width >> this->height;
+	layout = std::vector<std::vector<int>>(width, std::vector<int>(height, -1));
+
+	char val;
+	for (size_t y = 0; y < height; y++)
+	{
+		for (size_t x = 0; x < width; x++)
 		{
-			for (size_t x = 0; x < width; x++)
-			{
-				if (fscanf(input, "%c", &val) < 0)
-				{
-					std::cout << "Error reading file: " << filepath << std::endl;
-					return;
-				};
-				while (val == '\n')
-				{
-					if (fscanf(input, "%c", &val) < 0){
-						std::cout << "Error reading file: " << filepath << std::endl;
-						return;
-					}
-				}
-				layout[x][y] = atoi(&val);
-			}
+			input >> val;
+			//printf("Val is %c\n", val);
+			layout[x][y] = atoi(&val);
 		}
+	}
 
-		fclose(input);
-	}
-	else
-	{
-		//printf("Something went horribly wrong! File could not be opened\n");
-	}
+	input.close();
+
 }
