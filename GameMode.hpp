@@ -82,7 +82,8 @@ struct GameMode : Mode {
 		door_unlocked_sprite_ui,
 		rubber_ducky_sprite_ui,
 		debugger_sprite_ui,
-		thermal_paste_sprite_ui;
+		thermal_paste_sprite_ui,
+		pause_sprite_ui;
 
 	std::vector<Sprite> floorTiles;
 	
