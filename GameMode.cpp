@@ -10,6 +10,7 @@
 #include <random>
 #include "DungeonGenerator.hpp"
 #include <cmath>
+#include <array>
 
 using namespace std;
 static constexpr float eps = 1.f;
@@ -544,7 +545,7 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 							for (auto item : gs->items) {
 								item->on_kill();
 							}
-
+							player_score += 1;
 							//Drop item with rng
 							int drop = rand() % (3 * (gs->num_items - (int(gs->item_set.size() - 1))));
 							cout << drop << endl;
@@ -959,7 +960,14 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 
 	#undef HEX_TO_U8VEC4
 
-
+	//seperate score digits reference: https://github.com/xuxiaoqiao/15-466-f20-base1/blob/HEAD/PlayMode.cpp used with modifications
+	std::array<uint32_t, 3> score_separate_digits;
+	if (player_score >= 1000) {
+		score_separate_digits = {9, 9, 9};
+	} else {
+		score_separate_digits = {(player_score / 100) % 10, (player_score / 10) % 10, player_score % 10};
+	}
+	
 
 	//---- actual drawing ----
 

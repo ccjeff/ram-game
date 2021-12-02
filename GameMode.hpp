@@ -92,6 +92,7 @@ struct GameMode : Mode {
 	std::shared_ptr<Sound::PlayingSample> walk_sound;
 	float walk_sound_cd = 0.0f;
 	float shoot_cd = 0.0f;
+	uint32_t player_score = 0;
 	//----- opengl assets / helpers ------
 
 

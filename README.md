@@ -54,4 +54,7 @@ https://freesound.org/people/Leszek_Szary/sounds/146730/
 Font in item image
 https://www.1001fonts.com/shoomvertical-font.html
 
+-helper functions
+seperate score digits reference: https://github.com/xuxiaoqiao/15-466-f20-base1/blob/HEAD/PlayMode.cpp used with modifications
+
 This game was built with [NEST](NEST.md).
