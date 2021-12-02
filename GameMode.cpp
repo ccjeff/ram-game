@@ -1051,7 +1051,7 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	//reset current program to none:
 	glUseProgram(0);
 
-	if (uiWindow != NULL)
+	if (!isMainMenu && uiWindow != NULL)
 	{
 		draw_sprite(*uiWindow, gs->player->get_pos() - glm::vec2(0.f, 150.f), glm::vec2(320.f, 320.f), 0, glm::u8vec4(255, 255, 255, 255));
 	}
