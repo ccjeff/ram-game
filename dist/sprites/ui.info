@@ -1,4 +1,4 @@
-1000 3 4 10
+1000 3 4 11
 ray_tracing 500 500 250 250 1
 1 0 0.01
 r_learning 500 500 250 250 1
@@ -19,3 +19,5 @@ multithreading 500 500 250 250 1
 0 0 0.01
 sphereintersection 500 500 250 250 1
 0 1 0.01
+pausescreen 500 500 250 250 1
+0 2 0.01

@@ -168,6 +168,7 @@ GameMode::GameMode() {
 	rubber_ducky_sprite_ui = Sprite(*ui_sprites, "rubberducky");
 	debugger_sprite_ui = Sprite(*ui_sprites, "debugger");
 	thermal_paste_sprite_ui = Sprite(*ui_sprites, "thermalpaste");
+	pause_sprite_ui = Sprite(*ui_sprites, "pausescreen");
     
 
 	floorTiles.clear();
@@ -269,6 +270,8 @@ GameMode::GameMode() {
 		// gs->items.emplace_back(new P_NP(gs->player, glm::vec2(0.0f, 0.0f), &p_np_sprite, gs));
 		// gs->items.emplace_back(new SphereIntersection(gs->player, glm::vec2(0.f), &sphere_intersection_sprite,gs));
 	}
+
+	uiWindow = &pause_sprite_ui;
 }
 
 GameMode::~GameMode() {
@@ -341,6 +344,16 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 				space.downs += 1;
 				space.pressed = true;
 				return true;
+			}
+			else if (evt.key.keysym.sym == SDLK_ESCAPE) {
+				if (uiWindow == NULL)
+				{
+					uiWindow = &pause_sprite_ui;
+				}
+				else
+				{
+					uiWindow = NULL;
+				}
 			}
 		} else if (evt.type == SDL_KEYUP) {
 			if (evt.key.keysym.sym == SDLK_a) {

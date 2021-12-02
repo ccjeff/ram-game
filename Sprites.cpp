@@ -43,7 +43,7 @@ SpriteMap* load_func(std::string png, std::string filename, GLint interpolation=
         std::cerr << "columns and rows have to be positive." << std::endl;
         assert(false);
     }
-    constexpr float tex_eps = 0.01f;
+    constexpr float tex_eps = 0.0001f;
     for(size_t i = 0; i < num_anims; i++) {
         glm::vec2 sprite_center(0.f);
         glm::vec2 sprite_radius(0.f);
