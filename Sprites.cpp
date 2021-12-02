@@ -36,7 +36,7 @@ SpriteMap* load_func(std::string png, std::string filename, GLint interpolation=
     size_t sprite_size, num_row, num_col, num_anims;
     data_in >> sprite_size >> num_row >> num_col >> num_anims;
     if (num_row * sprite_size != size.y || num_col * sprite_size != size.x) {
-        std::cerr << "Issue with sprite layouts. : " << filename << std::endl;
+        std::cerr << "Issue with sprite layouts, file: " << filename << std::endl;
         assert(false);
     }
     if (num_row <= 0 || num_col <= 0){
@@ -85,6 +85,7 @@ Load <SpriteMap> player_sprites(LoadTagDefault, [](){ return load_func("player.p
 Load <SpriteMap> enemy_sprites(LoadTagDefault, [](){ return load_func("enemies_gray.png", "enemies.info"); });
 Load <SpriteMap> bullet_sprites(LoadTagDefault, [](){ return load_func("bullets.png", "bullets.info"); });
 Load <SpriteMap> ui_sprites(LoadTagDefault, [](){ return load_func("ui.png", "ui.info"); });
+Load <SpriteMap> main_menu_spritemap(LoadTagDefault, [](){ return load_func("mm_background.png", "mm_background.info", GL_LINEAR); });
 
 void SpriteMap::vbuffer_to_GL(
         std::vector<Vertex> &vertices,

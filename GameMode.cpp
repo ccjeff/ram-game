@@ -167,6 +167,8 @@ GameMode::GameMode() {
 	rubber_ducky_sprite_ui = Sprite(*ui_sprites, "rubberducky");
 	debugger_sprite_ui = Sprite(*ui_sprites, "debugger");
 	thermal_paste_sprite_ui = Sprite(*ui_sprites, "thermalpaste");
+	main_menu_sprite = Sprite();
+	main_menu_sprite.tex_coords=TexRectangle(0.f,0.f,1.f,1.f);
     
 
 	floorTiles.clear();
@@ -213,6 +215,7 @@ GameMode::GameMode() {
 	
 	//Game initialization
 	{
+		//TODO: set uiScreen to main menu sprite
 		gs = new GameState(1);
 		spawn_enemies();
 
@@ -287,6 +290,13 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 	this->window_size = window_size;
 	gs->player->did_shoot = false;
 	if(evt.type == SDL_MOUSEBUTTONDOWN) {
+		if(isMainMenu){
+			is_MM_transition=true;
+			return true;
+		}
+		if(is_MM_transition){
+			return true;
+		}
 
 		//Hide UI window if shown
 		if (uiWindow != NULL)
@@ -365,8 +375,14 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 }
 
 void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
-
-	if (uiWindow == NULL)
+	if (is_MM_transition){
+		MM_transition_elapsed += elapsed;
+		if(MM_transition_elapsed >= 1.0f){
+			isMainMenu = false;
+			is_MM_transition = false;
+		}
+	}
+	if (uiWindow == NULL && !isMainMenu)
 	{
 
 		for (auto item : gs->items) {
@@ -817,15 +833,15 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 	std::vector< Vertex > vertices;
 
 	//inline helper function for rectangle drawing:
-	auto draw_rectangle = [&vertices](glm::vec2 const &center, glm::vec2 const &radius, glm::u8vec4 const &color) {
+	auto draw_rectangle = [&vertices](glm::vec2 const &center, glm::vec2 const &radius, glm::u8vec4 const &color, TexRectangle tc={0.5f, 0.5f, 0.5f, 0.5f}) {
 		//draw rectangle as two CCW-oriented triangles:
-		vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-		vertices.emplace_back(glm::vec3(center.x+radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-		vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+		vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(tc.x0, tc.y0));
+		vertices.emplace_back(glm::vec3(center.x+radius.x, center.y-radius.y, 0.0f), color, glm::vec2(tc.x1, tc.y0));
+		vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(tc.x1, tc.y1));
 
-		vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-		vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
-		vertices.emplace_back(glm::vec3(center.x-radius.x, center.y+radius.y, 0.0f), color, glm::vec2(0.5f, 0.5f));
+		vertices.emplace_back(glm::vec3(center.x-radius.x, center.y-radius.y, 0.0f), color, glm::vec2(tc.x0, tc.y0));
+		vertices.emplace_back(glm::vec3(center.x+radius.x, center.y+radius.y, 0.0f), color, glm::vec2(tc.x1, tc.y1));
+		vertices.emplace_back(glm::vec3(center.x-radius.x, center.y+radius.y, 0.0f), color, glm::vec2(tc.x0, tc.y1));
 	};
 
 	glm::vec2 camera_center = gs->player->get_pos();
@@ -951,7 +967,21 @@ void GameMode::draw(glm::uvec2 const &drawable_size) {
 
 	#undef HEX_TO_U8VEC4
 
-
+	if(isMainMenu){
+		vertices.clear();
+		float mm_camera_scaling = fmaxf(drawable_size.x/640.f, drawable_size.y/480.f) / camera_scaling;
+		float rect_size = MM_transition_elapsed < 0.5f ? 0.5f : 1.f - MM_transition_elapsed;
+		glm::vec2 centers(0.f, 480.f * (1.f - rect_size) * mm_camera_scaling);
+		draw_rectangle(centers, glm::vec2(640.f, 480.f * rect_size) * mm_camera_scaling, glm::u8vec4(255,255,255,255), TexRectangle(0.f, 1.f - rect_size, 1.f, 1.f));
+		draw_rectangle(-centers, glm::vec2(640.f, 480.f * rect_size) * mm_camera_scaling, glm::u8vec4(255,255,255,255), TexRectangle(0.f, 0.f, 1.f, rect_size));
+		// draw_sprite(main_menu_sprite, gs->player->get_pos(), , 0);
+		main_menu_spritemap->vbuffer_to_GL(vertices, color_texture_program, vertex_buffer_for_color_texture_program, vertex_buffer);
+		float bar_length = MM_transition_elapsed > 0.25f ? 0.5f : MM_transition_elapsed * 2.f;
+		glm::vec2 bar_centers = glm::vec2(640.f - 1280.f * bar_length, 480.f) * mm_camera_scaling - 2.f * centers;
+		draw_rectangle(bar_centers, glm::vec2(640.f * 2.f * bar_length, 12.f) * mm_camera_scaling, glm::u8vec4(255,255,255,255));
+		if (MM_transition_elapsed >= 0.5)
+			draw_rectangle(-bar_centers, glm::vec2(640.f * 2.f * bar_length, 12.f) * mm_camera_scaling, glm::u8vec4(255,255,255,255));
+	}
 
 	//---- actual drawing ----
 

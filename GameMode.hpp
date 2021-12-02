@@ -43,6 +43,10 @@ struct GameMode : Mode {
 
 	glm::vec2 window_size;
 
+	Sprite main_menu_sprite;
+	bool isMainMenu = true;
+	bool is_MM_transition = false;
+	float MM_transition_elapsed = 0.f;
 	Sprite* uiWindow = NULL;
 
 	GameState* gs;

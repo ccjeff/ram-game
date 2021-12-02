@@ -20,10 +20,10 @@ struct Transform{
 struct TexRectangle{
     TexRectangle();
     TexRectangle(float _x0, float _y0, float _x1, float _y1);
-    float x0;
-    float y0;
-    float x1;
-    float y1;
+    float x0=0.f;
+    float y0=0.f;
+    float x1=1.f;
+    float y1=1.f;
 };
 
 struct Vertex {
@@ -86,3 +86,4 @@ extern Load<SpriteMap> player_sprites;
 extern Load<SpriteMap> enemy_sprites;
 extern Load<SpriteMap> bullet_sprites;
 extern Load<SpriteMap> ui_sprites;
+extern Load <SpriteMap> main_menu_spritemap;
