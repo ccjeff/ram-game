@@ -98,6 +98,7 @@ struct GameMode : Mode {
 	float walk_sound_cd = 0.0f;
 	float shoot_cd = 0.0f;
 	uint32_t player_score = 0;
+	bool startplay = true;
 	//----- opengl assets / helpers ------
 
 

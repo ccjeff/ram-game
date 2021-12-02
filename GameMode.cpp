@@ -185,7 +185,6 @@ GameMode::GameMode() {
 	floorTiles.emplace_back(Sprite(*tile_sprites, "h_decoration_2")); //8 - Horizontal Wall Dec 2
 	floorTiles.emplace_back(Sprite(*tile_sprites, "h_decoration_3")); //9 - Horizontal Wall Dec 3
 	
-	bgm = Sound::loop(*load_bgm, 0.5f, 0.0f);
 
 	{ //solid white texture:
 		//ask OpenGL to fill white_tex with the name of an unused texture object:
@@ -389,6 +388,10 @@ bool GameMode::handle_event(SDL_Event const &evt, glm::uvec2 const &window_size)
 }
 
 void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
+	if (startplay == true) {
+		bgm = Sound::loop(*load_bgm, 0.5f, 0.0f);
+		startplay = false;
+	}
 	if (is_MM_transition){
 		MM_transition_elapsed += elapsed;
 		if(MM_transition_elapsed >= 1.0f){
