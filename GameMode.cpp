@@ -369,6 +369,14 @@ void GameMode::update(float elapsed, glm::vec2 const &drawable_size) {
 	if (uiWindow == NULL)
 	{
 
+		//Odd fix that might work
+		/*if (gs->active_room != NULL) gs->active_room->SetMap(&gs->dg->map);
+		for (size_t i = 0; i < gs->dg->rooms.size(); i++)
+		{
+			gs->dg->rooms[i].SetMap(&gs->dg->map);
+		}*/
+
+
 		for (auto item : gs->items) {
 			item->preupdate();
 		}

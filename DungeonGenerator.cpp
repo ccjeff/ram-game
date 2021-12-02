@@ -106,8 +106,9 @@ bool DungeonGenerator::Generate(size_t numberOfRooms)
 
 	for (size_t i = 0; i < rooms.size(); i++)
 	{
+		rooms[i].SetMap(&map);
 		if (i == playerRoom) continue;
-		rooms[i].SetMap(&map); // WHY
+		
 		std::vector<glm::vec2> positions = rooms[i].CreatePositions(5);
 		for (size_t i = 0; i < positions.size(); i++)
 		{
